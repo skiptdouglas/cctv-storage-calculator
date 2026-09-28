@@ -3,6 +3,22 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.6.1 — 2026-09-28
+
+Security review.
+
+### Fixed
+- CSV export: cells starting with `=`, `+`, `-`, `@`, tab or CR are prefixed
+  with a quote so spreadsheets don't run them as formulas.
+- Bay diagram no longer loops over absurd disk counts.
+
+### Hardened
+- `dist/index.html` carries a Content Security Policy (no external scripts,
+  no network calls, no framing) and sends no referrer.
+- GitHub Actions pinned to commit SHAs; CI token limited to read; Dependabot
+  keeps the pins current.
+- Dev server pinned to `http-server@14.1.1`.
+
 ## 0.6.0 — 2026-09-28
 
 Fixes and additions from a review of the whole project.

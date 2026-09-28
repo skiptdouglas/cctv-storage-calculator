@@ -1110,12 +1110,14 @@
 
     function renderBays(a) {
       const MAX = 48
+      const total = a.dataDisks + a.parityDisks + a.spareDisks
       const cells = []
-      for (let i = 0; i < a.dataDisks; i++) cells.push('data')
-      for (let i = 0; i < a.parityDisks; i++) cells.push('parity')
-      for (let i = 0; i < a.spareDisks; i++) cells.push('spare')
-      const shown = cells.slice(0, MAX).map((c) => `<div class="bay ${c}" title="${c}"></div>`).join('')
-      const more = cells.length > MAX ? `<div class="bay-more">+${cells.length - MAX} more disks</div>` : ''
+      const push = (kind, n) => { for (let i = 0; i < n && cells.length < MAX; i++) cells.push(kind) }
+      push('data', a.dataDisks)
+      push('parity', a.parityDisks)
+      push('spare', a.spareDisks)
+      const shown = cells.map((c) => `<div class="bay ${c}" title="${c}"></div>`).join('')
+      const more = total > MAX ? `<div class="bay-more">+${fmt(total - MAX, 0)} more disks</div>` : ''
       $('bays').innerHTML = shown + more
       $('bays').setAttribute('aria-label',
         `${a.dataDisks} data, ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}, ${a.spareDisks} hot spare disks`)

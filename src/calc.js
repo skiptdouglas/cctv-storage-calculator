@@ -628,9 +628,12 @@
   }
 
   function formatCSV(groups, result) {
+    // Cells that start with = + - @ or a tab/CR would run as formulas when the
+    // CSV is opened in Excel or Sheets, so they are prefixed with a quote.
     const esc = (v) => {
-      const s = String(v ?? '')
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+      let s = String(v ?? '')
+      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`
+      return /[",\n\r\t]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
     }
     const head = [
       'Group', 'Qty', 'Resolution', 'Codec', 'Quality', 'FPS', 'Night FPS', 'Scene', 'Mode', 'Hours', 'Night IR', 'Audio',

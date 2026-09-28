@@ -344,3 +344,13 @@ test('blank quantity or frame rate raises a warning', () => {
   assert.ok(texts.some((t) => /Loading docks: frame rate is blank/.test(t)))
   assert.equal(C.calculateProject(project, groups).checks.filter((c) => /blank/.test(c.text)).length, 0)
 })
+
+test('CSV export neutralises spreadsheet formulas', () => {
+  const { project, groups } = C.exampleProject()
+  const gs = groups.map((g, i) => (i === 0 ? { ...g, name: '=HYPERLINK("http://x","click")' } : i === 1 ? { ...g, name: '-2+3' } : { ...g, name: 'Plain, name' }))
+  const r = C.calculateProject(project, gs)
+  const lines = C.formatCSV(gs, r).split('\n')
+  assert.ok(lines[1].startsWith(`"'=HYPERLINK(""http://x"",""click"")",`), lines[1])
+  assert.ok(lines[2].startsWith(`'-2+3,`), lines[2])
+  assert.ok(lines[3].startsWith(`"Plain, name",`), lines[3])
+})
