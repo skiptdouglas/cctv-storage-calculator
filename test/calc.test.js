@@ -74,6 +74,7 @@ test('checks flag unsafe designs', () => {
   const levels = (p) => C.calculateProject({ ...project, ...p }, groups).checks.map((c) => c.level)
 
   assert.ok(levels({ raid: 'jbod' }).includes('critical'))
+  assert.ok(!levels({ raid: 'jbod', evidential: false }).includes('critical'))
   assert.ok(levels({ raid: 'raid5' }).includes('warn'))
   assert.ok(levels({ headroom: 1.0 }).includes('warn'))
   assert.ok(levels({ recorderBays: 8 }).includes('critical'))
@@ -258,4 +259,29 @@ test('older projects get default method and compression ratios', () => {
   assert.equal(project.method, 'bitrate')
   assert.equal(project.compressionRatios.h264, 150)
   assert.equal(project.compressionRatios.h265, 200)
+})
+
+test('analog DVR resolutions: CIF, D1, 960H', () => {
+  const at = (resolution, codec = 'h264') => C.estimateBitrate({ resolution, codec, fps: 15, scene: 'medium' })
+  close(at('CIF'), 0.5)
+  close(at('D1'), 1)
+  close(at('960H'), 1.3)
+  close(at('960H', 'h265'), 0.65)
+  assert.equal(C.colorDepth('D1'), 16)
+  // 720 × 480 × 16 × 15 ÷ 100
+  close(C.rawCompressedMbps({ resolution: 'D1', codec: 'h264' }, 15), 0.829)
+  // 16 D1 cameras, 24/7, 30 days ≈ 5.18 TB raw
+  const r = C.calculateProject({ retentionDays: 30, headroom: 1.2, diskTB: 4, raid: 'raid6' }, [
+    { qty: 16, resolution: 'D1', codec: 'h264', fps: 15, scene: 'medium', mode: 'continuous' }
+  ])
+  close(r.totals.rawTB, 5.184)
+})
+
+test('no-RAID is critical for evidential footage, a warning otherwise', () => {
+  const { project, groups } = C.exampleProject()
+  const level = (p) => C.calculateProject({ ...project, raid: 'jbod', ...p }, groups).checks.find((c) => /No RAID/.test(c.text)).level
+  assert.equal(level({}), 'critical')
+  assert.equal(level({ evidential: true }), 'critical')
+  assert.equal(level({ evidential: false }), 'warn')
+  assert.equal(C.withDefaults({}, []).project.evidential, true)
 })

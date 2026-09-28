@@ -13,10 +13,13 @@
 
   // SOP §5 Step 2, Table 1 — H.264 planning bitrates in Mbps at 15 fps,
   // medium motion, medium quality. Other codecs scale by CODECS[].factor.
-  const BASE_H264_MBPS = { '1MP': 2, '2MP': 4, '3MP': 5, '4MP': 6, '5MP': 8, '6MP': 10, '8MP': 12, '12MP': 16 }
+  const BASE_H264_MBPS = { CIF: 0.5, D1: 1, '960H': 1.3, '1MP': 2, '2MP': 4, '3MP': 5, '4MP': 6, '5MP': 8, '6MP': 10, '8MP': 12, '12MP': 16 }
 
   // Pixel sizes are used by the raw-pixel method only.
   const RESOLUTIONS = [
+    { id: 'CIF', label: 'CIF (analog)', width: 352, height: 240 },
+    { id: 'D1', label: 'D1 (analog)', width: 720, height: 480 },
+    { id: '960H', label: '960H (analog)', width: 960, height: 480 },
     { id: '1MP', label: '1 MP (720p)', width: 1280, height: 720 },
     { id: '2MP', label: '2 MP (1080p)', width: 1920, height: 1080 },
     { id: '3MP', label: '3 MP', width: 2048, height: 1536 },
@@ -84,7 +87,7 @@
     { id: 'raid6', label: 'RAID 6', parity: 2, minDisks: 4 },
     { id: 'raid5', label: 'RAID 5', parity: 1, minDisks: 3 },
     { id: 'raid10', label: 'RAID 10', parity: null, minDisks: 4 },
-    { id: 'jbod', label: 'JBOD (no RAID)', parity: 0, minDisks: 1 }
+    { id: 'jbod', label: 'No RAID (separate drives)', parity: 0, minDisks: 1 }
   ]
 
   const DISK_SIZES_TB = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
@@ -381,10 +384,15 @@
       out.push({ level: 'critical', text: 'Set a retention period of at least 1 day.' })
     }
     if (a.raid === 'jbod') {
-      out.push({
-        level: 'critical',
-        text: 'JBOD has no redundancy. One failed disk loses footage. Not permitted for evidential or regulated recordings.'
-      })
+      out.push(p.evidential === false
+        ? {
+            level: 'warn',
+            text: 'No RAID: a failed disk loses the footage on it. Acceptable only because this system is marked as not holding evidential or regulated footage.'
+          }
+        : {
+            level: 'critical',
+            text: 'No RAID: a failed disk loses the footage on it. Not permitted for evidential or regulated footage. Choose RAID 6, or untick "Evidential or regulated footage" if this system holds neither.'
+          })
     }
     if (a.raid === 'raid5' && (a.arrayDisks > K.RAID5_MAX_DISKS || a.diskTB > K.RAID5_MAX_DISK_TB)) {
       out.push({
@@ -585,6 +593,7 @@
         recorderMbps: '',
         recorderOutMbps: '',
         nightHours: 12,
+        evidential: true,
         method: 'bitrate',
         compressionRatios: { ...DEFAULT_COMPRESSION_RATIOS },
         liveStreams: 4,
@@ -633,6 +642,7 @@
       recorderBays: '',
       recorderMbps: '',
       nightHours: K.DEFAULT_NIGHT_HOURS,
+      evidential: true,
       method: 'bitrate',
       liveStreams: 0,
       playbackStreams: 0,

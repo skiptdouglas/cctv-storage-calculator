@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.3                                              |
+| Version         | 1.4                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -55,7 +55,9 @@ may still be used to estimate upload bandwidth.
 Collect the following for **every camera** (or group of identical cameras) and
 record them in the worksheet (Appendix A):
 
-1. Camera model and quantity.
+1. Camera model and quantity. For DVRs, note the camera type (analog CIF, D1
+   or 960H, or HD-over-coax such as HD-TVI/AHD/HD-CVI, which use the MP
+   resolutions).
 2. Resolution (e.g. 2 MP / 1080p, 4 MP, 8 MP / 4K).
 3. Frame rate (fps) actually configured for recording, not the camera maximum,
    and any lower night-time frame rate.
@@ -87,6 +89,9 @@ Use, in order of preference:
 
 | Resolution      | H.264 | Smart H.264+ | H.265 | Smart H.265+ | AV1 | MJPEG |
 | --------------- | ----- | ------------ | ----- | ------------ | --- | ----- |
+| CIF (analog)    | 0.5   | 0.3          | 0.25  | 0.125        | 0.175 | 2.5 |
+| D1 (analog)     | 1     | 0.6          | 0.5   | 0.25         | 0.35 | 5    |
+| 960H (analog)   | 1.3   | 0.78         | 0.65  | 0.325        | 0.455 | 6.5 |
 | 1 MP (720p)     | 2     | 1.2          | 1     | 0.5          | 0.7 | 10    |
 | 2 MP (1080p)    | 4     | 2.4          | 2     | 1            | 1.4 | 20    |
 | 3 MP            | 5     | 3            | 2.5   | 1.25         | 1.75| 25    |
@@ -211,7 +216,7 @@ Convert the required usable capacity into a disk count:
 | RAID 5     | (N − 1) × disk size        | 3         | Small arrays (≤ 6 disks, ≤ 8 TB disks) only.          |
 | RAID 6     | (N − 2) × disk size        | 4         | **Default** for surveillance arrays.                  |
 | RAID 10    | (N ÷ 2) × disk size        | 4         | High write throughput / very large camera counts.     |
-| None/JBOD  | N × disk size              | 1         | Not permitted for evidential or regulated footage.    |
+| None/JBOD  | N × disk size              | 1         | Small non-critical DVR/NVR systems only. Not permitted for evidential or regulated footage. |
 
 Rules:
 
@@ -330,6 +335,7 @@ Keep the following in the project file for the life of the system:
 | 1.1     | 2026-09-28 |        | Added Step 5a: network, PoE, viewing and disk throughput |
 | 1.2     | 2026-09-28 |        | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
 | 1.3     | 2026-09-28 |        | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
+| 1.4     | 2026-09-28 |        | Table 1 adds analog CIF, D1, 960H; No RAID allowed for non-critical systems |
 
 ---
 

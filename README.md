@@ -9,7 +9,7 @@ Everything you type stays in your browser.
 
 ## What it does
 
-- **Camera groups:** enter quantity, resolution (1 to 12 MP), codec (H.264, Smart H.264+,
+- **Camera groups:** enter quantity, resolution (analog CIF, D1 and 960H, then 1 to 12 MP), codec (H.264, Smart H.264+,
   H.265, Smart H.265+, AV1 or MJPEG), quality, frame rate with an optional
   lower night frame rate, scene activity, recording mode (continuous,
   scheduled or motion), night IR and audio. Each group gets an estimated bitrate from the SOP planning table.
@@ -30,7 +30,8 @@ Everything you type stays in your browser.
 - **Switches:** assign camera groups to PoE switches to see each uplink's load
   (limit 70%) and PoE power draw (limit 80% of budget). PoE is estimated per
   camera, or you can enter the datasheet figure.
-- **Design checks:** flags JBOD, oversized RAID 5, headroom below ×1.20, too
+- **Design checks:** flags no-RAID arrays (critical for evidential footage,
+  a warning for systems marked non-critical), oversized RAID 5, headroom below ×1.20, too
   few drive bays, an under-rated recorder, overloaded switch uplinks or PoE
   budgets, viewing traffic beyond the recorder or WAN link, and unverified
   smart-codec savings.

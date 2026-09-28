@@ -177,6 +177,12 @@
   }
   .field small { font-size: 12px; color: var(--muted); }
   .field.wide { grid-column: 1 / -1; }
+  .field label.check {
+    display: flex; align-items: center; gap: 8px;
+    min-height: 34px;
+    font-size: 14px; font-weight: 500; color: var(--ink);
+    cursor: pointer;
+  }
   @media (min-width: 560px) { .field.wide { grid-column: span 2; } }
 
   input, select {
@@ -511,6 +517,14 @@
               <small>RAID 6 is the default</small>
             </div>
             <div class="field">
+              <span class="label">Footage type</span>
+              <label class="check" for="pEvidential">
+                <input id="pEvidential" type="checkbox">
+                <span>Evidential or regulated footage</span>
+              </label>
+              <small>Untick only for non-critical systems; allows No RAID with a warning</small>
+            </div>
+            <div class="field">
               <label for="pNight">Night hours per day</label>
               <input id="pNight" type="number" min="0" max="24" step="1" inputmode="numeric">
               <small>Used where a group sets Night FPS</small>
@@ -759,6 +773,7 @@
       ['pDisk', 'diskTB', 'number'],
       ['pRaid', 'raid', 'text'],
       ['pNight', 'nightHours', 'number'],
+      ['pEvidential', 'evidential', 'checkbox'],
       ['pBays', 'recorderBays', 'raw'],
       ['pMbps', 'recorderMbps', 'raw'],
       ['pLive', 'liveStreams', 'number'],
@@ -778,7 +793,8 @@
           opt.textContent = key === 'headroom' ? `×${Number(p[key]).toFixed(2)}` : String(p[key])
           el.appendChild(opt)
         }
-        el.value = p[key] ?? ''
+        if (el.type === 'checkbox') el.checked = p[key] !== false
+        else el.value = p[key] ?? ''
       })
       fillRatios()
     }
@@ -788,7 +804,8 @@
     projectFields.forEach(([id, key, type]) => {
       const el = $(id)
       const handler = () => {
-        state.project[key] = type === 'number' ? parseFloat(el.value) || 0 : el.value
+        state.project[key] =
+          type === 'checkbox' ? el.checked : type === 'number' ? parseFloat(el.value) || 0 : el.value
         touched()
       }
       el.addEventListener('input', handler)
