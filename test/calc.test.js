@@ -156,3 +156,59 @@ test('older saved projects load with defaults', () => {
   const r = C.calculateProject(project, groups)
   close(r.totals.gbPerDay, 172.8)
 })
+
+test('codec table: every codec scales from the H.264 baseline', () => {
+  const at = (codec) => C.estimateBitrate({ resolution: '2MP', codec, fps: 15, scene: 'medium' })
+  close(at('h264'), 4)
+  close(at('smart264'), 2.4)
+  close(at('h265'), 2)
+  close(at('smart'), 1)
+  close(at('av1'), 1.4)
+  close(at('mjpeg'), 20)
+  close(C.BASE_BITRATE['8MP'].h265, 6)
+})
+
+test('quality setting scales the estimate', () => {
+  const at = (quality) => C.estimateBitrate({ resolution: '4MP', codec: 'h265', fps: 15, scene: 'medium', quality })
+  close(at('low'), 2.1)
+  close(at('medium'), 3)
+  close(at('high'), 4.2)
+  close(at(undefined), 3)
+})
+
+test('night frame rate: storage uses the average, throughput uses the peak', () => {
+  const g = { qty: 10, resolution: '4MP', codec: 'h265', fps: 30, nightFps: 10, scene: 'medium', mode: 'continuous' }
+  // day 6 Mbps, night 2 Mbps; 12 h each → 4 Mbps average
+  const r = C.calculateGroup(g, 12)
+  close(r.mbps, 4)
+  close(r.peakMbps, 6)
+  close(r.gbPerDayPerCam, 43.2)
+  close(r.aggregateMbps, 60)
+  // 8 night hours → (6×16 + 2×8) / 24
+  close(C.calculateGroup(g, 8).mbps, 4.667)
+  // night rate equal to day rate, or blank, changes nothing
+  close(C.calculateGroup({ ...g, nightFps: 30 }, 12).mbps, 6)
+  close(C.calculateGroup({ ...g, nightFps: '' }, 12).mbps, 6)
+  // measured bitrate wins over both
+  const m = C.calculateGroup({ ...g, measuredMbps: 3 }, 12)
+  close(m.mbps, 3)
+  close(m.peakMbps, 3)
+})
+
+test('night hours come from the project', () => {
+  const { project, groups } = C.exampleProject()
+  const gs = groups.map((g, i) => (i === 0 ? { ...g, fps: 30, nightFps: 10 } : g))
+  const r12 = C.calculateProject(project, gs)
+  const r16 = C.calculateProject({ ...project, nightHours: 16 }, gs)
+  close(r12.rows[0].mbps, 4)
+  close(r16.rows[0].mbps, (6 * 8 + 2 * 16) / 24)
+  close(r12.totals.aggregateMbps, 6 * 24 + 72 + 14)
+})
+
+test('MJPEG and smart H.264 raise notes', () => {
+  const { project, groups } = C.exampleProject()
+  const notes = (codec) => C.calculateProject(project, groups.map((g, i) => (i === 2 ? { ...g, codec } : g))).checks.map((c) => c.text).join(' | ')
+  assert.match(notes('mjpeg'), /MJPEG uses about 5×/)
+  assert.match(notes('smart264'), /Smart-codec savings/)
+  assert.doesNotMatch(notes('h265'), /MJPEG|Smart-codec/)
+})

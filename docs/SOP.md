@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.1                                              |
+| Version         | 1.2                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -57,8 +57,10 @@ record them in the worksheet (Appendix A):
 
 1. Camera model and quantity.
 2. Resolution (e.g. 2 MP / 1080p, 4 MP, 8 MP / 4K).
-3. Frame rate (fps) actually configured for recording, not the camera maximum.
-4. Codec (H.264, H.265, smart codec such as H.265+/Zipstream/Smart Codec).
+3. Frame rate (fps) actually configured for recording, not the camera maximum,
+   and any lower night-time frame rate.
+4. Codec (H.264, H.265, AV1, MJPEG, or a smart codec such as
+   H.264+/H.265+/Zipstream) and the image quality setting.
 5. Recording mode: continuous, motion/event, scheduled, or continuous with a
    low-rate substream plus event high-rate.
 6. Hours per day recorded (24 for continuous; the schedule for business-hours).
@@ -83,13 +85,17 @@ Use, in order of preference:
 
 **Table 1 — Planning bitrates (Mbps), 15 fps, medium-motion scene, medium quality**
 
-| Resolution        | H.264 | H.265 | Smart codec (H.265+) |
-| ----------------- | ----- | ----- | -------------------- |
-| 2 MP (1080p)      | 4     | 2     | 1                    |
-| 4 MP (1440p)      | 6     | 3     | 1.5                  |
-| 5 MP              | 8     | 4     | 2                    |
-| 8 MP (4K)         | 12    | 6     | 3                    |
-| 12 MP (fisheye)   | 16    | 8     | 4                    |
+| Resolution      | H.264 | Smart H.264+ | H.265 | Smart H.265+ | AV1 | MJPEG |
+| --------------- | ----- | ------------ | ----- | ------------ | --- | ----- |
+| 2 MP (1080p)    | 4     | 2.4          | 2     | 1            | 1.4 | 20    |
+| 4 MP (1440p)    | 6     | 3.6          | 3     | 1.5          | 2.1 | 30    |
+| 5 MP            | 8     | 4.8          | 4     | 2            | 2.8 | 40    |
+| 8 MP (4K)       | 12    | 7.2          | 6     | 3            | 4.2 | 60    |
+| 12 MP (fisheye) | 16    | 9.6          | 8     | 4            | 5.6 | 80    |
+
+Codec columns are the H.264 figure × 0.6 (Smart H.264+), × 0.5 (H.265),
+× 0.25 (Smart H.265+), × 0.35 (AV1) and × 5 (MJPEG). Avoid MJPEG for recording
+unless an analytics system requires it.
 
 Adjustments to Table 1:
 
@@ -97,10 +103,16 @@ Adjustments to Table 1:
   (e.g. 30 fps ≈ ×2, 10 fps ≈ ×0.67). This slightly overestimates, which is
   the safe direction.
 - **Scene motion:** low motion ×0.7, high motion ×1.5.
+- **Image quality / compression setting:** low ×0.7, medium ×1.0, high ×1.4.
+- **Day/night frame rates:** if cameras record at a lower frame rate at night,
+  size **storage** with the hours-weighted average
+  `(day bitrate × day hours + night bitrate × night hours) ÷ 24`, and size
+  **throughput** (Step 5a) with the higher of the two bitrates.
 - **Night / IR:** if a large share of recording is at night with IR, add 20%
   unless the camera has been measured.
-- **Smart codecs:** only use the smart-codec column if the feature will be
-  **enabled and verified** at commissioning; otherwise use the H.265 column.
+- **Smart codecs:** only use a smart-codec column if the feature will be
+  **enabled and verified** at commissioning; otherwise use the plain H.264 or
+  H.265 column.
 - **Multi-sensor cameras:** calculate each sensor/stream as a separate camera.
 - **Dual recording (main + substream):** add the substream bitrate
   (typically 0.25–0.5 Mbps) if both streams are recorded.
@@ -310,6 +322,7 @@ Keep the following in the project file for the life of the system:
 | ------- | ---------- | ------ | --------------- |
 | 1.0     | 2026-09-28 |        | Initial release |
 | 1.1     | 2026-09-28 |        | Added Step 5a: network, PoE, viewing and disk throughput |
+| 1.2     | 2026-09-28 |        | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
 
 ---
 

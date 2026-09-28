@@ -11,14 +11,9 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict'
 
-  // SOP §5 Step 2, Table 1 — planning bitrates in Mbps at 15 fps, medium motion.
-  const BASE_BITRATE = {
-    '2MP': { h264: 4, h265: 2, smart: 1 },
-    '4MP': { h264: 6, h265: 3, smart: 1.5 },
-    '5MP': { h264: 8, h265: 4, smart: 2 },
-    '8MP': { h264: 12, h265: 6, smart: 3 },
-    '12MP': { h264: 16, h265: 8, smart: 4 }
-  }
+  // SOP §5 Step 2, Table 1 — H.264 planning bitrates in Mbps at 15 fps,
+  // medium motion, medium quality. Other codecs scale by CODECS[].factor.
+  const BASE_H264_MBPS = { '2MP': 4, '4MP': 6, '5MP': 8, '8MP': 12, '12MP': 16 }
 
   const RESOLUTIONS = [
     { id: '2MP', label: '2 MP (1080p)' },
@@ -29,10 +24,27 @@
   ]
 
   const CODECS = [
-    { id: 'h264', label: 'H.264' },
-    { id: 'h265', label: 'H.265' },
-    { id: 'smart', label: 'Smart H.265+' }
+    { id: 'h264', label: 'H.264', factor: 1 },
+    { id: 'smart264', label: 'Smart H.264+', factor: 0.6, smart: true },
+    { id: 'h265', label: 'H.265', factor: 0.5 },
+    { id: 'smart', label: 'Smart H.265+', factor: 0.25, smart: true },
+    { id: 'av1', label: 'AV1', factor: 0.35 },
+    { id: 'mjpeg', label: 'MJPEG', factor: 5 }
   ]
+
+  const QUALITIES = [
+    { id: 'low', label: 'Low', factor: 0.7 },
+    { id: 'medium', label: 'Medium', factor: 1 },
+    { id: 'high', label: 'High', factor: 1.4 }
+  ]
+
+  // Derived Table 1 (Mbps) for display and reference: resolution × codec.
+  const BASE_BITRATE = Object.fromEntries(
+    Object.entries(BASE_H264_MBPS).map(([res, h264]) => [
+      res,
+      Object.fromEntries(CODECS.map((c) => [c.id, h264 * c.factor]))
+    ])
+  )
 
   const SCENES = [
     { id: 'low', label: 'Low motion', factor: 0.7 },
@@ -70,6 +82,7 @@
     RAID5_MAX_DISKS: 6,
     RAID5_MAX_DISK_TB: 8,
     BASE_FPS: 15,
+    DEFAULT_NIGHT_HOURS: 12,
     SUBSTREAM_MBPS: 0.5, // typical live-view substream (D1/720p, H.264/H.265)
     UPLINK_UTILISATION: 0.7,
     POE_UTILISATION: 0.8,
@@ -91,21 +104,51 @@
   }
   const ceil = (x) => Math.ceil(x - EPS)
 
-  /** Estimated bitrate from Table 1 plus SOP adjustments (Mbps). */
-  function estimateBitrate(g) {
-    const base = (BASE_BITRATE[g.resolution] || BASE_BITRATE['2MP'])[g.codec] ?? 0
-    const fps = Math.max(0, num(g.fps, K.BASE_FPS))
+  /**
+   * Estimated bitrate at one frame rate (Mbps): Table 1 × codec × fps/15 ×
+   * scene × quality, +20% for night IR, plus audio. `fps` defaults to g.fps.
+   */
+  function estimateBitrate(g, fps) {
+    const h264 = BASE_H264_MBPS[g.resolution] ?? BASE_H264_MBPS['2MP']
+    const codec = (byId(CODECS, g.codec) || byId(CODECS, 'h265')).factor
+    const rate = Math.max(0, num(fps ?? g.fps, K.BASE_FPS))
     const scene = (byId(SCENES, g.scene) || byId(SCENES, 'medium')).factor
-    let mbps = base * (fps / K.BASE_FPS) * scene
+    const quality = (byId(QUALITIES, g.quality) || byId(QUALITIES, 'medium')).factor
+    let mbps = h264 * codec * (rate / K.BASE_FPS) * scene * quality
     if (g.nightIR) mbps *= K.NIGHT_IR_FACTOR
     if (g.audio) mbps += K.AUDIO_MBPS
     return mbps
   }
 
-  /** Bitrate used for sizing: a measured value always wins over the estimate. */
-  function groupBitrate(g) {
+  /** Night frame rate if one is set and differs from the day rate, else null. */
+  function nightFps(g) {
+    const n = num(g.nightFps, 0)
+    return n > 0 && n !== num(g.fps, K.BASE_FPS) ? n : null
+  }
+
+  /**
+   * Bitrates for one camera. `average` sizes storage (day and night frame rates
+   * weighted by hours); `peak` sizes throughput (the higher of the two).
+   * A measured bitrate always wins over the estimate.
+   */
+  function bitrates(g, nightHours = K.DEFAULT_NIGHT_HOURS) {
+    const nf = nightFps(g)
+    const day = estimateBitrate(g)
+    let average = day
+    let peak = day
+    if (nf !== null) {
+      const night = estimateBitrate(g, nf)
+      const nh = Math.min(24, Math.max(0, num(nightHours, K.DEFAULT_NIGHT_HOURS)))
+      average = (day * (24 - nh) + night * nh) / 24
+      peak = Math.max(day, night)
+    }
     const measured = num(g.measuredMbps, 0)
-    return measured > 0 ? measured : estimateBitrate(g)
+    if (measured > 0) return { estimate: average, average: measured, peak: measured, measured: true }
+    return { estimate: average, average, peak, measured: false }
+  }
+
+  function groupBitrate(g, nightHours) {
+    return bitrates(g, nightHours).average
   }
 
   /** Estimated PoE draw per camera (W). A value entered in poeW wins. */
@@ -127,21 +170,22 @@
     return mode.duty
   }
 
-  function calculateGroup(g) {
+  function calculateGroup(g, nightHours) {
     const qty = Math.max(0, Math.floor(num(g.qty, 0)))
-    const measured = num(g.measuredMbps, 0) > 0
-    const mbps = groupBitrate(g)
+    const b = bitrates(g, nightHours)
+    const mbps = b.average
     const duty = dutyCycle(g)
     const gbPerDayPerCam = mbps * duty * K.GB_PER_MBPS_DAY
     return {
       qty,
-      measured,
-      estimatedMbps: estimateBitrate(g),
+      measured: b.measured,
+      estimatedMbps: b.estimate,
       mbps,
+      peakMbps: b.peak,
       duty,
       gbPerDayPerCam,
       gbPerDay: gbPerDayPerCam * qty,
-      aggregateMbps: mbps * qty,
+      aggregateMbps: b.peak * qty,
       estimatedPoeW: estimatePoE(g),
       poeW: groupPoE(g),
       totalPoeW: groupPoE(g) * qty
@@ -185,7 +229,7 @@
     const p = project || {}
     const retentionDays = num(p.retentionDays, 0)
     const headroom = num(p.headroom, K.MIN_HEADROOM)
-    const rows = (groups || []).map(calculateGroup)
+    const rows = (groups || []).map((g) => calculateGroup(g, p.nightHours))
 
     const cameras = rows.reduce((s, r) => s + r.qty, 0)
     const gbPerDay = rows.reduce((s, r) => s + r.gbPerDay, 0)
@@ -349,7 +393,13 @@
         })
       }
     }
-    if (groups.some((g) => g.codec === 'smart' && !(num(g.measuredMbps, 0) > 0))) {
+    if (groups.some((g) => g.codec === 'mjpeg' && num(g.qty, 0) > 0 && !(num(g.measuredMbps, 0) > 0))) {
+      out.push({
+        level: 'info',
+        text: 'MJPEG uses about 5× the storage of H.264. Switch those cameras to H.264 or H.265 unless an analytics system needs MJPEG.'
+      })
+    }
+    if (groups.some((g) => (byId(CODECS, g.codec) || {}).smart && !(num(g.measuredMbps, 0) > 0))) {
       out.push({
         level: 'info',
         text: 'Smart-codec savings only count if the feature is enabled and verified at commissioning.'
@@ -395,8 +445,10 @@
       const res = (byId(RESOLUTIONS, g.resolution) || {}).label || g.resolution
       const codec = (byId(CODECS, g.codec) || {}).label || g.codec
       const mode = (byId(MODES, g.mode) || {}).label || g.mode
+      const nf = nightFps(g)
+      const q = (byId(QUALITIES, g.quality) || byId(QUALITIES, 'medium')).label.toLowerCase()
       lines.push(
-        `- ${g.name || `Group ${i + 1}`}: ${r.qty} × ${res} ${codec} @ ${g.fps} fps, ${mode}` +
+        `- ${g.name || `Group ${i + 1}`}: ${r.qty} × ${res} ${codec} @ ${g.fps} fps${nf !== null ? ` day / ${nf} fps night` : ''}, ${q} quality, ${mode}` +
           ` — ${fmt(r.mbps, 2)} Mbps${r.measured ? ' (measured)' : ' (est.)'}, duty ${fmt(r.duty, 2)},` +
           ` ${fmt(r.gbPerDayPerCam, 1)} GB/day/cam, ${fmt(r.gbPerDay, 1)} GB/day`
       )
@@ -446,16 +498,16 @@
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
     }
     const head = [
-      'Group', 'Qty', 'Resolution', 'Codec', 'FPS', 'Scene', 'Mode', 'Hours', 'Night IR', 'Audio',
-      'Bitrate Mbps', 'Bitrate source', 'Duty', 'GB/day/cam', 'GB/day', 'Switch', 'PoE W/cam'
+      'Group', 'Qty', 'Resolution', 'Codec', 'Quality', 'FPS', 'Night FPS', 'Scene', 'Mode', 'Hours', 'Night IR', 'Audio',
+      'Bitrate Mbps', 'Peak Mbps', 'Bitrate source', 'Duty', 'GB/day/cam', 'GB/day', 'Switch', 'PoE W/cam'
     ]
     const switchName = (id) => ((result.network && result.network.switches.find((sw) => sw.id === id)) || {}).name || ''
     const rows = groups.map((g, i) => {
       const r = result.rows[i]
       return [
-        g.name, r.qty, g.resolution, g.codec, g.fps, g.scene, g.mode,
+        g.name, r.qty, g.resolution, g.codec, g.quality || 'medium', g.fps, nightFps(g) ?? '', g.scene, g.mode,
         g.mode === 'scheduled' ? g.hours : '', g.nightIR ? 'yes' : 'no', g.audio ? 'yes' : 'no',
-        r.mbps.toFixed(3), r.measured ? 'measured' : 'estimate', r.duty.toFixed(3),
+        r.mbps.toFixed(3), r.peakMbps.toFixed(3), r.measured ? 'measured' : 'estimate', r.duty.toFixed(3),
         r.gbPerDayPerCam.toFixed(2), r.gbPerDay.toFixed(2), switchName(g.switch), r.poeW.toFixed(1)
       ]
     })
@@ -474,6 +526,7 @@
         recorderBays: '',
         recorderMbps: '',
         recorderOutMbps: '',
+        nightHours: 12,
         liveStreams: 4,
         liveStreamType: 'sub',
         playbackStreams: 1,
@@ -484,9 +537,9 @@
         ]
       },
       groups: [
-        { name: 'Aisles', qty: 24, resolution: '4MP', codec: 'h265', fps: 15, scene: 'medium', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw1', poeW: '' },
-        { name: 'Loading docks', qty: 6, resolution: '8MP', codec: 'h265', fps: 20, scene: 'high', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' },
-        { name: 'Offices', qty: 10, resolution: '2MP', codec: 'h265', fps: 15, scene: 'low', mode: 'motion-medium', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' }
+        { name: 'Aisles', qty: 24, resolution: '4MP', codec: 'h265', quality: 'medium', fps: 15, nightFps: '', scene: 'medium', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw1', poeW: '' },
+        { name: 'Loading docks', qty: 6, resolution: '8MP', codec: 'h265', quality: 'medium', fps: 20, nightFps: '', scene: 'high', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' },
+        { name: 'Offices', qty: 10, resolution: '2MP', codec: 'h265', quality: 'medium', fps: 15, nightFps: '', scene: 'low', mode: 'motion-medium', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' }
       ]
     }
   }
@@ -497,7 +550,9 @@
       qty: 1,
       resolution: '4MP',
       codec: 'h265',
+      quality: 'medium',
       fps: 15,
+      nightFps: '',
       scene: 'medium',
       mode: 'continuous',
       hours: 24,
@@ -517,6 +572,7 @@
       name: '',
       recorderBays: '',
       recorderMbps: '',
+      nightHours: K.DEFAULT_NIGHT_HOURS,
       liveStreams: 0,
       playbackStreams: 0,
       switches: [],
@@ -536,6 +592,7 @@
     BASE_BITRATE,
     RESOLUTIONS,
     CODECS,
+    QUALITIES,
     SCENES,
     MODES,
     RAID_LEVELS,
@@ -543,6 +600,8 @@
     LIVE_STREAM_TYPES,
     CONSTANTS: K,
     estimateBitrate,
+    bitrates,
+    nightFps,
     groupBitrate,
     dutyCycle,
     estimatePoE,
