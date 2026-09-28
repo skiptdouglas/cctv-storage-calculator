@@ -13,15 +13,34 @@
 
   // SOP §5 Step 2, Table 1 — H.264 planning bitrates in Mbps at 15 fps,
   // medium motion, medium quality. Other codecs scale by CODECS[].factor.
-  const BASE_H264_MBPS = { '2MP': 4, '4MP': 6, '5MP': 8, '8MP': 12, '12MP': 16 }
+  const BASE_H264_MBPS = { '1MP': 2, '2MP': 4, '3MP': 5, '4MP': 6, '5MP': 8, '6MP': 10, '8MP': 12, '12MP': 16 }
 
+  // Pixel sizes are used by the raw-pixel method only.
   const RESOLUTIONS = [
-    { id: '2MP', label: '2 MP (1080p)' },
-    { id: '4MP', label: '4 MP (1440p)' },
-    { id: '5MP', label: '5 MP' },
-    { id: '8MP', label: '8 MP (4K)' },
-    { id: '12MP', label: '12 MP (fisheye)' }
+    { id: '1MP', label: '1 MP (720p)', width: 1280, height: 720 },
+    { id: '2MP', label: '2 MP (1080p)', width: 1920, height: 1080 },
+    { id: '3MP', label: '3 MP', width: 2048, height: 1536 },
+    { id: '4MP', label: '4 MP (1440p)', width: 2560, height: 1440 },
+    { id: '5MP', label: '5 MP', width: 2592, height: 1944 },
+    { id: '6MP', label: '6 MP', width: 3072, height: 2048 },
+    { id: '8MP', label: '8 MP (4K)', width: 3840, height: 2160 },
+    { id: '12MP', label: '12 MP (fisheye)', width: 4000, height: 3000 }
   ]
+
+  const METHODS = [
+    { id: 'bitrate', label: 'Typical bitrates (SOP Table 1)' },
+    { id: 'raw', label: 'Raw pixels ÷ compression ratio' }
+  ]
+
+  // Raw-pixel method: uncompressed bits ÷ ratio. Editable per project.
+  const DEFAULT_COMPRESSION_RATIOS = {
+    mjpeg: 20,
+    h264: 100,
+    smart264: 170,
+    h265: 200,
+    smart: 400,
+    av1: 285
+  }
 
   const CODECS = [
     { id: 'h264', label: 'H.264', factor: 1 },
@@ -83,6 +102,9 @@
     RAID5_MAX_DISK_TB: 8,
     BASE_FPS: 15,
     DEFAULT_NIGHT_HOURS: 12,
+    COLOR_DEPTH_4K: 30, // bits per pixel at 4K (8.3 MP) and above
+    COLOR_DEPTH_STD: 16, // bits per pixel below 4K
+    PIXELS_4K: 3840 * 2160,
     SUBSTREAM_MBPS: 0.5, // typical live-view substream (D1/720p, H.264/H.265)
     UPLINK_UTILISATION: 0.7,
     POE_UTILISATION: 0.8,
@@ -108,16 +130,45 @@
    * Estimated bitrate at one frame rate (Mbps): Table 1 × codec × fps/15 ×
    * scene × quality, +20% for night IR, plus audio. `fps` defaults to g.fps.
    */
-  function estimateBitrate(g, fps) {
-    const h264 = BASE_H264_MBPS[g.resolution] ?? BASE_H264_MBPS['2MP']
-    const codec = (byId(CODECS, g.codec) || byId(CODECS, 'h265')).factor
+  function estimateBitrate(g, fps, model) {
     const rate = Math.max(0, num(fps ?? g.fps, K.BASE_FPS))
     const scene = (byId(SCENES, g.scene) || byId(SCENES, 'medium')).factor
     const quality = (byId(QUALITIES, g.quality) || byId(QUALITIES, 'medium')).factor
-    let mbps = h264 * codec * (rate / K.BASE_FPS) * scene * quality
+    const base = model && model.method === 'raw'
+      ? rawCompressedMbps(g, rate, model.ratios)
+      : (BASE_H264_MBPS[g.resolution] ?? BASE_H264_MBPS['2MP']) *
+        (byId(CODECS, g.codec) || byId(CODECS, 'h265')).factor *
+        (rate / K.BASE_FPS)
+    let mbps = base * scene * quality
     if (g.nightIR) mbps *= K.NIGHT_IR_FACTOR
     if (g.audio) mbps += K.AUDIO_MBPS
     return mbps
+  }
+
+  /** Bits per pixel for the raw-pixel method: 30 at 4K and above, else 16. */
+  function colorDepth(resolution) {
+    const r = byId(RESOLUTIONS, resolution) || byId(RESOLUTIONS, '2MP')
+    return r.width * r.height >= K.PIXELS_4K ? K.COLOR_DEPTH_4K : K.COLOR_DEPTH_STD
+  }
+
+  function compressionRatio(codec, ratios) {
+    const entered = num(ratios && ratios[codec], 0)
+    return entered > 0 ? entered : DEFAULT_COMPRESSION_RATIOS[codec] ?? DEFAULT_COMPRESSION_RATIOS.h265
+  }
+
+  /** Raw-pixel method: width × height × color depth × fps ÷ compression ratio (Mbps). */
+  function rawCompressedMbps(g, fps, ratios) {
+    const r = byId(RESOLUTIONS, g.resolution) || byId(RESOLUTIONS, '2MP')
+    const rawBps = r.width * r.height * colorDepth(g.resolution) * fps
+    return rawBps / compressionRatio(g.codec, ratios) / 1e6
+  }
+
+  /** The estimating method and settings for a project. */
+  function modelFor(p) {
+    return {
+      method: p && p.method === 'raw' ? 'raw' : 'bitrate',
+      ratios: (p && p.compressionRatios) || {}
+    }
   }
 
   /** Night frame rate if one is set and differs from the day rate, else null. */
@@ -131,13 +182,13 @@
    * weighted by hours); `peak` sizes throughput (the higher of the two).
    * A measured bitrate always wins over the estimate.
    */
-  function bitrates(g, nightHours = K.DEFAULT_NIGHT_HOURS) {
+  function bitrates(g, nightHours = K.DEFAULT_NIGHT_HOURS, model) {
     const nf = nightFps(g)
-    const day = estimateBitrate(g)
+    const day = estimateBitrate(g, undefined, model)
     let average = day
     let peak = day
     if (nf !== null) {
-      const night = estimateBitrate(g, nf)
+      const night = estimateBitrate(g, nf, model)
       const nh = Math.min(24, Math.max(0, num(nightHours, K.DEFAULT_NIGHT_HOURS)))
       average = (day * (24 - nh) + night * nh) / 24
       peak = Math.max(day, night)
@@ -147,8 +198,8 @@
     return { estimate: average, average, peak, measured: false }
   }
 
-  function groupBitrate(g, nightHours) {
-    return bitrates(g, nightHours).average
+  function groupBitrate(g, nightHours, model) {
+    return bitrates(g, nightHours, model).average
   }
 
   /** Estimated PoE draw per camera (W). A value entered in poeW wins. */
@@ -170,9 +221,9 @@
     return mode.duty
   }
 
-  function calculateGroup(g, nightHours) {
+  function calculateGroup(g, nightHours, model) {
     const qty = Math.max(0, Math.floor(num(g.qty, 0)))
-    const b = bitrates(g, nightHours)
+    const b = bitrates(g, nightHours, model)
     const mbps = b.average
     const duty = dutyCycle(g)
     const gbPerDayPerCam = mbps * duty * K.GB_PER_MBPS_DAY
@@ -229,7 +280,8 @@
     const p = project || {}
     const retentionDays = num(p.retentionDays, 0)
     const headroom = num(p.headroom, K.MIN_HEADROOM)
-    const rows = (groups || []).map((g) => calculateGroup(g, p.nightHours))
+    const model = modelFor(p)
+    const rows = (groups || []).map((g) => calculateGroup(g, p.nightHours, model))
 
     const cameras = rows.reduce((s, r) => s + r.qty, 0)
     const gbPerDay = rows.reduce((s, r) => s + r.gbPerDay, 0)
@@ -437,6 +489,12 @@
     const { totals: t, array: a } = result
     const lines = []
     lines.push(`CCTV storage sizing — ${p.name || 'Untitled site'}`)
+    const other = calculateProject({ ...p, method: p.method === 'raw' ? 'bitrate' : 'raw' }, groups)
+    const methodLabel = (id) => (byId(METHODS, id === 'raw' ? 'raw' : 'bitrate') || {}).label
+    lines.push(`Estimate: ${methodLabel(p.method)}. ${methodLabel(p.method === 'raw' ? 'bitrate' : 'raw')} gives ${fmt(other.totals.requiredTB, 2)} TB for comparison.`)
+    if (p.method === 'raw') {
+      lines.push(`Compression ratios: ${CODECS.map((c) => `${c.label} ${compressionRatio(c.id, p.compressionRatios)}:1`).join(', ')}. Color depth 16-bit below 4K, 30-bit at 4K and above.`)
+    }
     lines.push(`Method: SOP-VSS-001. Retention ${p.retentionDays} days, headroom ×${num(p.headroom).toFixed(2)}, file-system overhead ×${K.FS_OVERHEAD}.`)
     lines.push('')
     lines.push('Camera groups')
@@ -527,6 +585,8 @@
         recorderMbps: '',
         recorderOutMbps: '',
         nightHours: 12,
+        method: 'bitrate',
+        compressionRatios: { ...DEFAULT_COMPRESSION_RATIOS },
         liveStreams: 4,
         liveStreamType: 'sub',
         playbackStreams: 1,
@@ -573,12 +633,14 @@
       recorderBays: '',
       recorderMbps: '',
       nightHours: K.DEFAULT_NIGHT_HOURS,
+      method: 'bitrate',
       liveStreams: 0,
       playbackStreams: 0,
       switches: [],
       ...(project || {})
     }
     if (!Array.isArray(p.switches)) p.switches = []
+    p.compressionRatios = { ...DEFAULT_COMPRESSION_RATIOS, ...(p.compressionRatios || {}) }
     const ids = new Set(p.switches.map((sw) => sw.id))
     const gs = (groups || []).map((g, i) => {
       const merged = { ...newGroup(i + 1), ...g }
@@ -591,6 +653,8 @@
   return {
     BASE_BITRATE,
     RESOLUTIONS,
+    METHODS,
+    DEFAULT_COMPRESSION_RATIOS,
     CODECS,
     QUALITIES,
     SCENES,
@@ -600,6 +664,9 @@
     LIVE_STREAM_TYPES,
     CONSTANTS: K,
     estimateBitrate,
+    colorDepth,
+    compressionRatio,
+    rawCompressedMbps,
     bitrates,
     nightFps,
     groupBitrate,

@@ -212,3 +212,50 @@ test('MJPEG and smart H.264 raise notes', () => {
   assert.match(notes('smart264'), /Smart-codec savings/)
   assert.doesNotMatch(notes('h265'), /MJPEG|Smart-codec/)
 })
+
+test('new resolutions: 720p, 3 MP and 6 MP', () => {
+  const at = (resolution) => C.estimateBitrate({ resolution, codec: 'h264', fps: 15, scene: 'medium' })
+  close(at('1MP'), 2)
+  close(at('3MP'), 5)
+  close(at('6MP'), 10)
+  close(C.estimateBitrate({ resolution: '6MP', codec: 'h265', fps: 15, scene: 'medium' }), 5)
+})
+
+test('raw-pixel method: color depth 16-bit below 4K, 30-bit at 4K and above', () => {
+  assert.equal(C.colorDepth('6MP'), 16)
+  assert.equal(C.colorDepth('8MP'), 30)
+  assert.equal(C.colorDepth('12MP'), 30)
+  // 1920 × 1080 × 16 × 15 = 497.66 Mbps raw ÷ 100 (H.264)
+  close(C.rawCompressedMbps({ resolution: '2MP', codec: 'h264' }, 15), 4.977)
+  // 3840 × 2160 × 30 × 15 = 3,732.48 Mbps raw ÷ 200 (H.265)
+  close(C.rawCompressedMbps({ resolution: '8MP', codec: 'h265' }, 15), 18.662)
+  // MJPEG 20:1
+  close(C.rawCompressedMbps({ resolution: '2MP', codec: 'mjpeg' }, 15), 24.883)
+  // scene, quality, night IR still apply
+  const model = { method: 'raw', ratios: {} }
+  close(C.estimateBitrate({ resolution: '2MP', codec: 'h264', fps: 15, scene: 'high', quality: 'high' }, undefined, model), 4.977 * 1.5 * 1.4)
+  // entered ratio overrides the default
+  close(C.estimateBitrate({ resolution: '2MP', codec: 'h264', fps: 15, scene: 'medium' }, undefined, { method: 'raw', ratios: { h264: 200 } }), 2.488)
+})
+
+test('project method switch changes the estimate, bitrate stays the default', () => {
+  const { project, groups } = C.exampleProject()
+  const bitrate = C.calculateProject(project, groups)
+  const raw = C.calculateProject({ ...project, method: 'raw' }, groups)
+  close(bitrate.totals.requiredTB, 60.79)
+  // Aisles 4 MP H.265: 2560×1440×16×15 ÷ 200 = 4.424 Mbps
+  close(raw.rows[0].mbps, 4.424)
+  // Docks 8 MP H.265 20 fps high motion: 3840×2160×30×20 ÷ 200 × 1.5 = 37.32 Mbps
+  close(raw.rows[1].mbps, 37.325)
+  assert.ok(raw.totals.requiredTB > bitrate.totals.requiredTB)
+  const report = C.formatReport({ ...project, method: 'raw' }, groups, raw)
+  assert.match(report, /Estimate: Raw pixels ÷ compression ratio\. Typical bitrates \(SOP Table 1\) gives 60\.79 TB/)
+  assert.match(report, /H\.264 100:1/)
+})
+
+test('older projects get default method and compression ratios', () => {
+  const { project } = C.withDefaults({ retentionDays: 7, compressionRatios: { h264: 150 } }, [])
+  assert.equal(project.method, 'bitrate')
+  assert.equal(project.compressionRatios.h264, 150)
+  assert.equal(project.compressionRatios.h265, 200)
+})

@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.2                                              |
+| Version         | 1.3                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -87,15 +87,21 @@ Use, in order of preference:
 
 | Resolution      | H.264 | Smart H.264+ | H.265 | Smart H.265+ | AV1 | MJPEG |
 | --------------- | ----- | ------------ | ----- | ------------ | --- | ----- |
+| 1 MP (720p)     | 2     | 1.2          | 1     | 0.5          | 0.7 | 10    |
 | 2 MP (1080p)    | 4     | 2.4          | 2     | 1            | 1.4 | 20    |
+| 3 MP            | 5     | 3            | 2.5   | 1.25         | 1.75| 25    |
 | 4 MP (1440p)    | 6     | 3.6          | 3     | 1.5          | 2.1 | 30    |
 | 5 MP            | 8     | 4.8          | 4     | 2            | 2.8 | 40    |
+| 6 MP            | 10    | 6            | 5     | 2.5          | 3.5 | 50    |
 | 8 MP (4K)       | 12    | 7.2          | 6     | 3            | 4.2 | 60    |
 | 12 MP (fisheye) | 16    | 9.6          | 8     | 4            | 5.6 | 80    |
 
 Codec columns are the H.264 figure × 0.6 (Smart H.264+), × 0.5 (H.265),
 × 0.25 (Smart H.265+), × 0.35 (AV1) and × 5 (MJPEG). Avoid MJPEG for recording
 unless an analytics system requires it.
+
+Some vendor calculators use a raw-pixel method instead of Table 1. Use it only
+to compare results with those tools; see Appendix C.
 
 Adjustments to Table 1:
 
@@ -323,6 +329,7 @@ Keep the following in the project file for the life of the system:
 | 1.0     | 2026-09-28 |        | Initial release |
 | 1.1     | 2026-09-28 |        | Added Step 5a: network, PoE, viewing and disk throughput |
 | 1.2     | 2026-09-28 |        | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
+| 1.3     | 2026-09-28 |        | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
 
 ---
 
@@ -351,6 +358,25 @@ Keep the following in the project file for the life of the system:
 | 9    | Usable TB / TiB (× 0.909)                                |       |
 
 **Reviewed by:** ______________  **Date:** __________
+
+## Appendix C — Raw-pixel method (comparison only)
+
+Some calculators estimate bitrate from uncompressed video:
+
+```
+Raw Mbps        = width × height × color depth × fps ÷ 1,000,000
+Compressed Mbps = Raw Mbps ÷ compression ratio × scene × quality (+20% night IR)
+```
+
+- **Color depth:** 30 bits per pixel at 4K (3840 × 2160) and above, 16 bits
+  below.
+- **Default compression ratios:** MJPEG 20:1, H.264 100:1, Smart H.264+ 170:1,
+  H.265 200:1, AV1 285:1, Smart H.265+ 400:1.
+
+This method usually gives higher figures than Table 1, most of all at 4K,
+where the 30-bit color depth nearly doubles the raw bitrate. Final designs are
+sized with Table 1 or measured bitrates (Step 2). When a customer or another
+tool quotes a raw-pixel figure, record both results and explain the difference.
 
 ## Appendix B — Spreadsheet formulas
 

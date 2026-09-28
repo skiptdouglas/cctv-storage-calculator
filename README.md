@@ -9,11 +9,15 @@ Everything you type stays in your browser.
 
 ## What it does
 
-- **Camera groups:** enter quantity, resolution, codec (H.264, Smart H.264+,
+- **Camera groups:** enter quantity, resolution (1 to 12 MP), codec (H.264, Smart H.264+,
   H.265, Smart H.265+, AV1 or MJPEG), quality, frame rate with an optional
   lower night frame rate, scene activity, recording mode (continuous,
   scheduled or motion), night IR and audio. Each group gets an estimated bitrate from the SOP planning table.
   Enter a **measured bitrate** to override the estimate.
+- **Two estimate methods:** typical bitrates from the SOP table (default), or
+  raw pixels (width × height × color depth × fps, with 16-bit color below 4K
+  and 30-bit at 4K and above) divided by an editable compression ratio per
+  codec. The other method's result is always shown for comparison.
 - **Storage:** GB per day per camera (`Mbps × duty × 10.8`), raw recording for
   the retention period, then ×1.05 file-system overhead and ×1.20 (or more)
   headroom.

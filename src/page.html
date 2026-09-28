@@ -312,6 +312,16 @@
   }
   .headline .big span { font-size: 22px; font-weight: 600; color: var(--muted); margin-left: 4px; }
   .headline .caption { color: var(--muted); }
+  .compare {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px;
+    margin-top: 10px; padding: 8px 10px;
+    border: 1px dashed var(--line); border-radius: 6px;
+    font-size: 13px; color: var(--muted);
+  }
+  .compare b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ratios { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .ratios .fields { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .ratios p { margin: 0; font-size: 12px; color: var(--muted); max-width: 70ch; }
 
   .status {
     display: inline-flex; align-items: center; gap: 6px;
@@ -470,6 +480,11 @@
               <label for="pName">Site name</label>
               <input id="pName" type="text" placeholder="e.g. Head office, Building B">
             </div>
+            <div class="field wide">
+              <label for="pMethod">Estimate method</label>
+              <select id="pMethod"></select>
+              <small>The other method is shown for comparison</small>
+            </div>
             <div class="field">
               <label for="pRetention">Retention (days)</label>
               <input id="pRetention" type="number" min="1" step="1" inputmode="numeric">
@@ -508,6 +523,11 @@
               <label for="pMbps">Recorder rated inbound (Mbps)</label>
               <input id="pMbps" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
             </div>
+          </div>
+          <div class="ratios" id="ratiosBlock" hidden>
+            <h3 class="subpanel-title" style="margin:0">Compression ratios</h3>
+            <p>Raw bitrate = width × height × color depth × fps. Color depth is 16 bits per pixel below 4K and 30 bits at 4K and above. Each codec divides the raw bitrate by its ratio; scene, quality and night IR then apply as usual.</p>
+            <div class="fields" id="ratioFields"></div>
           </div>
         </div>
       </section>
@@ -619,6 +639,7 @@
         <div class="headline">
           <div class="big" id="sumRequired">0<span>TB</span></div>
           <div class="caption" id="sumCaption">usable storage required</div>
+          <div class="compare" id="compare"><span id="compareLabel"></span><b id="compareValue"></b></div>
         </div>
 
         <dl class="spec">
@@ -667,6 +688,7 @@
   </div>
 
   <footer class="notes">
+    <div>Raw-pixel method: width × height × color depth (16-bit below 4K, 30-bit at 4K and above) × fps ÷ the codec's compression ratio. It usually gives higher figures than typical bitrates, most of all at 4K. Use it to compare with tools that work this way; the SOP sizes with typical or measured bitrates.</div>
     <div>Estimates start from SOP Table 1 H.264 bitrates at 15 fps, medium motion and medium quality, then scale by codec (Smart H.264+ ×0.6, H.265 ×0.5, AV1 ×0.35, Smart H.265+ ×0.25, MJPEG ×5), frame rate, scene (×0.7 low, ×1.5 high), quality (×0.7 low, ×1.4 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
     <div>With a Night FPS set, storage uses the day and night bitrates averaged over the night hours; throughput uses the higher of the two.</div>
     <div>Throughput uses each camera's full bitrate, since every motion camera can trigger at once. Disk write is camera traffic ÷ 8. PoE estimates are 6 W per camera, plus 3 W with night IR and 2 W at 8 MP and above; enter the datasheet figure to override.</div>
@@ -710,6 +732,25 @@
     $('pDisk').innerHTML = options(C.DISK_SIZES_TB.map((t) => ({ id: t, label: `${t} TB` })), state.project.diskTB)
     $('pRaid').innerHTML = options(C.RAID_LEVELS, state.project.raid)
     $('pLiveType').innerHTML = options(C.LIVE_STREAM_TYPES, state.project.liveStreamType)
+    $('pMethod').innerHTML = options(C.METHODS, state.project.method)
+    $('ratioFields').innerHTML = C.CODECS.map((c) => `
+      <div class="field">
+        <label for="ratio-${c.id}">${c.label}</label>
+        <input id="ratio-${c.id}" data-ratio="${c.id}" type="number" min="1" step="1" inputmode="numeric" aria-describedby="ratio-unit">
+      </div>`).join('') + '<span id="ratio-unit" class="visually-hidden">ratio to 1</span>'
+    $('ratioFields').addEventListener('input', (e) => {
+      const id = e.target.dataset.ratio
+      if (!id) return
+      state.project.compressionRatios[id] = e.target.value === '' ? '' : parseFloat(e.target.value)
+      touched()
+    })
+    function fillRatios() {
+      C.CODECS.forEach((c) => {
+        const v = state.project.compressionRatios[c.id]
+        $(`ratio-${c.id}`).value = v ?? ''
+        $(`ratio-${c.id}`).placeholder = String(C.DEFAULT_COMPRESSION_RATIOS[c.id])
+      })
+    }
 
     const projectFields = [
       ['pName', 'name', 'text'],
@@ -739,7 +780,10 @@
         }
         el.value = p[key] ?? ''
       })
+      fillRatios()
     }
+
+    projectFields.unshift(['pMethod', 'method', 'text'])
 
     projectFields.forEach(([id, key, type]) => {
       const el = $(id)
@@ -949,6 +993,13 @@
       const days = Number(state.project.retentionDays) || 0
       $('sumRequired').innerHTML = `${fmt(t.requiredTB, 1)}<span>TB</span>`
       $('sumCaption').textContent = `usable storage for ${days} day${days === 1 ? '' : 's'} of footage`
+      const raw = state.project.method === 'raw'
+      $('ratiosBlock').hidden = !raw
+      const other = C.calculateProject({ ...state.project, method: raw ? 'bitrate' : 'raw' }, state.groups)
+      const ratio = t.requiredTB > 0 ? other.totals.requiredTB / t.requiredTB : 0
+      $('compareLabel').textContent = raw ? 'Typical-bitrate method' : 'Raw-pixel method'
+      $('compareValue').textContent = t.requiredTB > 0
+        ? `${fmt(other.totals.requiredTB, 1)} TB · ${fmt(ratio, 2)}×` : '—'
       $('sCameras').textContent = String(t.cameras)
       $('sDay').textContent = `${fmt(t.gbPerDay, 1)} GB`
       $('sRaw').textContent = `${fmt(t.rawTB, 2)} TB`
