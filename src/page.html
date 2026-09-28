@@ -1,0 +1,841 @@
+<title>CCTV Storage Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #eef1f4;
+    --surface: #ffffff;
+    --surface-2: #f6f8fa;
+    --line: #d5dce3;
+    --ink: #15202b;
+    --muted: #5a6876;
+    --accent: #0e7280;
+    --accent-ink: #ffffff;
+    --accent-soft: #dcf0f2;
+    --ok: #2f7d4f;
+    --ok-soft: #e1f2e7;
+    --warn: #a2650f;
+    --warn-soft: #fbefd9;
+    --crit: #b8382f;
+    --crit-soft: #fbe3e0;
+    --info: #3f5f86;
+    --info-soft: #e3ebf5;
+    --disk-data: #0e7280;
+    --disk-parity: #8fa3b3;
+    --disk-spare: #d49a2a;
+    --font-display: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #0d1318;
+      --surface: #151d24;
+      --surface-2: #1b252e;
+      --line: #2a3843;
+      --ink: #e3e9ee;
+      --muted: #93a2af;
+      --accent: #43b7c6;
+      --accent-ink: #06232a;
+      --accent-soft: #143840;
+      --ok: #62c18a;
+      --ok-soft: #173325;
+      --warn: #e2ab4f;
+      --warn-soft: #3a2c14;
+      --crit: #ef7b70;
+      --crit-soft: #3d1c19;
+      --info: #8fb2dc;
+      --info-soft: #1c2b3d;
+      --disk-data: #43b7c6;
+      --disk-parity: #5b6d7b;
+      --disk-spare: #e2ab4f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #0d1318;
+    --surface: #151d24;
+    --surface-2: #1b252e;
+    --line: #2a3843;
+    --ink: #e3e9ee;
+    --muted: #93a2af;
+    --accent: #43b7c6;
+    --accent-ink: #06232a;
+    --accent-soft: #143840;
+    --ok: #62c18a;
+    --ok-soft: #173325;
+    --warn: #e2ab4f;
+    --warn-soft: #3a2c14;
+    --crit: #ef7b70;
+    --crit-soft: #3d1c19;
+    --info: #8fb2dc;
+    --info-soft: #1c2b3d;
+    --disk-data: #43b7c6;
+    --disk-parity: #5b6d7b;
+    --disk-spare: #e2ab4f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 20px 48px;
+  }
+  @media (min-width: 720px) { .wrap { padding-inline: 28px; } }
+
+  header.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.1;
+    margin: 2px 0 0;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  .formula {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+
+  .layout {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 1040px) {
+    .layout { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+    .summary { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  }
+  .main { display: grid; gap: 20px; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+  .main > * { min-width: 0; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .panel-body { padding: 16px; }
+
+  .fields {
+    display: grid;
+    gap: 14px 16px;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  }
+  .field { display: grid; gap: 4px; align-content: start; }
+  .field label, .field .label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .field small { font-size: 12px; color: var(--muted); }
+  .field.wide { grid-column: 1 / -1; }
+  @media (min-width: 560px) { .field.wide { grid-column: span 2; } }
+
+  input, select {
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    height: 34px;
+    padding: 0 8px;
+    width: 100%;
+    min-width: 0;
+  }
+  input[type="number"] { font-family: var(--font-mono); font-size: 13px; }
+  input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+  input:disabled { opacity: 0.45; }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    height: 34px;
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  button.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  button.icon {
+    width: 30px; height: 30px; padding: 0;
+    display: inline-grid; place-items: center;
+    color: var(--muted);
+    border-color: transparent;
+    background: transparent;
+  }
+  button.icon:hover { color: var(--ink); background: var(--surface-2); }
+  button.icon.danger:hover { color: var(--crit); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* Camera group table */
+  .table-scroll { overflow-x: auto; position: relative; }
+  table.groups {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1080px;
+  }
+  .groups th {
+    text-align: left;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+    background: var(--surface-2);
+  }
+  .groups td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .groups tr:last-child td { border-bottom: 0; }
+  .groups th:first-child, .groups td:first-child { padding-left: 16px; }
+  .groups th:last-child, .groups td:last-child { padding-right: 12px; }
+  .groups .num { text-align: right; }
+  .groups td.out {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .groups td.out .sub { display: block; font-size: 11px; color: var(--muted); }
+  .groups .center { text-align: center; }
+  .groups select { width: auto; }
+  .groups input[data-k="name"] { width: 150px; }
+  .groups input[data-k="qty"] { width: 68px; text-align: right; }
+  .groups input[data-k="fps"] { width: 60px; text-align: right; }
+  .groups input[data-k="hours"] { width: 60px; text-align: right; }
+  .groups input[data-k="measuredMbps"] { width: 90px; text-align: right; }
+  .empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  /* Summary */
+  .summary { display: grid; gap: 0; }
+  .summary .panel-body { display: grid; gap: 18px; }
+  .headline { display: grid; gap: 2px; }
+  .headline .big {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .headline .big span { font-size: 22px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+  .headline .caption { color: var(--muted); }
+
+  .status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .lvl-ok { background: var(--ok-soft); color: var(--ok); }
+  .lvl-info { background: var(--info-soft); color: var(--info); }
+  .lvl-warn { background: var(--warn-soft); color: var(--warn); }
+  .lvl-critical { background: var(--crit-soft); color: var(--crit); }
+
+  dl.spec { margin: 0; display: grid; }
+  dl.spec > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  dl.spec > div:last-child { border-bottom: 0; }
+  dl.spec dt { color: var(--muted); }
+  dl.spec dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  dl.spec .total dt, dl.spec .total dd { color: var(--ink); font-weight: 600; }
+
+  .bays-block { display: grid; gap: 8px; }
+  .bays-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; }
+  .bays-title .eyebrow { white-space: nowrap; }
+  .bays-title strong { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+  .bays {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(22px, 1fr));
+    gap: 4px;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+  }
+  .bay {
+    height: 34px;
+    border-radius: 3px;
+    position: relative;
+  }
+  .bay::after {
+    content: '';
+    position: absolute; left: 50%; bottom: 5px;
+    width: 4px; height: 4px; margin-left: -2px;
+    border-radius: 50%;
+    background: var(--surface);
+    opacity: 0.8;
+  }
+  .bay.data { background: var(--disk-data); }
+  .bay.parity { background: var(--disk-parity); }
+  .bay.spare { background: var(--disk-spare); }
+  .bay-more {
+    grid-column: 1 / -1;
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+  ul.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  ul.checks li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: start;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+  ul.checks li b {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 1px;
+  }
+  ul.checks li span { color: var(--ink); }
+
+  .export textarea {
+    width: 100%;
+    min-height: 160px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .toast { font-size: 12px; color: var(--ok); min-height: 18px; }
+
+  footer.notes {
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 75ch;
+    display: grid;
+    gap: 6px;
+  }
+
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  @media (max-width: 1039px) {
+    .summary { order: -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Recording storage sizing · SOP-VSS-001</div>
+      <h1>CCTV Storage Calculator</h1>
+    </div>
+    <div class="formula" title="SOP §5 Step 4">GB/day = Mbps × duty × 10.8</div>
+  </header>
+
+  <div class="layout">
+    <div class="main">
+      <section class="panel" aria-labelledby="site-h">
+        <div class="panel-head">
+          <h2 id="site-h">Site and array</h2>
+          <div class="btn-row">
+            <button type="button" id="btnExample">Load example</button>
+            <button type="button" id="btnClear">Clear all</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="fields">
+            <div class="field wide">
+              <label for="pName">Site name</label>
+              <input id="pName" type="text" placeholder="e.g. Head office, Building B">
+            </div>
+            <div class="field">
+              <label for="pRetention">Retention (days)</label>
+              <input id="pRetention" type="number" min="1" step="1" inputmode="numeric">
+              <small>From policy or regulation</small>
+            </div>
+            <div class="field">
+              <label for="pHeadroom">Headroom factor</label>
+              <select id="pHeadroom">
+                <option value="1.2">×1.20 standard</option>
+                <option value="1.3">×1.30 growth or legal</option>
+                <option value="1.5">×1.50 major expansion</option>
+                <option value="1.1">×1.10 below SOP minimum</option>
+              </select>
+              <small>File system adds ×1.05</small>
+            </div>
+            <div class="field">
+              <label for="pDisk">Disk size</label>
+              <select id="pDisk"></select>
+              <small>Surveillance-rated drives</small>
+            </div>
+            <div class="field">
+              <label for="pRaid">RAID level</label>
+              <select id="pRaid"></select>
+              <small>RAID 6 is the default</small>
+            </div>
+            <div class="field">
+              <label for="pBays">Recorder drive bays</label>
+              <input id="pBays" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="pMbps">Recorder rated inbound (Mbps)</label>
+              <input id="pMbps" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="groups-h">
+        <div class="panel-head">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <h2 id="groups-h">Camera groups</h2>
+            <span class="chip" id="exampleChip" hidden>Example data. Replace with your cameras.</span>
+          </div>
+          <button type="button" class="primary" id="btnAdd">Add camera group</button>
+        </div>
+        <div class="table-scroll">
+          <table class="groups">
+            <thead>
+              <tr>
+                <th class="w-name">Group</th>
+                <th class="w-qty num">Qty</th>
+                <th>Resolution</th>
+                <th>Codec</th>
+                <th class="w-fps num">FPS</th>
+                <th>Scene</th>
+                <th>Recording</th>
+                <th class="w-hrs num">Hrs/day</th>
+                <th class="center">Night IR</th>
+                <th class="center">Audio</th>
+                <th class="w-meas num">Measured Mbps</th>
+                <th class="num">Mbps / cam</th>
+                <th class="num">GB / day</th>
+                <th><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="groupRows"></tbody>
+          </table>
+          <div class="empty" id="emptyRows" hidden>No camera groups yet. Add one to start sizing.</div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="summary panel" aria-labelledby="sum-h">
+      <div class="panel-head">
+        <h2 id="sum-h">Storage spec</h2>
+        <span class="status lvl-ok" id="status">Ready</span>
+      </div>
+      <div class="panel-body">
+        <div class="headline">
+          <div class="big" id="sumRequired">0<span>TB</span></div>
+          <div class="caption" id="sumCaption">usable storage required</div>
+        </div>
+
+        <dl class="spec">
+          <div><dt>Cameras</dt><dd id="sCameras">0</dd></div>
+          <div><dt>Recording per day</dt><dd id="sDay">0 GB</dd></div>
+          <div><dt>Raw recording</dt><dd id="sRaw">0 TB</dd></div>
+          <div><dt>With overhead and headroom</dt><dd id="sReq">0 TB</dd></div>
+          <div><dt>Camera traffic</dt><dd id="sAgg">0 Mbps</dd></div>
+          <div><dt>Recorder must handle</dt><dd id="sRec">0 Mbps</dd></div>
+          <div class="total"><dt>Usable array</dt><dd id="sUsable">0 TB</dd></div>
+          <div><dt>Shown by the OS</dt><dd id="sTiB">0 TiB</dd></div>
+          <div class="total"><dt>Expected retention</dt><dd id="sDays">0 days</dd></div>
+        </dl>
+
+        <div class="bays-block">
+          <div class="bays-title">
+            <strong id="arrayTitle">Array</strong>
+            <span class="eyebrow" id="arrayRaw"></span>
+          </div>
+          <div class="bays" id="bays" role="img" aria-label="Disk layout"></div>
+          <div class="legend">
+            <span><i style="background:var(--disk-data)"></i>Data</span>
+            <span><i style="background:var(--disk-parity)"></i><span id="parityLabel">Parity</span></span>
+            <span><i style="background:var(--disk-spare)"></i>Hot spare</span>
+          </div>
+        </div>
+
+        <ul class="checks" id="checks"></ul>
+
+        <div class="export">
+          <div class="btn-row">
+            <button type="button" id="btnReport">Copy report</button>
+            <button type="button" id="btnCsv">Copy CSV</button>
+          </div>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          <textarea id="exportText" readonly hidden aria-label="Export text"></textarea>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="notes">
+    <div>Estimates use SOP Table 1 planning bitrates at 15 fps and medium motion, scaled by frame rate, scene (×0.7 low, ×1.5 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
+    <div>Decimal units throughout: 1 TB = 1,000 GB. Disks are sold in TB; operating systems show TiB (1 TB = 0.909 TiB). Motion duty cycles include pre- and post-event recording.</div>
+    <div>Your inputs are kept in this browser only.</div>
+  </footer>
+</div>
+
+<!-- @calc -->
+<script>
+  (function () {
+    'use strict'
+    const C = window.StorageCalc
+    const fmt = C.fmt
+    const STORE_KEY = 'cctv-storage-calc-v1'
+    const $ = (id) => document.getElementById(id)
+
+    let state = load() || { ...C.exampleProject(), isExample: true }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY)
+        if (!raw) return null
+        const s = JSON.parse(raw)
+        if (!s || !s.project || !Array.isArray(s.groups)) return null
+        return s
+      } catch (e) {
+        return null
+      }
+    }
+    function save() {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(state)) } catch (e) { /* storage unavailable */ }
+    }
+
+    const options = (list, selected) =>
+      list.map((o) => `<option value="${o.id}"${String(o.id) === String(selected) ? ' selected' : ''}>${o.label}</option>`).join('')
+    const escAttr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+
+    // ---- Site fields ----
+    $('pDisk').innerHTML = options(C.DISK_SIZES_TB.map((t) => ({ id: t, label: `${t} TB` })), state.project.diskTB)
+    $('pRaid').innerHTML = options(C.RAID_LEVELS, state.project.raid)
+
+    const projectFields = [
+      ['pName', 'name', 'text'],
+      ['pRetention', 'retentionDays', 'number'],
+      ['pHeadroom', 'headroom', 'number'],
+      ['pDisk', 'diskTB', 'number'],
+      ['pRaid', 'raid', 'text'],
+      ['pBays', 'recorderBays', 'raw'],
+      ['pMbps', 'recorderMbps', 'raw']
+    ]
+
+    function fillProject() {
+      const p = state.project
+      projectFields.forEach(([id, key]) => {
+        const el = $(id)
+        if (el.tagName === 'SELECT' && ![...el.options].some((o) => o.value === String(p[key]))) {
+          const opt = document.createElement('option')
+          opt.value = p[key]
+          opt.textContent = key === 'headroom' ? `×${Number(p[key]).toFixed(2)}` : String(p[key])
+          el.appendChild(opt)
+        }
+        el.value = p[key] ?? ''
+      })
+    }
+
+    projectFields.forEach(([id, key, type]) => {
+      const el = $(id)
+      const handler = () => {
+        state.project[key] = type === 'number' ? parseFloat(el.value) || 0 : el.value
+        touched()
+      }
+      el.addEventListener('input', handler)
+      el.addEventListener('change', handler)
+    })
+
+    // ---- Camera group rows ----
+    function rowHTML(g, i) {
+      const sched = g.mode === 'scheduled'
+      return `
+        <tr data-i="${i}">
+          <td><input data-k="name" type="text" value="${escAttr(g.name)}" aria-label="Group name"></td>
+          <td><input data-k="qty" type="number" min="0" step="1" value="${escAttr(g.qty)}" aria-label="Quantity" inputmode="numeric"></td>
+          <td><select data-k="resolution" aria-label="Resolution">${options(C.RESOLUTIONS, g.resolution)}</select></td>
+          <td><select data-k="codec" aria-label="Codec">${options(C.CODECS, g.codec)}</select></td>
+          <td><input data-k="fps" type="number" min="1" max="60" step="1" value="${escAttr(g.fps)}" aria-label="Frames per second" inputmode="numeric"></td>
+          <td><select data-k="scene" aria-label="Scene activity">${options(C.SCENES, g.scene)}</select></td>
+          <td><select data-k="mode" aria-label="Recording mode">${options(C.MODES, g.mode)}</select></td>
+          <td><input data-k="hours" type="number" min="1" max="24" step="1" value="${escAttr(g.hours)}" aria-label="Hours per day"${sched ? '' : ' disabled'} inputmode="numeric"></td>
+          <td class="center"><input data-k="nightIR" type="checkbox"${g.nightIR ? ' checked' : ''} aria-label="Night IR"></td>
+          <td class="center"><input data-k="audio" type="checkbox"${g.audio ? ' checked' : ''} aria-label="Audio"></td>
+          <td><input data-k="measuredMbps" type="number" min="0" step="0.1" value="${escAttr(g.measuredMbps)}" aria-label="Measured bitrate in Mbps" inputmode="decimal"></td>
+          <td class="out" data-out="mbps"></td>
+          <td class="out" data-out="gb"></td>
+          <td>
+            <button type="button" class="icon" data-act="dup" title="Duplicate group" aria-label="Duplicate group">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>
+            </button>
+            <button type="button" class="icon danger" data-act="del" title="Remove group" aria-label="Remove group">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>
+            </button>
+          </td>
+        </tr>`
+    }
+
+    function renderRows() {
+      $('groupRows').innerHTML = state.groups.map(rowHTML).join('')
+      $('emptyRows').hidden = state.groups.length > 0
+    }
+
+    $('groupRows').addEventListener('input', onRowEdit)
+    $('groupRows').addEventListener('change', onRowEdit)
+    function onRowEdit(e) {
+      const el = e.target
+      const k = el.dataset.k
+      if (!k) return
+      const i = Number(el.closest('tr').dataset.i)
+      const g = state.groups[i]
+      if (el.type === 'checkbox') g[k] = el.checked
+      else if (el.type === 'number') g[k] = el.value === '' ? '' : parseFloat(el.value)
+      else g[k] = el.value
+      if (k === 'mode') {
+        const hrs = el.closest('tr').querySelector('[data-k="hours"]')
+        hrs.disabled = g.mode !== 'scheduled'
+      }
+      touched()
+    }
+
+    $('groupRows').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act]')
+      if (!btn) return
+      const i = Number(btn.closest('tr').dataset.i)
+      if (btn.dataset.act === 'del') state.groups.splice(i, 1)
+      else state.groups.splice(i + 1, 0, { ...state.groups[i], name: `${state.groups[i].name} copy` })
+      renderRows()
+      touched()
+    })
+
+    $('btnAdd').addEventListener('click', () => {
+      state.groups.push(C.newGroup(state.groups.length + 1))
+      renderRows()
+      touched()
+      const rows = $('groupRows').querySelectorAll('tr')
+      const input = rows[rows.length - 1]?.querySelector('input')
+      if (input) { input.focus(); input.select() }
+    })
+
+    $('btnExample').addEventListener('click', () => {
+      state = { ...C.exampleProject(), isExample: true }
+      fillProject(); renderRows(); update(); save()
+    })
+
+    let clearArmed = null
+    $('btnClear').addEventListener('click', (e) => {
+      const btn = e.currentTarget
+      if (!clearArmed) {
+        btn.textContent = 'Click again to clear'
+        clearArmed = setTimeout(() => { btn.textContent = 'Clear all'; clearArmed = null }, 3000)
+        return
+      }
+      clearTimeout(clearArmed); clearArmed = null
+      btn.textContent = 'Clear all'
+      const ex = C.exampleProject().project
+      state = {
+        project: { ...ex, name: '', recorderBays: '', recorderMbps: '' },
+        groups: [C.newGroup(1)],
+        isExample: false
+      }
+      fillProject(); renderRows(); update(); save()
+    })
+
+    function touched() {
+      state.isExample = false
+      update()
+      save()
+    }
+
+    // ---- Output ----
+    function update() {
+      const r = C.calculateProject(state.project, state.groups)
+      const t = r.totals
+      const a = r.array
+      $('exampleChip').hidden = !state.isExample
+
+      $('groupRows').querySelectorAll('tr').forEach((tr, i) => {
+        const row = r.rows[i]
+        if (!row) return
+        tr.querySelector('[data-out="mbps"]').innerHTML =
+          `${fmt(row.mbps, 2)}<span class="sub">${row.measured ? 'measured' : 'estimate'}</span>`
+        tr.querySelector('[data-out="gb"]').innerHTML =
+          `${fmt(row.gbPerDay, 1)}<span class="sub">${fmt(row.gbPerDayPerCam, 1)} each · duty ${fmt(row.duty, 2)}</span>`
+        const meas = tr.querySelector('[data-k="measuredMbps"]')
+        meas.placeholder = fmt(row.estimatedMbps, 2)
+      })
+
+      const days = Number(state.project.retentionDays) || 0
+      $('sumRequired').innerHTML = `${fmt(t.requiredTB, 1)}<span>TB</span>`
+      $('sumCaption').textContent = `usable storage for ${days} day${days === 1 ? '' : 's'} of footage`
+      $('sCameras').textContent = String(t.cameras)
+      $('sDay').textContent = `${fmt(t.gbPerDay, 1)} GB`
+      $('sRaw').textContent = `${fmt(t.rawTB, 2)} TB`
+      $('sReq').textContent = `${fmt(t.requiredTB, 2)} TB`
+      $('sAgg').textContent = `${fmt(t.aggregateMbps, 1)} Mbps`
+      $('sRec').textContent = `≥ ${fmt(t.minRecorderMbps, 0)} Mbps`
+      $('sUsable').textContent = `${fmt(a.usableTB, 0)} TB`
+      $('sTiB').textContent = `${fmt(a.usableTiB, 1)} TiB`
+      $('sDays').textContent = Number.isFinite(t.expectedRetentionDays)
+        ? `${Math.floor(t.expectedRetentionDays)} days` : '—'
+
+      $('arrayTitle').textContent =
+        `${a.totalDisks} × ${a.diskTB} TB · ${a.raidLabel}${a.spareDisks ? ' + spare' : ''}`
+      $('arrayRaw').textContent = `${fmt(a.rawTB, 0)} TB raw`
+      $('parityLabel').textContent = a.raid === 'raid10' ? 'Mirror' : 'Parity'
+      renderBays(a)
+
+      const labels = { ok: 'Meets retention', info: 'Check notes', warn: 'Review design', critical: 'Does not meet SOP' }
+      const status = $('status')
+      status.className = `status lvl-${r.status}`
+      status.textContent = t.cameras === 0 ? 'No cameras' : labels[r.status]
+
+      const order = { critical: 0, warn: 1, ok: 2, info: 3 }
+      const names = { ok: 'OK', info: 'Note', warn: 'Warning', critical: 'Fix' }
+      $('checks').innerHTML = [...r.checks]
+        .sort((x, y) => order[x.level] - order[y.level])
+        .map((c) => `<li class="lvl-${c.level}"><b>${names[c.level]}</b><span>${escAttr(c.text)}</span></li>`)
+        .join('')
+
+      lastResult = r
+    }
+    let lastResult = null
+
+    function renderBays(a) {
+      const MAX = 48
+      const cells = []
+      for (let i = 0; i < a.dataDisks; i++) cells.push('data')
+      for (let i = 0; i < a.parityDisks; i++) cells.push('parity')
+      for (let i = 0; i < a.spareDisks; i++) cells.push('spare')
+      const shown = cells.slice(0, MAX).map((c) => `<div class="bay ${c}" title="${c}"></div>`).join('')
+      const more = cells.length > MAX ? `<div class="bay-more">+${cells.length - MAX} more disks</div>` : ''
+      $('bays').innerHTML = shown + more
+      $('bays').setAttribute('aria-label',
+        `${a.dataDisks} data, ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}, ${a.spareDisks} hot spare disks`)
+    }
+
+    // ---- Export ----
+    let toastTimer = null
+    function toast(msg) {
+      $('toast').textContent = msg
+      clearTimeout(toastTimer)
+      toastTimer = setTimeout(() => { $('toast').textContent = '' }, 2500)
+    }
+    function copy(text, what) {
+      const fallback = () => {
+        const ta = $('exportText')
+        ta.hidden = false
+        ta.value = text
+        ta.focus(); ta.select()
+        toast(`Text is selected. Press Ctrl+C or ⌘C to copy the ${what}.`)
+      }
+      $('exportText').hidden = true
+      try {
+        navigator.clipboard.writeText(text).then(() => toast(`Copied the ${what}.`), fallback)
+      } catch (e) {
+        fallback()
+      }
+    }
+    $('btnReport').addEventListener('click', () =>
+      copy(C.formatReport(state.project, state.groups, lastResult), 'report'))
+    $('btnCsv').addEventListener('click', () =>
+      copy(C.formatCSV(state.groups, lastResult), 'CSV'))
+
+    fillProject()
+    renderRows()
+    update()
+  })()
+</script>

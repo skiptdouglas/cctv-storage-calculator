@@ -1,0 +1,15 @@
+{
+  "name": "cctv-storage-calculator",
+  "version": "0.1.0",
+  "description": "Size recording storage for CCTV / IP camera systems following SOP-VSS-001.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test",
+    "serve": "npm run build && npx --yes http-server dist -p 8080 -c-1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
