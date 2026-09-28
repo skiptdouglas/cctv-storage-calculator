@@ -24,7 +24,8 @@ Fixes and additions from a review of the whole project.
   silently using a default.
 - A shortfall message now says how many days short and how much storage to
   add.
-- GitHub Pages workflow (`.github/workflows/pages.yml`) to host the page.
+- GitHub Pages workflow (`.github/workflows/pages.yml`) to host the page,
+  run by hand from the Actions tab.
 - Browser smoke test in CI (Playwright) that drives the built page.
 
 ## 0.5.0 — 2026-09-28

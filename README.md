@@ -53,7 +53,8 @@ open dist/index.html # or double-click it; any static host works too
 
 `dist/index.html` is one file with everything inlined. You can email it, put it
 on a file share, or host it on GitHub Pages: turn on Pages (Settings → Pages →
-Source: GitHub Actions) and the `Pages` workflow publishes every push to `main`. It needs internet access only to
+Source: GitHub Actions), then run the `Pages` workflow from the Actions tab
+whenever you want to publish the current `main`. It needs internet access only to
 load its web fonts, and falls back to system fonts without it.
 
 ## Develop
