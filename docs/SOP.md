@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.4                                              |
+| Version         | 1.5                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -115,7 +115,8 @@ Adjustments to Table 1:
   the safe direction.
 - **Scene motion:** low motion ×0.7, high motion ×1.5.
 - **Image quality / compression setting:** low ×0.7, medium ×1.0, high ×1.4.
-- **Day/night frame rates:** if cameras record at a lower frame rate at night,
+- **Day/night frame rates:** for continuous or motion recording, if cameras
+  record at a lower frame rate at night,
   size **storage** with the hours-weighted average
   `(day bitrate × day hours + night bitrate × night hours) ÷ 24`, and size
   **throughput** (Step 5a) with the higher of the two bitrates.
@@ -176,6 +177,9 @@ inbound bandwidth.
 Storage is only half the design. Confirm every link in the recording path can
 carry the traffic. Use each camera's **full** bitrate here, even for
 motion-recorded cameras, because they can all trigger at once.
+
+Analog and HD-over-coax cameras connect to the DVR by coax. Steps 1 and 2
+below do not apply to them; go straight to step 3.
 
 1. **Switch uplinks.** For each PoE switch, add up the bitrate of the cameras
    connected to it. Keep this at or below **70%** of the switch's uplink to the
@@ -296,7 +300,10 @@ Within **7 days** of commissioning:
    **15%**, re-run §5 Steps 4–7 with measured values.
 3. After **retention days + 7**, confirm the oldest available footage is at
    least the required retention age. Record the result in the project file.
-4. If retention is not met: reduce bitrate (codec, fps, quality, smart codec),
+4. For an existing recorder, enter its installed disks in the calculator's
+   "Check an existing array" mode to see the days that fit and, if short, the
+   storage to add.
+5. If retention is not met: reduce bitrate (codec, fps, quality, smart codec),
    change recording mode, or add storage — in that order of preference, subject
    to the site owner's approval of any image-quality change.
 
@@ -336,6 +343,7 @@ Keep the following in the project file for the life of the system:
 | 1.2     | 2026-09-28 |        | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
 | 1.3     | 2026-09-28 |        | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
 | 1.4     | 2026-09-28 |        | Table 1 adds analog CIF, D1, 960H; No RAID allowed for non-critical systems |
+| 1.5     | 2026-09-28 |        | Coax cameras excluded from switch/PoE steps; night rate limited to continuous/motion; appendices reordered; worksheet columns added; existing-array check in §7 |
 
 ---
 
@@ -344,12 +352,12 @@ Keep the following in the project file for the life of the system:
 **Project / site:** ____________________  **Designer:** ____________
 **Retention required (days):** ______  **Headroom factor:** 1.20 / 1.30
 
-| Grp | Qty | Model | Res | Codec | fps | Scene | Mode | Bitrate (Mbps) | Duty | GB/day/cam (= Mbps × Duty × 10.8) | GB/day (× Qty) |
-| --- | --- | ----- | --- | ----- | --- | ----- | ---- | -------------- | ---- | --------------------------------- | -------------- |
-|     |     |       |     |       |     |       |      |                |      |                                   |                |
-|     |     |       |     |       |     |       |      |                |      |                                   |                |
-|     |     |       |     |       |     |       |      |                |      |                                   |                |
-|     |     |       |     |       |     |       |      |                |      |                                   |                |
+| Grp | Qty | Model | Res | Codec | Quality | fps day / night | Scene | Mode | Switch | PoE W | Bitrate (Mbps) | Duty | GB/day/cam (= Mbps × Duty × 10.8) | GB/day (× Qty) |
+| --- | --- | ----- | --- | ----- | ------- | --------------- | ----- | ---- | ------ | ----- | -------------- | ---- | --------------------------------- | -------------- |
+|     |     |       |     |       |         |                 |       |      |        |       |                |      |                                   |                |
+|     |     |       |     |       |         |                 |       |      |        |       |                |      |                                   |                |
+|     |     |       |     |       |         |                 |       |      |        |       |                |      |                                   |                |
+|     |     |       |     |       |         |                 |       |      |        |       |                |      |                                   |                |
 
 | Line | Item                                                     | Value |
 | ---- | -------------------------------------------------------- | ----- |
@@ -362,8 +370,23 @@ Keep the following in the project file for the life of the system:
 | 7    | Data disks = ⌈Line 3 ÷ disk size⌉                        |       |
 | 8    | Total disks = Line 7 + parity (+ hot spare if ≥ 8 disks) |       |
 | 9    | Usable TB / TiB (× 0.909)                                |       |
+| 10   | Per switch: Σ bitrate ≤ 70% of uplink; Σ PoE W ≤ 80% of budget |       |
+| 11   | Viewing Mbps = live × (0.5 or avg) + playback × avg     |       |
 
 **Reviewed by:** ______________  **Date:** __________
+
+## Appendix B — Spreadsheet formulas
+
+For a spreadsheet version of the worksheet, with bitrate in column I, duty in
+column J, quantity in column B, and retention days in cell `$C$1`:
+
+```
+GB/day/cam   K2:  =I2*J2*10.8
+GB/day       L2:  =K2*B2
+Raw TB           =SUM(L:L)*$C$1/1000
+Usable TB        =RawTB*1.05*Headroom
+Data disks       =ROUNDUP(UsableTB/DiskSizeTB,0)
+```
 
 ## Appendix C — Raw-pixel method (comparison only)
 
@@ -383,16 +406,3 @@ This method usually gives higher figures than Table 1, most of all at 4K,
 where the 30-bit color depth nearly doubles the raw bitrate. Final designs are
 sized with Table 1 or measured bitrates (Step 2). When a customer or another
 tool quotes a raw-pixel figure, record both results and explain the difference.
-
-## Appendix B — Spreadsheet formulas
-
-For a spreadsheet version of the worksheet, with bitrate in column I, duty in
-column J, quantity in column B, and retention days in cell `$C$1`:
-
-```
-GB/day/cam   K2:  =I2*J2*10.8
-GB/day       L2:  =K2*B2
-Raw TB           =SUM(L:L)*$C$1/1000
-Usable TB        =RawTB*1.05*Headroom
-Data disks       =ROUNDUP(UsableTB/DiskSizeTB,0)
-```

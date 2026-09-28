@@ -285,3 +285,62 @@ test('no-RAID is critical for evidential footage, a warning otherwise', () => {
   assert.equal(level({ evidential: false }), 'warn')
   assert.equal(C.withDefaults({}, []).project.evidential, true)
 })
+
+test('analog coax cameras have no PoE and no switch traffic', () => {
+  const g = { qty: 16, resolution: 'D1', codec: 'h264', fps: 15, scene: 'medium', mode: 'continuous', switch: 'sw1', poeW: 8 }
+  const r = C.calculateGroup(g)
+  assert.equal(r.coax, true)
+  assert.equal(r.poeW, 0)
+  assert.equal(r.totalPoeW, 0)
+  const p = { ...C.exampleProject().project }
+  const res = C.calculateProject(p, [g])
+  assert.equal(res.network.switches[0].cameras, 0)
+  assert.equal(res.network.coax.cameras, 16)
+  close(res.network.coax.mbps, 16)
+  assert.ok(res.checks.some((c) => /coax/.test(c.text)))
+  assert.match(C.formatCSV([g], res), /,coax,0\.0$/m)
+})
+
+test('night fps is ignored for scheduled recording', () => {
+  const g = { qty: 1, resolution: '4MP', codec: 'h265', fps: 30, nightFps: 10, scene: 'medium', mode: 'scheduled', hours: 8 }
+  assert.equal(C.nightFps(g), null)
+  const r = C.calculateGroup(g, 12)
+  close(r.mbps, 6)
+  close(r.duty, 8 / 24)
+})
+
+test('existing array mode reports days that fit and spare cameras', () => {
+  const { project, groups } = C.exampleProject()
+  // 16-bay NVR with 9 × 12 TB RAID 6 → 1 spare, 6 data
+  const r = C.calculateProject({ ...project, arrayMode: 'existing', existingDisks: 9 }, groups)
+  assert.equal(r.array.existing, true)
+  assert.deepEqual([r.array.dataDisks, r.array.parityDisks, r.array.spareDisks, r.array.totalDisks], [6, 2, 1, 9])
+  assert.equal(Math.floor(r.totals.expectedRetentionDays), 42)
+  // 72 / 1.2 − 48.24 × 1.05 = 9.35 TB spare; avg 1.266 TB/cam → 7 cameras
+  close(r.totals.spareTB, 9.35, 0.02)
+  assert.equal(r.totals.spareCameras, 7)
+  assert.ok(r.checks.some((c) => c.level === 'info' && /7 more cameras/.test(c.text)))
+  // Too small: 5 × 12 TB RAID 6 → 3 data = 36 TB → about 21 days
+  const small = C.calculateProject({ ...project, arrayMode: 'existing', existingDisks: 5 }, groups)
+  assert.equal(small.array.spareDisks, 0)
+  assert.equal(Math.floor(small.totals.expectedRetentionDays), 21)
+  assert.ok(small.checks.some((c) => c.level === 'critical' && /Add about/.test(c.text)))
+  // Fewer disks than RAID needs
+  const none = C.calculateProject({ ...project, arrayMode: 'existing', existingDisks: 2 }, groups)
+  assert.equal(none.array.dataDisks, 0)
+  assert.ok(none.checks.some((c) => c.level === 'critical' && /needs more than 2 disks/.test(c.text)))
+  // RAID 10 with 6 existing disks → 3 data + 3 mirror
+  const r10 = C.planArray(0, 8, 'raid10', 6)
+  assert.deepEqual([r10.dataDisks, r10.parityDisks, r10.usableTB], [3, 3, 24])
+  // design mode unaffected
+  assert.equal(C.calculateProject({ ...project, arrayMode: 'design', existingDisks: 5 }, groups).array.existing, false)
+})
+
+test('blank quantity or frame rate raises a warning', () => {
+  const { project, groups } = C.exampleProject()
+  const gs = groups.map((g, i) => (i === 0 ? { ...g, qty: '' } : i === 1 ? { ...g, fps: '' } : g))
+  const texts = C.calculateProject(project, gs).checks.filter((c) => c.level === 'warn').map((c) => c.text)
+  assert.ok(texts.some((t) => /Aisles: quantity is blank/.test(t)))
+  assert.ok(texts.some((t) => /Loading docks: frame rate is blank/.test(t)))
+  assert.equal(C.calculateProject(project, groups).checks.filter((c) => /blank/.test(c.text)).length, 0)
+})

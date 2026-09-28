@@ -36,6 +36,9 @@ Everything you type stays in your browser.
   budgets, viewing traffic beyond the recorder or WAN link, and unverified
   smart-codec savings.
   It also confirms the expected retention in days.
+- **Existing sites:** switch the array setting to "Check an existing array",
+  enter the disks installed, and see the days that fit, the storage to add if
+  it falls short, or roughly how many more cameras it has room for.
 - **Export:** copy a plain-text report or a CSV of the camera groups.
 
 The page opens with the SOP's worked example (40 cameras, 30 days → 60.8 TB
@@ -49,7 +52,8 @@ open dist/index.html # or double-click it; any static host works too
 ```
 
 `dist/index.html` is one file with everything inlined. You can email it, put it
-on a file share, or host it on GitHub Pages. It needs internet access only to
+on a file share, or host it on GitHub Pages: turn on Pages (Settings → Pages →
+Source: GitHub Actions) and the `Pages` workflow publishes every push to `main`. It needs internet access only to
 load its web fonts, and falls back to system fonts without it.
 
 ## Develop
@@ -59,6 +63,7 @@ Requires Node 18 or newer. There are no dependencies.
 ```bash
 npm test             # unit tests for the calculation engine (node:test)
 npm run build        # build dist/index.html and dist/artifact.html
+npm run test:smoke   # browser smoke test; needs `npm i --no-save playwright`
 npm run serve        # build and serve dist/ on http://localhost:8080
 ```
 
@@ -67,7 +72,9 @@ npm run serve        # build and serve dist/ on http://localhost:8080
 | `src/calc.js`           | Calculation engine. Pure functions, works in browser and Node.  |
 | `src/page.html`         | UI: markup, styles and app script. `<!-- @calc -->` marks where the engine is inlined. |
 | `scripts/build.js`      | Inlines the engine and writes the single-file builds.           |
-| `test/calc.test.js`     | Tests, including the SOP worked example.                        |
+| `test/calc.test.js`     | Engine tests, including the SOP worked example.                 |
+| `test/smoke.test.js`    | Browser smoke test of the built page (Playwright).              |
+| `CHANGELOG.md`          | What changed in each version.                                   |
 | `docs/SOP.md`           | The standard operating procedure the calculator implements.     |
 
 To change a planning bitrate, duty cycle or threshold, edit the tables and the

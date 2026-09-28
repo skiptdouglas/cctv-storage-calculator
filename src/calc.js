@@ -17,9 +17,9 @@
 
   // Pixel sizes are used by the raw-pixel method only.
   const RESOLUTIONS = [
-    { id: 'CIF', label: 'CIF (analog)', width: 352, height: 240 },
-    { id: 'D1', label: 'D1 (analog)', width: 720, height: 480 },
-    { id: '960H', label: '960H (analog)', width: 960, height: 480 },
+    { id: 'CIF', label: 'CIF (analog)', width: 352, height: 240, coax: true },
+    { id: 'D1', label: 'D1 (analog)', width: 720, height: 480, coax: true },
+    { id: '960H', label: '960H (analog)', width: 960, height: 480, coax: true },
     { id: '1MP', label: '1 MP (720p)', width: 1280, height: 720 },
     { id: '2MP', label: '2 MP (1080p)', width: 1920, height: 1080 },
     { id: '3MP', label: '3 MP', width: 2048, height: 1536 },
@@ -174,8 +174,12 @@
     }
   }
 
-  /** Night frame rate if one is set and differs from the day rate, else null. */
+  /**
+   * Night frame rate if one is set and differs from the day rate, else null.
+   * Scheduled groups record fixed hours, so a night rate does not apply.
+   */
   function nightFps(g) {
+    if (g.mode === 'scheduled') return null
     const n = num(g.nightFps, 0)
     return n > 0 && n !== num(g.fps, K.BASE_FPS) ? n : null
   }
@@ -205,8 +209,14 @@
     return bitrates(g, nightHours, model).average
   }
 
-  /** Estimated PoE draw per camera (W). A value entered in poeW wins. */
+  /** Analog cameras connect to a DVR by coax: no PoE, no network switch. */
+  function isCoax(g) {
+    return !!((byId(RESOLUTIONS, g.resolution) || {}).coax)
+  }
+
+  /** Estimated PoE draw per camera (W). A value entered in poeW wins. Coax cameras draw none. */
   function estimatePoE(g) {
+    if (isCoax(g)) return 0
     let w = K.POE_BASE_W
     if (g.nightIR) w += K.POE_IR_W
     if (g.resolution === '8MP' || g.resolution === '12MP') w += K.POE_HIRES_W
@@ -214,6 +224,7 @@
   }
 
   function groupPoE(g) {
+    if (isCoax(g)) return 0
     const entered = num(g.poeW, 0)
     return entered > 0 ? entered : estimatePoE(g)
   }
@@ -242,29 +253,48 @@
       aggregateMbps: b.peak * qty,
       estimatedPoeW: estimatePoE(g),
       poeW: groupPoE(g),
-      totalPoeW: groupPoE(g) * qty
+      totalPoeW: groupPoE(g) * qty,
+      coax: isCoax(g)
     }
   }
 
-  /** SOP §5 Step 7 — disk count for a required usable capacity. */
-  function planArray(requiredTB, diskTB, raidId) {
+  /**
+   * SOP §5 Step 7 — disk count for a required usable capacity. With
+   * `existingDisks` set, describes that array instead (existing-site mode).
+   */
+  function planArray(requiredTB, diskTB, raidId, existingDisks) {
     const raid = byId(RAID_LEVELS, raidId) || RAID_LEVELS[0]
     const size = Math.max(0, num(diskTB, 0))
-    const needData = size > 0 ? Math.max(0, ceil(requiredTB / size)) : 0
+    const existing = Math.max(0, Math.floor(num(existingDisks, 0)))
     let dataDisks
     let parityDisks
-    if (raid.id === 'raid10') {
-      dataDisks = Math.max(raid.minDisks / 2, needData)
-      parityDisks = dataDisks // mirror copies
+    let spareDisks
+    if (existing > 0) {
+      spareDisks = raid.id !== 'jbod' && existing >= K.HOT_SPARE_FROM_DISKS + 1 ? 1 : 0
+      const inArray = existing - spareDisks
+      if (raid.id === 'raid10') {
+        dataDisks = Math.floor(inArray / 2)
+        parityDisks = inArray - dataDisks
+      } else {
+        dataDisks = Math.max(0, inArray - raid.parity)
+        parityDisks = inArray - dataDisks
+      }
     } else {
-      const total = Math.max(raid.minDisks, needData + raid.parity)
-      dataDisks = total - raid.parity
-      parityDisks = raid.parity
+      const needData = size > 0 ? Math.max(0, ceil(requiredTB / size)) : 0
+      if (raid.id === 'raid10') {
+        dataDisks = Math.max(raid.minDisks / 2, needData)
+        parityDisks = dataDisks // mirror copies
+      } else {
+        const total = Math.max(raid.minDisks, needData + raid.parity)
+        dataDisks = total - raid.parity
+        parityDisks = raid.parity
+      }
+      spareDisks = raid.id !== 'jbod' && dataDisks + parityDisks >= K.HOT_SPARE_FROM_DISKS ? 1 : 0
     }
     const arrayDisks = dataDisks + parityDisks
-    const spareDisks = raid.id !== 'jbod' && arrayDisks >= K.HOT_SPARE_FROM_DISKS ? 1 : 0
     const usableTB = dataDisks * size
     return {
+      existing: existing > 0,
       raid: raid.id,
       raidLabel: raid.label,
       diskTB: size,
@@ -292,7 +322,7 @@
     const rawTB = (gbPerDay * Math.max(0, retentionDays)) / 1000
     const requiredTB = rawTB * K.FS_OVERHEAD * headroom
     const minRecorderMbps = aggregateMbps / K.RECORDER_UTILISATION
-    const array = planArray(requiredTB, p.diskTB, p.raid)
+    const array = planArray(requiredTB, p.diskTB, p.raid, p.arrayMode === 'existing' ? p.existingDisks : 0)
     const network = calculateNetwork(p, groups || [], rows)
     const viewing = calculateViewing(p, cameras, aggregateMbps)
     const disk = {
@@ -301,6 +331,11 @@
     }
     const dailyTBOnDisk = (gbPerDay * K.FS_OVERHEAD) / 1000
     const expectedRetentionDays = dailyTBOnDisk > 0 ? array.usableTB / dailyTBOnDisk : Infinity
+    // Existing-site mode: capacity left once the retention period is covered,
+    // with headroom kept, expressed as extra cameras at the site's average.
+    const spareTB = array.usableTB / headroom - rawTB * K.FS_OVERHEAD
+    const avgTBPerCam = cameras > 0 ? (rawTB * K.FS_OVERHEAD) / cameras : 0
+    const spareCameras = avgTBPerCam > 0 ? Math.floor(Math.max(0, spareTB) / avgTBPerCam) : 0
 
     const totals = {
       cameras,
@@ -309,7 +344,9 @@
       requiredTB,
       aggregateMbps,
       minRecorderMbps,
-      expectedRetentionDays
+      expectedRetentionDays,
+      spareTB,
+      spareCameras
     }
     const checks = runChecks(p, groups || [], totals, array, network, viewing)
     return { rows, totals, array, network, viewing, disk, checks, status: worstLevel(checks) }
@@ -327,8 +364,14 @@
       poeW: 0
     }))
     const unassigned = { cameras: 0, mbps: 0, poeW: 0 }
+    const coax = { cameras: 0, mbps: 0 }
     groups.forEach((g, i) => {
       const r = rows[i]
+      if (r.coax) {
+        coax.cameras += r.qty
+        coax.mbps += r.aggregateMbps
+        return
+      }
       const target = switches.find((sw) => sw.id === g.switch) || unassigned
       target.cameras += r.qty
       target.mbps += r.aggregateMbps
@@ -338,7 +381,7 @@
       sw.uplinkLoad = sw.uplinkMbps > 0 ? sw.mbps / sw.uplinkMbps : null
       sw.poeLoad = sw.poeBudgetW > 0 ? sw.poeW / sw.poeBudgetW : null
     })
-    return { switches, unassigned }
+    return { switches, unassigned, coax }
   }
 
   /**
@@ -382,6 +425,20 @@
     }
     if (retention <= 0) {
       out.push({ level: 'critical', text: 'Set a retention period of at least 1 day.' })
+    }
+    const isBlank = (v) => v === '' || v === undefined || v === null
+    groups.forEach((g, i) => {
+      const name = g.name || `Group ${i + 1}`
+      const blank = []
+      if (isBlank(g.qty)) blank.push('quantity')
+      if (isBlank(g.fps)) blank.push('frame rate')
+      if (g.mode === 'scheduled' && isBlank(g.hours)) blank.push('hours per day')
+      if (blank.length) {
+        out.push({ level: 'warn', text: `${name}: ${blank.join(' and ')} ${blank.length > 1 ? 'are' : 'is'} blank, so the group counts as ${blank[0] === 'quantity' ? 'no cameras' : 'the default'}. Enter a value.` })
+      }
+    })
+    if (a.existing && a.dataDisks === 0) {
+      out.push({ level: 'critical', text: `${a.raidLabel} needs more than ${a.totalDisks} disk${a.totalDisks === 1 ? '' : 's'}. Add disks or choose a different RAID level.` })
     }
     if (a.raid === 'jbod') {
       out.push(p.evidential === false
@@ -437,6 +494,9 @@
         }
       }
     })
+    if (net && net.coax && net.coax.cameras > 0 && groups.some((g) => (byId(RESOLUTIONS, g.resolution) || {}).coax && (g.switch || num(g.poeW, 0) > 0))) {
+      out.push({ level: 'info', text: 'Analog cameras connect to the DVR by coax, so their switch and PoE entries are ignored.' })
+    }
     if (net && net.switches.length > 0 && net.unassigned.cameras > 0) {
       out.push({ level: 'info', text: `${net.unassigned.cameras} camera${net.unassigned.cameras === 1 ? ' is' : 's are'} not assigned to a switch, so their traffic and power are not checked.` })
     }
@@ -478,9 +538,17 @@
           text: `Meets the ${retention}-day requirement. About ${Math.floor(t.expectedRetentionDays)} days fit at design bitrates.`
         })
       } else {
+        const short = retention - t.expectedRetentionDays
+        const moreTB = (short * t.gbPerDay * K.FS_OVERHEAD) / 1000
         out.push({
           level: 'critical',
-          text: `Array holds only about ${Math.floor(t.expectedRetentionDays)} days of footage.`
+          text: `Array holds only about ${Math.floor(t.expectedRetentionDays)} days of footage, ${fmt(short, 0)} short of the ${retention}-day requirement. Add about ${fmt(moreTB, 1)} TB usable, or cut bitrate (codec, fps, quality) or camera count.`
+        })
+      }
+      if (a.existing && t.expectedRetentionDays + EPS >= retention && t.spareCameras > 0) {
+        out.push({
+          level: 'info',
+          text: `With headroom kept, about ${fmt(Math.max(0, t.spareTB), 1)} TB is spare: room for roughly ${t.spareCameras} more camera${t.spareCameras === 1 ? '' : 's'} at this site's average.`
         })
       }
     }
@@ -533,7 +601,7 @@
       lines.push(`Disk throughput: ${fmt(result.disk.writeMBps, 1)} MB/s write, ${fmt(result.disk.readMBps, 1)} MB/s playback read`)
     }
     lines.push(
-      `Array: ${a.totalDisks} × ${a.diskTB} TB, ${a.raidLabel}` +
+      `${a.existing ? 'Existing array' : 'Array'}: ${a.totalDisks} × ${a.diskTB} TB, ${a.raidLabel}` +
         ` (${a.dataDisks} data + ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}` +
         `${a.spareDisks ? ` + ${a.spareDisks} hot spare` : ''})`
     )
@@ -551,6 +619,7 @@
         )
       })
       if (result.network.unassigned.cameras) lines.push(`- Not assigned: ${result.network.unassigned.cameras} cameras`)
+      if (result.network.coax.cameras) lines.push(`- Coax to DVR (no switch): ${result.network.coax.cameras} cameras`)
     }
     lines.push('')
     lines.push('Checks')
@@ -574,7 +643,7 @@
         g.name, r.qty, g.resolution, g.codec, g.quality || 'medium', g.fps, nightFps(g) ?? '', g.scene, g.mode,
         g.mode === 'scheduled' ? g.hours : '', g.nightIR ? 'yes' : 'no', g.audio ? 'yes' : 'no',
         r.mbps.toFixed(3), r.peakMbps.toFixed(3), r.measured ? 'measured' : 'estimate', r.duty.toFixed(3),
-        r.gbPerDayPerCam.toFixed(2), r.gbPerDay.toFixed(2), switchName(g.switch), r.poeW.toFixed(1)
+        r.gbPerDayPerCam.toFixed(2), r.gbPerDay.toFixed(2), r.coax ? 'coax' : switchName(g.switch), r.poeW.toFixed(1)
       ]
     })
     return [head, ...rows].map((row) => row.map(esc).join(',')).join('\n')
@@ -594,6 +663,8 @@
         recorderOutMbps: '',
         nightHours: 12,
         evidential: true,
+        arrayMode: 'design',
+        existingDisks: '',
         method: 'bitrate',
         compressionRatios: { ...DEFAULT_COMPRESSION_RATIOS },
         liveStreams: 4,
@@ -643,6 +714,8 @@
       recorderMbps: '',
       nightHours: K.DEFAULT_NIGHT_HOURS,
       evidential: true,
+      arrayMode: 'design',
+      existingDisks: '',
       method: 'bitrate',
       liveStreams: 0,
       playbackStreams: 0,
@@ -682,6 +755,7 @@
     groupBitrate,
     dutyCycle,
     estimatePoE,
+    isCoax,
     calculateGroup,
     calculateNetwork,
     calculateViewing,

@@ -198,7 +198,8 @@
   }
   input[type="number"] { font-family: var(--font-mono); font-size: 13px; }
   input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
-  input:disabled { opacity: 0.45; }
+  input:disabled, select:disabled { opacity: 0.45; cursor: not-allowed; }
+  tr.coax select[data-k="switch"], tr.coax input[data-k="poeW"] { opacity: 0.35; }
   input:focus-visible, select:focus-visible, button:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
@@ -507,9 +508,22 @@
               <small>File system adds ×1.05</small>
             </div>
             <div class="field">
+              <label for="pArrayMode">Array</label>
+              <select id="pArrayMode">
+                <option value="design">Size a new array</option>
+                <option value="existing">Check an existing array</option>
+              </select>
+              <small>Existing: enter the disks you have</small>
+            </div>
+            <div class="field">
               <label for="pDisk">Disk size</label>
               <select id="pDisk"></select>
               <small>Surveillance-rated drives</small>
+            </div>
+            <div class="field" id="existingField" hidden>
+              <label for="pExisting">Disks installed</label>
+              <input id="pExisting" type="number" min="1" step="1" inputmode="numeric">
+              <small>Total, including any hot spare</small>
             </div>
             <div class="field">
               <label for="pRaid">RAID level</label>
@@ -705,6 +719,7 @@
     <div>Raw-pixel method: width × height × color depth (16-bit below 4K, 30-bit at 4K and above) × fps ÷ the codec's compression ratio. It usually gives higher figures than typical bitrates, most of all at 4K. Use it to compare with tools that work this way; the SOP sizes with typical or measured bitrates.</div>
     <div>Estimates start from SOP Table 1 H.264 bitrates at 15 fps, medium motion and medium quality, then scale by codec (Smart H.264+ ×0.6, H.265 ×0.5, AV1 ×0.35, Smart H.265+ ×0.25, MJPEG ×5), frame rate, scene (×0.7 low, ×1.5 high), quality (×0.7 low, ×1.4 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
     <div>With a Night FPS set, storage uses the day and night bitrates averaged over the night hours; throughput uses the higher of the two.</div>
+    <div>Analog cameras (CIF, D1, 960H) connect to the DVR by coax, so switch and PoE do not apply to them. HD-over-coax cameras (HD-TVI, AHD, HD-CVI) are the same: pick their MP resolution and leave the switch as None.</div>
     <div>Throughput uses each camera's full bitrate, since every motion camera can trigger at once. Disk write is camera traffic ÷ 8. PoE estimates are 6 W per camera, plus 3 W with night IR and 2 W at 8 MP and above; enter the datasheet figure to override.</div>
     <div>Decimal units throughout: 1 TB = 1,000 GB. Disks are sold in TB; operating systems show TiB (1 TB = 0.909 TiB). Motion duty cycles include pre- and post-event recording.</div>
     <div>Your inputs are kept in this browser only.</div>
@@ -774,6 +789,8 @@
       ['pRaid', 'raid', 'text'],
       ['pNight', 'nightHours', 'number'],
       ['pEvidential', 'evidential', 'checkbox'],
+      ['pArrayMode', 'arrayMode', 'text'],
+      ['pExisting', 'existingDisks', 'raw'],
       ['pBays', 'recorderBays', 'raw'],
       ['pMbps', 'recorderMbps', 'raw'],
       ['pLive', 'liveStreams', 'number'],
@@ -815,23 +832,24 @@
     // ---- Camera group rows ----
     function rowHTML(g, i) {
       const sched = g.mode === 'scheduled'
+      const coax = C.isCoax(g)
       return `
-        <tr data-i="${i}">
+        <tr data-i="${i}"${coax ? ' class="coax"' : ''}>
           <td><input data-k="name" type="text" value="${escAttr(g.name)}" aria-label="Group name"></td>
           <td><input data-k="qty" type="number" min="0" step="1" value="${escAttr(g.qty)}" aria-label="Quantity" inputmode="numeric"></td>
           <td><select data-k="resolution" aria-label="Resolution">${options(C.RESOLUTIONS, g.resolution)}</select></td>
           <td><select data-k="codec" aria-label="Codec">${options(C.CODECS, g.codec)}</select></td>
           <td><select data-k="quality" aria-label="Image quality">${options(C.QUALITIES, g.quality || 'medium')}</select></td>
           <td><input data-k="fps" type="number" min="1" max="60" step="1" value="${escAttr(g.fps)}" aria-label="Frames per second, day" inputmode="numeric"></td>
-          <td><input data-k="nightFps" type="number" min="1" max="60" step="1" value="${escAttr(g.nightFps)}" placeholder="same" aria-label="Frames per second, night" inputmode="numeric"></td>
+          <td><input data-k="nightFps" type="number" min="1" max="60" step="1" value="${escAttr(g.nightFps)}" placeholder="${sched ? 'n/a' : 'same'}" aria-label="Frames per second, night"${sched ? ' disabled' : ''} inputmode="numeric"></td>
           <td><select data-k="scene" aria-label="Scene activity">${options(C.SCENES, g.scene)}</select></td>
           <td><select data-k="mode" aria-label="Recording mode">${options(C.MODES, g.mode)}</select></td>
           <td><input data-k="hours" type="number" min="1" max="24" step="1" value="${escAttr(g.hours)}" aria-label="Hours per day"${sched ? '' : ' disabled'} inputmode="numeric"></td>
           <td class="center"><input data-k="nightIR" type="checkbox"${g.nightIR ? ' checked' : ''} aria-label="Night IR"></td>
           <td class="center"><input data-k="audio" type="checkbox"${g.audio ? ' checked' : ''} aria-label="Audio"></td>
           <td><input data-k="measuredMbps" type="number" min="0" step="0.1" value="${escAttr(g.measuredMbps)}" aria-label="Measured bitrate in Mbps" inputmode="decimal"></td>
-          <td><select data-k="switch" aria-label="Switch">${switchOptions(g.switch)}</select></td>
-          <td><input data-k="poeW" type="number" min="0" step="0.5" value="${escAttr(g.poeW)}" aria-label="PoE watts per camera" inputmode="decimal"></td>
+          <td><select data-k="switch" aria-label="Switch"${coax ? ' disabled title="Analog cameras connect to the DVR by coax"' : ''}>${coax ? '<option value="">Coax to DVR</option>' : switchOptions(g.switch)}</select></td>
+          <td><input data-k="poeW" type="number" min="0" step="0.5" value="${coax ? '' : escAttr(g.poeW)}" placeholder="${coax ? '—' : ''}" aria-label="PoE watts per camera"${coax ? ' disabled title="Analog cameras are not PoE"' : ''} inputmode="decimal"></td>
           <td class="out" data-out="mbps"></td>
           <td class="out" data-out="gb"></td>
           <td>
@@ -866,9 +884,22 @@
       if (el.type === 'checkbox') g[k] = el.checked
       else if (el.type === 'number') g[k] = el.value === '' ? '' : parseFloat(el.value)
       else g[k] = el.value
+      const tr = el.closest('tr')
       if (k === 'mode') {
-        const hrs = el.closest('tr').querySelector('[data-k="hours"]')
-        hrs.disabled = g.mode !== 'scheduled'
+        tr.querySelector('[data-k="hours"]').disabled = g.mode !== 'scheduled'
+        const nf = tr.querySelector('[data-k="nightFps"]')
+        nf.disabled = g.mode === 'scheduled'
+        nf.placeholder = g.mode === 'scheduled' ? 'n/a' : 'same'
+      }
+      if (k === 'resolution') {
+        const coax = C.isCoax(g)
+        tr.classList.toggle('coax', coax)
+        const sw = tr.querySelector('[data-k="switch"]')
+        const poe = tr.querySelector('[data-k="poeW"]')
+        sw.disabled = coax
+        poe.disabled = coax
+        sw.innerHTML = coax ? '<option value="">Coax to DVR</option>' : switchOptions(g.switch)
+        if (coax) poe.value = ''
       }
       touched()
     }
@@ -907,6 +938,7 @@
 
     function refreshSwitchSelects() {
       $('groupRows').querySelectorAll('select[data-k="switch"]').forEach((sel, i) => {
+        if (C.isCoax(state.groups[i])) return
         sel.innerHTML = switchOptions(state.groups[i].switch)
       })
     }
@@ -1004,12 +1036,20 @@
           `${fmt(row.gbPerDay, 1)}<span class="sub">${fmt(row.gbPerDayPerCam, 1)} each · duty ${fmt(row.duty, 2)}</span>`
         const meas = tr.querySelector('[data-k="measuredMbps"]')
         meas.placeholder = fmt(row.estimatedMbps, 2)
-        tr.querySelector('[data-k="poeW"]').placeholder = fmt(row.estimatedPoeW, 0)
+        tr.querySelector('[data-k="poeW"]').placeholder = row.coax ? '—' : fmt(row.estimatedPoeW, 0)
       })
 
       const days = Number(state.project.retentionDays) || 0
-      $('sumRequired').innerHTML = `${fmt(t.requiredTB, 1)}<span>TB</span>`
-      $('sumCaption').textContent = `usable storage for ${days} day${days === 1 ? '' : 's'} of footage`
+      const existing = a.existing
+      $('existingField').hidden = state.project.arrayMode !== 'existing'
+      if (existing) {
+        const fit = Number.isFinite(t.expectedRetentionDays) ? Math.floor(t.expectedRetentionDays) : 0
+        $('sumRequired').innerHTML = `${fmt(fit, 0)}<span>days</span>`
+        $('sumCaption').textContent = `fit on the existing array · ${days} required · needs ${fmt(t.requiredTB, 1)} TB usable`
+      } else {
+        $('sumRequired').innerHTML = `${fmt(t.requiredTB, 1)}<span>TB</span>`
+        $('sumCaption').textContent = `usable storage for ${days} day${days === 1 ? '' : 's'} of footage`
+      }
       const raw = state.project.method === 'raw'
       $('ratiosBlock').hidden = !raw
       const other = C.calculateProject({ ...state.project, method: raw ? 'bitrate' : 'raw' }, state.groups)
@@ -1047,7 +1087,7 @@
         ? `${Math.floor(t.expectedRetentionDays)} days` : '—'
 
       $('arrayTitle').textContent =
-        `${a.totalDisks} × ${a.diskTB} TB · ${a.raidLabel}${a.spareDisks ? ' + spare' : ''}`
+        `${existing ? 'Existing: ' : ''}${a.totalDisks} × ${a.diskTB} TB · ${a.raidLabel}${a.spareDisks ? ' + spare' : ''}`
       $('arrayRaw').textContent = `${fmt(a.rawTB, 0)} TB raw`
       $('parityLabel').textContent = a.raid === 'raid10' ? 'Mirror' : 'Parity'
       renderBays(a)
