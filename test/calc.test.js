@@ -92,3 +92,67 @@ test('report and CSV include every group', () => {
   assert.equal(csv.length, groups.length + 1)
   assert.match(csv[1], /^Aisles,24,4MP,h265/)
 })
+
+test('switch traffic and PoE per switch', () => {
+  const { project, groups } = C.exampleProject()
+  const r = C.calculateProject(project, groups)
+  const [sw1, sw2] = r.network.switches
+  assert.equal(sw1.cameras, 24)
+  close(sw1.mbps, 72)
+  close(sw1.uplinkLoad, 0.072)
+  close(sw1.poeW, 144) // 24 × 6 W
+  assert.equal(sw2.cameras, 16)
+  close(sw2.mbps, 86)
+  close(sw2.poeW, 108) // 6 × 8 W + 10 × 6 W
+  assert.equal(r.network.unassigned.cameras, 0)
+})
+
+test('PoE estimate and override', () => {
+  assert.equal(C.estimatePoE({ resolution: '4MP' }), 6)
+  assert.equal(C.estimatePoE({ resolution: '8MP', nightIR: true }), 11)
+  assert.equal(C.calculateGroup({ qty: 2, resolution: '4MP', codec: 'h265', fps: 15, mode: 'continuous', poeW: 25 }).totalPoeW, 50)
+})
+
+test('switch checks flag overloaded uplinks and PoE budgets', () => {
+  const { project, groups } = C.exampleProject()
+  const run = (sw1) => C.calculateProject({ ...project, switches: [{ ...project.switches[0], ...sw1 }, project.switches[1]] }, groups).checks
+  const texts = (cs, level) => cs.filter((c) => c.level === level).map((c) => c.text).join(' | ')
+  assert.match(texts(run({ uplinkMbps: 100 }), 'warn'), /SW1.*uplink is 72% loaded/)
+  assert.match(texts(run({ uplinkMbps: 50 }), 'critical'), /SW1.*more than its 50 Mbps uplink/)
+  assert.match(texts(run({ poeBudgetW: 170 }), 'warn'), /SW1.*PoE budget is 85% used/)
+  assert.match(texts(run({ poeBudgetW: 120 }), 'critical'), /SW1.*more than its 120 W PoE budget/)
+  const unassigned = C.calculateProject(project, groups.map((g, i) => (i === 2 ? { ...g, switch: '' } : g)))
+  assert.equal(unassigned.network.unassigned.cameras, 10)
+  assert.match(texts(unassigned.checks, 'info'), /10 cameras are not assigned/)
+})
+
+test('viewing traffic and disk throughput', () => {
+  const { project, groups } = C.exampleProject()
+  const r = C.calculateProject(project, groups)
+  close(r.viewing.avgMainMbps, 3.95)
+  close(r.viewing.liveMbps, 2) // 4 × 0.5 Mbps substream
+  close(r.viewing.playbackMbps, 3.95)
+  close(r.viewing.totalMbps, 5.95)
+  close(r.disk.writeMBps, 19.75)
+  close(r.disk.readMBps, 0.49)
+
+  const main = C.calculateProject({ ...project, liveStreamType: 'main', liveStreams: 16, playbackStreams: 4 }, groups)
+  close(main.viewing.totalMbps, 79)
+  const lv = (p) => C.calculateProject({ ...project, liveStreamType: 'main', liveStreams: 16, playbackStreams: 4, ...p }, groups).checks
+  assert.ok(lv({ recorderOutMbps: 60 }).some((c) => c.level === 'critical' && /outbound/.test(c.text)))
+  assert.ok(lv({ viewingLinkMbps: 100 }).some((c) => c.level === 'warn' && /viewing link/.test(c.text)))
+  assert.ok(lv({ viewingLinkMbps: 50 }).some((c) => c.level === 'critical' && /viewing link/.test(c.text)))
+})
+
+test('older saved projects load with defaults', () => {
+  const { project, groups } = C.withDefaults(
+    { name: 'Old', retentionDays: 14, headroom: 1.3, diskTB: 8, raid: 'raid6' },
+    [{ name: 'Cams', qty: 4, resolution: '2MP', codec: 'h264', fps: 15, scene: 'medium', mode: 'continuous', switch: 'gone' }]
+  )
+  assert.deepEqual(project.switches, [])
+  assert.equal(project.liveStreams, 0)
+  assert.equal(groups[0].switch, '')
+  assert.equal(groups[0].poeW, '')
+  const r = C.calculateProject(project, groups)
+  close(r.totals.gbPerDay, 172.8)
+})

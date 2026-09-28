@@ -19,10 +19,16 @@ Everything you type stays in your browser.
 - **Disk array:** picks the disk count for RAID 6, RAID 5, RAID 10 or JBOD,
   adds a hot spare at 8+ disks, and shows usable TB and the TiB figure the OS
   will display. A bay diagram shows data, parity and spare disks.
-- **Recorder check:** total camera traffic and the minimum rated inbound
-  throughput (traffic ÷ 0.7).
+- **Throughput:** total camera traffic and the minimum recorder rating
+  (traffic ÷ 0.7), viewing traffic out of the recorder (live view on sub or
+  main streams, plus playback), and disk write and playback read in MB/s.
+- **Switches:** assign camera groups to PoE switches to see each uplink's load
+  (limit 70%) and PoE power draw (limit 80% of budget). PoE is estimated per
+  camera, or you can enter the datasheet figure.
 - **Design checks:** flags JBOD, oversized RAID 5, headroom below ×1.20, too
-  few drive bays, an under-rated recorder, and unverified smart-codec savings.
+  few drive bays, an under-rated recorder, overloaded switch uplinks or PoE
+  budgets, viewing traffic beyond the recorder or WAN link, and unverified
+  smart-codec savings.
   It also confirms the expected retention in days.
 - **Export:** copy a plain-text report or a CSV of the camera groups.
 

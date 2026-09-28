@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.0                                              |
+| Version         | 1.1                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -148,6 +148,30 @@ it is within the NVR/VMS server's rated recording throughput and the network
 uplink. Keep aggregate bitrate at or below **70%** of the recorder's rated
 inbound bandwidth.
 
+### Step 5a — Check network, PoE, viewing and disk throughput
+
+Storage is only half the design. Confirm every link in the recording path can
+carry the traffic. Use each camera's **full** bitrate here, even for
+motion-recorded cameras, because they can all trigger at once.
+
+1. **Switch uplinks.** For each PoE switch, add up the bitrate of the cameras
+   connected to it. Keep this at or below **70%** of the switch's uplink to the
+   recorder (e.g. ≤ 700 Mbps on a 1 Gbps uplink).
+2. **PoE budget.** Add up the camera power draw from each datasheet: typically
+   about 6 W for a fixed camera, plus about 3 W with IR on at night, 2 W more
+   at 8 MP and above, and much more for PTZs or heaters. Keep the total at or
+   below **80%** of the switch's PoE budget.
+3. **Viewing traffic.** Estimate what the recorder sends out to viewers:
+   - live view: open tiles × 0.5 Mbps on substreams, or × the average camera
+     bitrate on main streams;
+   - playback: sessions at once × the average camera bitrate.
+   Check the total against the recorder's rated outbound throughput and, for
+   remote viewers, the WAN or VPN link (keep ≤ 70%). Configure multi-camera
+   live views to use substreams.
+4. **Disk throughput.** Sustained disk write in MB/s = camera traffic (Mbps)
+   ÷ 8; playback read = playback traffic ÷ 8. Confirm the recorder or array
+   vendor rates the array for this load, including while a RAID rebuild runs.
+
 ### Step 6 — Apply overhead and headroom
 
 ```
@@ -215,6 +239,15 @@ Rules:
 - Aggregate bitrate: (3 × 24) + (12 × 6) + (1.4 × 10) = **158 Mbps** → recorder
   must be rated for ≥ 226 Mbps inbound (158 ÷ 0.7).
 
+**Step 5a — Network and viewing:** aisles on a 24-port switch (1 Gbps uplink,
+370 W PoE), docks and offices on a 16-port switch (1 Gbps, 240 W).
+
+- 24-port: 72 Mbps (7% of uplink), 24 × 6 W = 144 W (39% of PoE budget)
+- 16-port: 86 Mbps (9%), 6 × 8 W + 10 × 6 W = 108 W (45%)
+- Viewing: 4 live substreams (2 Mbps) + 1 playback at the 3.95 Mbps average
+  = about 6 Mbps out of the recorder
+- Disk: 158 ÷ 8 ≈ 20 MB/s sustained write
+
 **Step 6 — Overhead and headroom:**
 
 48.24 × 1.05 × 1.20 = **60.8 TB usable required**
@@ -276,6 +309,7 @@ Keep the following in the project file for the life of the system:
 | Version | Date       | Author | Change          |
 | ------- | ---------- | ------ | --------------- |
 | 1.0     | 2026-09-28 |        | Initial release |
+| 1.1     | 2026-09-28 |        | Added Step 5a: network, PoE, viewing and disk throughput |
 
 ---
 

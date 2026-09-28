@@ -69,8 +69,19 @@
     HOT_SPARE_FROM_DISKS: 8,
     RAID5_MAX_DISKS: 6,
     RAID5_MAX_DISK_TB: 8,
-    BASE_FPS: 15
+    BASE_FPS: 15,
+    SUBSTREAM_MBPS: 0.5, // typical live-view substream (D1/720p, H.264/H.265)
+    UPLINK_UTILISATION: 0.7,
+    POE_UTILISATION: 0.8,
+    POE_BASE_W: 6, // fixed IP camera, day only
+    POE_IR_W: 3, // IR illuminators on at night
+    POE_HIRES_W: 2 // 8 MP and above
   }
+
+  const LIVE_STREAM_TYPES = [
+    { id: 'sub', label: 'Substream (low res)' },
+    { id: 'main', label: 'Main stream (full res)' }
+  ]
 
   const EPS = 1e-9
   const byId = (list, id) => list.find((x) => x.id === id)
@@ -97,6 +108,19 @@
     return measured > 0 ? measured : estimateBitrate(g)
   }
 
+  /** Estimated PoE draw per camera (W). A value entered in poeW wins. */
+  function estimatePoE(g) {
+    let w = K.POE_BASE_W
+    if (g.nightIR) w += K.POE_IR_W
+    if (g.resolution === '8MP' || g.resolution === '12MP') w += K.POE_HIRES_W
+    return w
+  }
+
+  function groupPoE(g) {
+    const entered = num(g.poeW, 0)
+    return entered > 0 ? entered : estimatePoE(g)
+  }
+
   function dutyCycle(g) {
     const mode = byId(MODES, g.mode) || MODES[0]
     if (mode.id === 'scheduled') return Math.min(24, Math.max(0, num(g.hours, 24))) / 24
@@ -117,7 +141,10 @@
       duty,
       gbPerDayPerCam,
       gbPerDay: gbPerDayPerCam * qty,
-      aggregateMbps: mbps * qty
+      aggregateMbps: mbps * qty,
+      estimatedPoeW: estimatePoE(g),
+      poeW: groupPoE(g),
+      totalPoeW: groupPoE(g) * qty
     }
   }
 
@@ -167,6 +194,12 @@
     const requiredTB = rawTB * K.FS_OVERHEAD * headroom
     const minRecorderMbps = aggregateMbps / K.RECORDER_UTILISATION
     const array = planArray(requiredTB, p.diskTB, p.raid)
+    const network = calculateNetwork(p, groups || [], rows)
+    const viewing = calculateViewing(p, cameras, aggregateMbps)
+    const disk = {
+      writeMBps: aggregateMbps / 8,
+      readMBps: viewing.playbackMbps / 8
+    }
     const dailyTBOnDisk = (gbPerDay * K.FS_OVERHEAD) / 1000
     const expectedRetentionDays = dailyTBOnDisk > 0 ? array.usableTB / dailyTBOnDisk : Infinity
 
@@ -179,8 +212,55 @@
       minRecorderMbps,
       expectedRetentionDays
     }
-    const checks = runChecks(p, groups || [], totals, array)
-    return { rows, totals, array, checks, status: worstLevel(checks) }
+    const checks = runChecks(p, groups || [], totals, array, network, viewing)
+    return { rows, totals, array, network, viewing, disk, checks, status: worstLevel(checks) }
+  }
+
+  /** Traffic and PoE per switch. Cameras with no switch are reported separately. */
+  function calculateNetwork(p, groups, rows) {
+    const switches = (p.switches || []).map((sw) => ({
+      id: sw.id,
+      name: sw.name || 'Switch',
+      uplinkMbps: num(sw.uplinkMbps, 0),
+      poeBudgetW: num(sw.poeBudgetW, 0),
+      cameras: 0,
+      mbps: 0,
+      poeW: 0
+    }))
+    const unassigned = { cameras: 0, mbps: 0, poeW: 0 }
+    groups.forEach((g, i) => {
+      const r = rows[i]
+      const target = switches.find((sw) => sw.id === g.switch) || unassigned
+      target.cameras += r.qty
+      target.mbps += r.aggregateMbps
+      target.poeW += r.totalPoeW
+    })
+    switches.forEach((sw) => {
+      sw.uplinkLoad = sw.uplinkMbps > 0 ? sw.mbps / sw.uplinkMbps : null
+      sw.poeLoad = sw.poeBudgetW > 0 ? sw.poeW / sw.poeBudgetW : null
+    })
+    return { switches, unassigned }
+  }
+
+  /**
+   * Live view and playback traffic served by the recorder. Main-stream views
+   * use the average camera bitrate; substream views use K.SUBSTREAM_MBPS.
+   */
+  function calculateViewing(p, cameras, aggregateMbps) {
+    const live = Math.max(0, Math.floor(num(p.liveStreams, 0)))
+    const playback = Math.max(0, Math.floor(num(p.playbackStreams, 0)))
+    const avgMainMbps = cameras > 0 ? aggregateMbps / cameras : 0
+    const liveEach = p.liveStreamType === 'main' ? avgMainMbps : K.SUBSTREAM_MBPS
+    const liveMbps = live * liveEach
+    const playbackMbps = playback * avgMainMbps
+    return {
+      liveStreams: live,
+      playbackStreams: playback,
+      avgMainMbps,
+      liveMbps,
+      playbackMbps,
+      totalMbps: liveMbps + playbackMbps
+    }
   }
 
   const LEVEL_RANK = { ok: 0, info: 1, warn: 2, critical: 3 }
@@ -192,7 +272,7 @@
     )
   }
 
-  function runChecks(p, groups, t, a) {
+  function runChecks(p, groups, t, a, net, view) {
     const out = []
     const retention = num(p.retentionDays, 0)
     const headroom = num(p.headroom, K.MIN_HEADROOM)
@@ -235,6 +315,39 @@
         level: 'critical',
         text: `Cameras send ${fmt(t.aggregateMbps, 0)} Mbps. The recorder needs at least ${fmt(t.minRecorderMbps, 0)} Mbps rated inbound, but it is rated for ${fmt(rated, 0)} Mbps.`
       })
+    }
+    const pct = (x) => `${Math.round(x * 100)}%`
+    ;(net ? net.switches : []).forEach((sw) => {
+      if (sw.uplinkLoad !== null) {
+        if (sw.uplinkLoad > 1) {
+          out.push({ level: 'critical', text: `${sw.name}: cameras send ${fmt(sw.mbps, 0)} Mbps, more than its ${fmt(sw.uplinkMbps, 0)} Mbps uplink.` })
+        } else if (sw.uplinkLoad > K.UPLINK_UTILISATION) {
+          out.push({ level: 'warn', text: `${sw.name}: uplink is ${pct(sw.uplinkLoad)} loaded. Keep it at or below ${pct(K.UPLINK_UTILISATION)}; use a faster uplink or spread cameras across switches.` })
+        }
+      }
+      if (sw.poeLoad !== null) {
+        if (sw.poeLoad > 1) {
+          out.push({ level: 'critical', text: `${sw.name}: cameras draw ${fmt(sw.poeW, 0)} W, more than its ${fmt(sw.poeBudgetW, 0)} W PoE budget. Some cameras will not power on.` })
+        } else if (sw.poeLoad > K.POE_UTILISATION) {
+          out.push({ level: 'warn', text: `${sw.name}: PoE budget is ${pct(sw.poeLoad)} used. Keep it at or below ${pct(K.POE_UTILISATION)} to allow for IR, heaters and start-up surges.` })
+        }
+      }
+    })
+    if (net && net.switches.length > 0 && net.unassigned.cameras > 0) {
+      out.push({ level: 'info', text: `${net.unassigned.cameras} camera${net.unassigned.cameras === 1 ? ' is' : 's are'} not assigned to a switch, so their traffic and power are not checked.` })
+    }
+    if (view) {
+      const out_ = num(p.recorderOutMbps, 0)
+      if (out_ > 0 && view.totalMbps > out_) {
+        out.push({ level: 'critical', text: `Viewing needs ${fmt(view.totalMbps, 1)} Mbps but the recorder is rated for ${fmt(out_, 0)} Mbps outbound. Reduce main-stream views or playback sessions.` })
+      }
+      const link = num(p.viewingLinkMbps, 0)
+      if (link > 0 && view.totalMbps > link * K.UPLINK_UTILISATION) {
+        out.push({
+          level: view.totalMbps > link ? 'critical' : 'warn',
+          text: `Viewing traffic of ${fmt(view.totalMbps, 1)} Mbps is ${pct(view.totalMbps / link)} of the ${fmt(link, 0)} Mbps viewing link. Use substreams for live view or add bandwidth.`
+        })
+      }
     }
     if (groups.some((g) => g.codec === 'smart' && !(num(g.measuredMbps, 0) > 0))) {
       out.push({
@@ -294,6 +407,13 @@
     lines.push(`Raw recording: ${fmt(t.rawTB, 2)} TB`)
     lines.push(`Required usable: ${fmt(t.requiredTB, 2)} TB`)
     lines.push(`Aggregate bitrate: ${fmt(t.aggregateMbps, 1)} Mbps (recorder rated ≥ ${fmt(t.minRecorderMbps, 0)} Mbps)`)
+    if (result.viewing) {
+      const v = result.viewing
+      lines.push(`Viewing: ${v.liveStreams} live (${p.liveStreamType === 'main' ? 'main stream' : 'substream'}) + ${v.playbackStreams} playback = ${fmt(v.totalMbps, 1)} Mbps`)
+    }
+    if (result.disk) {
+      lines.push(`Disk throughput: ${fmt(result.disk.writeMBps, 1)} MB/s write, ${fmt(result.disk.readMBps, 1)} MB/s playback read`)
+    }
     lines.push(
       `Array: ${a.totalDisks} × ${a.diskTB} TB, ${a.raidLabel}` +
         ` (${a.dataDisks} data + ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}` +
@@ -301,6 +421,19 @@
     )
     lines.push(`Usable: ${fmt(a.usableTB, 1)} TB (${fmt(a.usableTiB, 1)} TiB shown by the OS)`)
     lines.push(`Expected retention: ${Number.isFinite(t.expectedRetentionDays) ? Math.floor(t.expectedRetentionDays) : '—'} days`)
+    if (result.network && result.network.switches.length) {
+      lines.push('')
+      lines.push('Switches')
+      result.network.switches.forEach((sw) => {
+        lines.push(
+          `- ${sw.name}: ${sw.cameras} cameras, ${fmt(sw.mbps, 1)} Mbps` +
+            (sw.uplinkLoad !== null ? ` (${Math.round(sw.uplinkLoad * 100)}% of ${fmt(sw.uplinkMbps, 0)} Mbps uplink)` : '') +
+            `, ${fmt(sw.poeW, 0)} W PoE` +
+            (sw.poeLoad !== null ? ` (${Math.round(sw.poeLoad * 100)}% of ${fmt(sw.poeBudgetW, 0)} W)` : '')
+        )
+      })
+      if (result.network.unassigned.cameras) lines.push(`- Not assigned: ${result.network.unassigned.cameras} cameras`)
+    }
     lines.push('')
     lines.push('Checks')
     result.checks.forEach((c) => lines.push(`- [${c.level.toUpperCase()}] ${c.text}`))
@@ -314,15 +447,16 @@
     }
     const head = [
       'Group', 'Qty', 'Resolution', 'Codec', 'FPS', 'Scene', 'Mode', 'Hours', 'Night IR', 'Audio',
-      'Bitrate Mbps', 'Bitrate source', 'Duty', 'GB/day/cam', 'GB/day'
+      'Bitrate Mbps', 'Bitrate source', 'Duty', 'GB/day/cam', 'GB/day', 'Switch', 'PoE W/cam'
     ]
+    const switchName = (id) => ((result.network && result.network.switches.find((sw) => sw.id === id)) || {}).name || ''
     const rows = groups.map((g, i) => {
       const r = result.rows[i]
       return [
         g.name, r.qty, g.resolution, g.codec, g.fps, g.scene, g.mode,
         g.mode === 'scheduled' ? g.hours : '', g.nightIR ? 'yes' : 'no', g.audio ? 'yes' : 'no',
         r.mbps.toFixed(3), r.measured ? 'measured' : 'estimate', r.duty.toFixed(3),
-        r.gbPerDayPerCam.toFixed(2), r.gbPerDay.toFixed(2)
+        r.gbPerDayPerCam.toFixed(2), r.gbPerDay.toFixed(2), switchName(g.switch), r.poeW.toFixed(1)
       ]
     })
     return [head, ...rows].map((row) => row.map(esc).join(',')).join('\n')
@@ -338,12 +472,21 @@
         diskTB: 12,
         raid: 'raid6',
         recorderBays: '',
-        recorderMbps: ''
+        recorderMbps: '',
+        recorderOutMbps: '',
+        liveStreams: 4,
+        liveStreamType: 'sub',
+        playbackStreams: 1,
+        viewingLinkMbps: '',
+        switches: [
+          { id: 'sw1', name: 'SW1 · 24-port', uplinkMbps: 1000, poeBudgetW: 370 },
+          { id: 'sw2', name: 'SW2 · 16-port', uplinkMbps: 1000, poeBudgetW: 240 }
+        ]
       },
       groups: [
-        { name: 'Aisles', qty: 24, resolution: '4MP', codec: 'h265', fps: 15, scene: 'medium', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '' },
-        { name: 'Loading docks', qty: 6, resolution: '8MP', codec: 'h265', fps: 20, scene: 'high', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '' },
-        { name: 'Offices', qty: 10, resolution: '2MP', codec: 'h265', fps: 15, scene: 'low', mode: 'motion-medium', hours: 24, nightIR: false, audio: false, measuredMbps: '' }
+        { name: 'Aisles', qty: 24, resolution: '4MP', codec: 'h265', fps: 15, scene: 'medium', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw1', poeW: '' },
+        { name: 'Loading docks', qty: 6, resolution: '8MP', codec: 'h265', fps: 20, scene: 'high', mode: 'continuous', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' },
+        { name: 'Offices', qty: 10, resolution: '2MP', codec: 'h265', fps: 15, scene: 'low', mode: 'motion-medium', hours: 24, nightIR: false, audio: false, measuredMbps: '', switch: 'sw2', poeW: '' }
       ]
     }
   }
@@ -360,8 +503,33 @@
       hours: 24,
       nightIR: false,
       audio: false,
-      measuredMbps: ''
+      measuredMbps: '',
+      switch: '',
+      poeW: ''
     }
+  }
+
+  /** Fills fields added in later versions so older saved projects still load. */
+  function withDefaults(project, groups) {
+    const base = exampleProject().project
+    const p = {
+      ...base,
+      name: '',
+      recorderBays: '',
+      recorderMbps: '',
+      liveStreams: 0,
+      playbackStreams: 0,
+      switches: [],
+      ...(project || {})
+    }
+    if (!Array.isArray(p.switches)) p.switches = []
+    const ids = new Set(p.switches.map((sw) => sw.id))
+    const gs = (groups || []).map((g, i) => {
+      const merged = { ...newGroup(i + 1), ...g }
+      if (merged.switch && !ids.has(merged.switch)) merged.switch = ''
+      return merged
+    })
+    return { project: p, groups: gs }
   }
 
   return {
@@ -372,11 +540,16 @@
     MODES,
     RAID_LEVELS,
     DISK_SIZES_TB,
+    LIVE_STREAM_TYPES,
     CONSTANTS: K,
     estimateBitrate,
     groupBitrate,
     dutyCycle,
+    estimatePoE,
     calculateGroup,
+    calculateNetwork,
+    calculateViewing,
+    withDefaults,
     planArray,
     calculateProject,
     formatReport,

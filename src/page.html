@@ -238,7 +238,7 @@
   table.groups {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1080px;
+    min-width: 1240px;
   }
   .groups th {
     text-align: left;
@@ -276,6 +276,22 @@
   .groups input[data-k="fps"] { width: 60px; text-align: right; }
   .groups input[data-k="hours"] { width: 60px; text-align: right; }
   .groups input[data-k="measuredMbps"] { width: 90px; text-align: right; }
+  .groups input[data-k="poeW"] { width: 70px; text-align: right; }
+  table.switches { min-width: 760px; }
+  .switches input[data-sk="name"] { width: 170px; }
+  .switches input[data-sk="uplinkMbps"], .switches input[data-sk="poeBudgetW"] { width: 96px; text-align: right; }
+  .meter { display: grid; gap: 3px; min-width: 120px; }
+  .meter-top { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .meter-top .pct { color: var(--muted); }
+  .meter-bar { height: 6px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; position: relative; }
+  .meter-bar i { display: block; height: 100%; background: var(--ok); }
+  .meter-bar i.warn { background: var(--warn); }
+  .meter-bar i.critical { background: var(--crit); }
+  .meter-bar::after { content: ''; position: absolute; top: -1px; bottom: -1px; width: 1px; left: var(--limit, 70%); background: var(--muted); opacity: 0.6; }
+  .meter-none { font-size: 12px; color: var(--muted); }
+  .subpanel-title { font-family: var(--font-display); font-weight: 600; font-size: 15px; margin: 0 0 10px; }
+  .panel-section + .panel-section { border-top: 1px solid var(--line); }
+  .switch-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
   .empty {
     padding: 28px 16px;
     text-align: center;
@@ -327,6 +343,17 @@
     text-align: right;
   }
   dl.spec .total dt, dl.spec .total dd { color: var(--ink); font-weight: 600; }
+  dl.spec > div.group-label {
+    padding: 14px 0 4px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  dl.spec > div.group-label:first-child { padding-top: 0; }
 
   .bays-block { display: grid; gap: 8px; }
   .bays-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; }
@@ -502,6 +529,8 @@
                 <th class="center">Night IR</th>
                 <th class="center">Audio</th>
                 <th class="w-meas num">Measured Mbps</th>
+                <th>Switch</th>
+                <th class="num">PoE W / cam</th>
                 <th class="num">Mbps / cam</th>
                 <th class="num">GB / day</th>
                 <th><span class="visually-hidden">Actions</span></th>
@@ -510,6 +539,65 @@
             <tbody id="groupRows"></tbody>
           </table>
           <div class="empty" id="emptyRows" hidden>No camera groups yet. Add one to start sizing.</div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="net-h">
+        <div class="panel-head">
+          <h2 id="net-h">Network and viewing</h2>
+          <button type="button" id="btnAddSwitch">Add switch</button>
+        </div>
+        <div class="panel-section">
+          <div class="table-scroll">
+            <table class="groups switches">
+              <thead>
+                <tr>
+                  <th>Switch</th>
+                  <th class="num">Uplink Mbps</th>
+                  <th class="num">PoE budget W</th>
+                  <th class="num">Cameras</th>
+                  <th>Uplink load</th>
+                  <th>PoE load</th>
+                  <th><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="switchRows"></tbody>
+            </table>
+            <div class="empty" id="emptySwitches" hidden>No switches yet. Add one, then pick it in each camera group's Switch column to check uplink traffic and PoE power.</div>
+          </div>
+          <div class="switch-foot">
+            <span>Limits: uplink ≤ 70% loaded, PoE ≤ 80% of budget. The tick on each bar marks the limit.</span>
+            <span id="unassignedNote"></span>
+          </div>
+        </div>
+        <div class="panel-section panel-body">
+          <h3 class="subpanel-title">Viewing from the recorder</h3>
+          <div class="fields">
+            <div class="field">
+              <label for="pLive">Live view streams</label>
+              <input id="pLive" type="number" min="0" step="1" inputmode="numeric">
+              <small>Tiles open at once, all monitors</small>
+            </div>
+            <div class="field">
+              <label for="pLiveType">Live view uses</label>
+              <select id="pLiveType"></select>
+              <small>Substream ≈ 0.5 Mbps each</small>
+            </div>
+            <div class="field">
+              <label for="pPlayback">Playback sessions</label>
+              <input id="pPlayback" type="number" min="0" step="1" inputmode="numeric">
+              <small>Full resolution, at once</small>
+            </div>
+            <div class="field">
+              <label for="pOut">Recorder rated outbound (Mbps)</label>
+              <input id="pOut" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="pLink">Viewing link (Mbps)</label>
+              <input id="pLink" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+              <small>WAN or VPN to remote viewers</small>
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -526,15 +614,21 @@
         </div>
 
         <dl class="spec">
+          <div class="group-label">Storage</div>
           <div><dt>Cameras</dt><dd id="sCameras">0</dd></div>
           <div><dt>Recording per day</dt><dd id="sDay">0 GB</dd></div>
           <div><dt>Raw recording</dt><dd id="sRaw">0 TB</dd></div>
           <div><dt>With overhead and headroom</dt><dd id="sReq">0 TB</dd></div>
-          <div><dt>Camera traffic</dt><dd id="sAgg">0 Mbps</dd></div>
-          <div><dt>Recorder must handle</dt><dd id="sRec">0 Mbps</dd></div>
           <div class="total"><dt>Usable array</dt><dd id="sUsable">0 TB</dd></div>
           <div><dt>Shown by the OS</dt><dd id="sTiB">0 TiB</dd></div>
           <div class="total"><dt>Expected retention</dt><dd id="sDays">0 days</dd></div>
+          <div class="group-label">Throughput</div>
+          <div><dt>Camera traffic in</dt><dd id="sAgg">0 Mbps</dd></div>
+          <div class="total"><dt>Recorder must handle</dt><dd id="sRec">0 Mbps</dd></div>
+          <div><dt>Viewing traffic out</dt><dd id="sView">0 Mbps</dd></div>
+          <div><dt>Disk write</dt><dd id="sWrite">0 MB/s</dd></div>
+          <div><dt>Disk read, playback</dt><dd id="sRead">0 MB/s</dd></div>
+          <div><dt>Busiest switch uplink</dt><dd id="sSwitch">—</dd></div>
         </dl>
 
         <div class="bays-block">
@@ -566,6 +660,7 @@
 
   <footer class="notes">
     <div>Estimates use SOP Table 1 planning bitrates at 15 fps and medium motion, scaled by frame rate, scene (×0.7 low, ×1.5 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
+    <div>Throughput uses each camera's full bitrate, since every motion camera can trigger at once. Disk write is camera traffic ÷ 8. PoE estimates are 6 W per camera, plus 3 W with night IR and 2 W at 8 MP and above; enter the datasheet figure to override.</div>
     <div>Decimal units throughout: 1 TB = 1,000 GB. Disks are sold in TB; operating systems show TiB (1 TB = 0.909 TiB). Motion duty cycles include pre- and post-event recording.</div>
     <div>Your inputs are kept in this browser only.</div>
   </footer>
@@ -581,6 +676,7 @@
     const $ = (id) => document.getElementById(id)
 
     let state = load() || { ...C.exampleProject(), isExample: true }
+    let switchSeq = Date.now()
 
     function load() {
       try {
@@ -588,7 +684,7 @@
         if (!raw) return null
         const s = JSON.parse(raw)
         if (!s || !s.project || !Array.isArray(s.groups)) return null
-        return s
+        return { ...C.withDefaults(s.project, s.groups), isExample: !!s.isExample }
       } catch (e) {
         return null
       }
@@ -604,6 +700,7 @@
     // ---- Site fields ----
     $('pDisk').innerHTML = options(C.DISK_SIZES_TB.map((t) => ({ id: t, label: `${t} TB` })), state.project.diskTB)
     $('pRaid').innerHTML = options(C.RAID_LEVELS, state.project.raid)
+    $('pLiveType').innerHTML = options(C.LIVE_STREAM_TYPES, state.project.liveStreamType)
 
     const projectFields = [
       ['pName', 'name', 'text'],
@@ -612,7 +709,12 @@
       ['pDisk', 'diskTB', 'number'],
       ['pRaid', 'raid', 'text'],
       ['pBays', 'recorderBays', 'raw'],
-      ['pMbps', 'recorderMbps', 'raw']
+      ['pMbps', 'recorderMbps', 'raw'],
+      ['pLive', 'liveStreams', 'number'],
+      ['pLiveType', 'liveStreamType', 'text'],
+      ['pPlayback', 'playbackStreams', 'number'],
+      ['pOut', 'recorderOutMbps', 'raw'],
+      ['pLink', 'viewingLinkMbps', 'raw']
     ]
 
     function fillProject() {
@@ -655,6 +757,8 @@
           <td class="center"><input data-k="nightIR" type="checkbox"${g.nightIR ? ' checked' : ''} aria-label="Night IR"></td>
           <td class="center"><input data-k="audio" type="checkbox"${g.audio ? ' checked' : ''} aria-label="Audio"></td>
           <td><input data-k="measuredMbps" type="number" min="0" step="0.1" value="${escAttr(g.measuredMbps)}" aria-label="Measured bitrate in Mbps" inputmode="decimal"></td>
+          <td><select data-k="switch" aria-label="Switch">${switchOptions(g.switch)}</select></td>
+          <td><input data-k="poeW" type="number" min="0" step="0.5" value="${escAttr(g.poeW)}" aria-label="PoE watts per camera" inputmode="decimal"></td>
           <td class="out" data-out="mbps"></td>
           <td class="out" data-out="gb"></td>
           <td>
@@ -666,6 +770,11 @@
             </button>
           </td>
         </tr>`
+    }
+
+    function switchOptions(selected) {
+      return `<option value="">None</option>` +
+        options(state.project.switches.map((sw) => ({ id: sw.id, label: escAttr(sw.name || 'Switch') })), selected)
     }
 
     function renderRows() {
@@ -701,6 +810,74 @@
       touched()
     })
 
+    function switchRowHTML(sw, i) {
+      return `
+        <tr data-si="${i}">
+          <td><input data-sk="name" type="text" value="${escAttr(sw.name)}" aria-label="Switch name"></td>
+          <td><input data-sk="uplinkMbps" type="number" min="0" step="100" value="${escAttr(sw.uplinkMbps)}" aria-label="Uplink Mbps" inputmode="numeric"></td>
+          <td><input data-sk="poeBudgetW" type="number" min="0" step="10" value="${escAttr(sw.poeBudgetW)}" aria-label="PoE budget in watts" inputmode="numeric"></td>
+          <td class="out" data-sout="cams"></td>
+          <td data-sout="uplink"></td>
+          <td data-sout="poe"></td>
+          <td>
+            <button type="button" class="icon danger" data-sact="del" title="Remove switch" aria-label="Remove switch">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>
+            </button>
+          </td>
+        </tr>`
+    }
+
+    function renderSwitches() {
+      $('switchRows').innerHTML = state.project.switches.map(switchRowHTML).join('')
+      $('emptySwitches').hidden = state.project.switches.length > 0
+    }
+
+    function refreshSwitchSelects() {
+      $('groupRows').querySelectorAll('select[data-k="switch"]').forEach((sel, i) => {
+        sel.innerHTML = switchOptions(state.groups[i].switch)
+      })
+    }
+
+    $('switchRows').addEventListener('input', onSwitchEdit)
+    $('switchRows').addEventListener('change', (e) => {
+      onSwitchEdit(e)
+      if (e.target.dataset.sk === 'name') refreshSwitchSelects()
+    })
+    function onSwitchEdit(e) {
+      const el = e.target
+      const k = el.dataset.sk
+      if (!k) return
+      const sw = state.project.switches[Number(el.closest('tr').dataset.si)]
+      sw[k] = el.type === 'number' ? (el.value === '' ? '' : parseFloat(el.value)) : el.value
+      touched()
+    }
+    $('switchRows').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-sact="del"]')
+      if (!btn) return
+      const i = Number(btn.closest('tr').dataset.si)
+      const [gone] = state.project.switches.splice(i, 1)
+      state.groups.forEach((g) => { if (g.switch === gone.id) g.switch = '' })
+      renderSwitches(); refreshSwitchSelects(); touched()
+    })
+    $('btnAddSwitch').addEventListener('click', () => {
+      const n = state.project.switches.length + 1
+      state.project.switches.push({ id: `sw${++switchSeq}`, name: `SW${n}`, uplinkMbps: 1000, poeBudgetW: 370 })
+      renderSwitches(); refreshSwitchSelects(); touched()
+      const inputs = $('switchRows').querySelectorAll('input[data-sk="name"]')
+      const last = inputs[inputs.length - 1]
+      if (last) { last.focus(); last.select() }
+    })
+
+    function meter(value, limit, load, unit, cap) {
+      if (load === null) return `<div class="meter-none">${fmt(value, 0)} ${unit} · no limit set</div>`
+      const cls = load > 1 ? 'critical' : load > cap ? 'warn' : ''
+      const width = Math.min(100, load * 100)
+      return `<div class="meter" style="--limit:${cap * 100}%">
+        <div class="meter-top"><span>${fmt(value, 0)} / ${fmt(limit, 0)} ${unit}</span><span class="pct">${Math.round(load * 100)}%</span></div>
+        <div class="meter-bar"><i class="${cls}" style="width:${width}%"></i></div>
+      </div>`
+    }
+
     $('btnAdd').addEventListener('click', () => {
       state.groups.push(C.newGroup(state.groups.length + 1))
       renderRows()
@@ -712,7 +889,7 @@
 
     $('btnExample').addEventListener('click', () => {
       state = { ...C.exampleProject(), isExample: true }
-      fillProject(); renderRows(); update(); save()
+      fillProject(); renderSwitches(); renderRows(); update(); save()
     })
 
     let clearArmed = null
@@ -725,13 +902,11 @@
       }
       clearTimeout(clearArmed); clearArmed = null
       btn.textContent = 'Clear all'
-      const ex = C.exampleProject().project
       state = {
-        project: { ...ex, name: '', recorderBays: '', recorderMbps: '' },
-        groups: [C.newGroup(1)],
+        ...C.withDefaults({ retentionDays: 30, headroom: 1.2, diskTB: 12, raid: 'raid6' }, [C.newGroup(1)]),
         isExample: false
       }
-      fillProject(); renderRows(); update(); save()
+      fillProject(); renderSwitches(); renderRows(); update(); save()
     })
 
     function touched() {
@@ -756,6 +931,7 @@
           `${fmt(row.gbPerDay, 1)}<span class="sub">${fmt(row.gbPerDayPerCam, 1)} each · duty ${fmt(row.duty, 2)}</span>`
         const meas = tr.querySelector('[data-k="measuredMbps"]')
         meas.placeholder = fmt(row.estimatedMbps, 2)
+        tr.querySelector('[data-k="poeW"]').placeholder = fmt(row.estimatedPoeW, 0)
       })
 
       const days = Number(state.project.retentionDays) || 0
@@ -767,6 +943,24 @@
       $('sReq').textContent = `${fmt(t.requiredTB, 2)} TB`
       $('sAgg').textContent = `${fmt(t.aggregateMbps, 1)} Mbps`
       $('sRec').textContent = `≥ ${fmt(t.minRecorderMbps, 0)} Mbps`
+      $('sView').textContent = `${fmt(r.viewing.totalMbps, 1)} Mbps`
+      $('sWrite').textContent = `${fmt(r.disk.writeMBps, 1)} MB/s`
+      $('sRead').textContent = `${fmt(r.disk.readMBps, 1)} MB/s`
+      const loaded = r.network.switches.filter((sw) => sw.uplinkLoad !== null)
+      const busiest = loaded.sort((x, y) => y.uplinkLoad - x.uplinkLoad)[0]
+      $('sSwitch').textContent = busiest ? `${Math.round(busiest.uplinkLoad * 100)}% · ${busiest.name}` : '—'
+
+      const K = C.CONSTANTS
+      $('switchRows').querySelectorAll('tr').forEach((tr, i) => {
+        const sw = r.network.switches[i]
+        if (!sw) return
+        tr.querySelector('[data-sout="cams"]').textContent = String(sw.cameras)
+        tr.querySelector('[data-sout="uplink"]').innerHTML = meter(sw.mbps, sw.uplinkMbps, sw.uplinkLoad, 'Mbps', K.UPLINK_UTILISATION)
+        tr.querySelector('[data-sout="poe"]').innerHTML = meter(sw.poeW, sw.poeBudgetW, sw.poeLoad, 'W', K.POE_UTILISATION)
+      })
+      const un = r.network.unassigned.cameras
+      $('unassignedNote').textContent = r.network.switches.length && un
+        ? `${un} camera${un === 1 ? '' : 's'} not on a switch` : ''
       $('sUsable').textContent = `${fmt(a.usableTB, 0)} TB`
       $('sTiB').textContent = `${fmt(a.usableTiB, 1)} TiB`
       $('sDays').textContent = Number.isFinite(t.expectedRetentionDays)
@@ -835,6 +1029,7 @@
       copy(C.formatCSV(state.groups, lastResult), 'CSV'))
 
     fillProject()
+    renderSwitches()
     renderRows()
     update()
   })()
