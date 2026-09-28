@@ -21,7 +21,7 @@ Everything you type stays in your browser.
 - **Storage:** GB per day per camera (`Mbps × duty × 10.8`), raw recording for
   the retention period, then ×1.05 file-system overhead and ×1.20 (or more)
   headroom.
-- **Disk array:** picks the disk count for RAID 6, RAID 5, RAID 10 or JBOD,
+- **Disk array:** picks the disk count for RAID 6, RAID 5, RAID 10 or no RAID,
   adds a hot spare at 8+ disks, and shows usable TB and the TiB figure the OS
   will display. A bay diagram shows data, parity and spare disks.
 - **Throughput:** total camera traffic and the minimum recorder rating
