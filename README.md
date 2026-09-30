@@ -52,9 +52,9 @@ open dist/index.html # or double-click it; any static host works too
 ```
 
 `dist/index.html` is one file with everything inlined. You can email it, put it
-on a file share, or host it on GitHub Pages: turn on Pages (Settings → Pages →
-Source: GitHub Actions), then run the `Pages` workflow from the Actions tab
-whenever you want to publish the current `main`. It works fully offline: the
+on a file share, or host it on GitHub Pages: run the `Pages` workflow from the
+Actions tab whenever you want to publish the current `main` (the first run
+switches Pages on). It works fully offline: the
 fonts are embedded in the file.
 
 ## Develop
