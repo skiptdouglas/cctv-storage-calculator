@@ -142,23 +142,24 @@
     { id: 'tvi2', vendor: 'Generic', label: 'HD-TVI / AHD 2 MP over coax', resolution: '2MP', codec: 'h265', fps: 15, nightIR: true, poeW: '', coax: true },
     { id: 'analog960', vendor: 'Generic', label: 'Analog 960H over coax', resolution: '960H', codec: 'h264', fps: 15, nightIR: true, poeW: '' },
     { id: 'indoor2', vendor: 'Generic', label: 'Indoor cube 2 MP, no IR', resolution: '2MP', codec: 'h265', fps: 10, nightIR: false, poeW: 4, scene: 'low' },
-    // Ubiquiti UniFi Protect (spec sheets as republished by resellers, Sept 2026;
-    // techspecs.ui.com is the source of record). Protect records H.264
+    // Ubiquiti UniFi Protect (checked against techspecs.ui.com and the
+    // dl.ui.com datasheets, October 2026). `unverified` marks a field the
+    // spec sheet does not state. Protect records H.264
     // ("Standard") or H.265 ("Enhanced") per camera; presets assume Enhanced.
     // Protect sets bitrate from a quality level, so read the camera's actual
     // bitrate in its settings and enter it as Measured for a final design.
     { id: 'uvc-g4-bullet', vendor: 'UniFi', model: 'UVC-G4-Bullet', label: 'G4 Bullet · 4 MP 24 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: true, poeW: 4 },
     { id: 'uvc-g4-dome', vendor: 'UniFi', model: 'UVC-G4-Dome', label: 'G4 Dome · 4 MP 24 fps · 5 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: true, poeW: 5 },
     { id: 'uvc-g4-pro', vendor: 'UniFi', model: 'UVC-G4-Pro', label: 'G4 Pro · 4K 50 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.5, note: 'Camera max is 50 fps; preset uses 30.' },
-    { id: 'uvc-g4-ptz', vendor: 'UniFi', model: 'UVC-G4-PTZ', label: 'G4 PTZ · 4K 24 fps 22× · 42.9 W (PoE++)', resolution: '8MP', codec: 'h265', fps: 24, nightIR: false, poeW: 42.9, scene: 'high', unverified: 'IR' },
-    { id: 'uvc-g4-doorbell-pro', vendor: 'UniFi', model: 'UVC-G4-Doorbell-Pro', label: 'G4 Doorbell Pro · 2 MP 30 fps · 10 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10, scene: 'high' },
+    { id: 'uvc-g4-ptz', vendor: 'UniFi', model: 'UVC-G4-PTZ', label: 'G4 PTZ · 4K 24 fps 22× · 42.9 W (PoE++)', resolution: '8MP', codec: 'h265', fps: 24, nightIR: true, poeW: 42.9, scene: 'high' },
+    { id: 'uvc-g4-doorbell-pro', vendor: 'UniFi', model: 'UVC-G4-Doorbell-Pro', label: 'G4 Doorbell Pro · 2 MP 30 fps · 10 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10, scene: 'high', note: 'Powered from 16–24 V AC or USB-C; PoE needs the UACC-Adapter-DBPOE.' },
     { id: 'uvc-g5-bullet', vendor: 'UniFi', model: 'UVC-G5-Bullet', label: 'G5 Bullet · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
     { id: 'uvc-g5-dome', vendor: 'UniFi', model: 'UVC-G5-Dome', label: 'G5 Dome · 4 MP 30 fps · 5 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5 },
     { id: 'uvc-g5-flex', vendor: 'UniFi', model: 'UVC-G5-Flex', label: 'G5 Flex · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
     { id: 'uvc-g5-turret-ultra', vendor: 'UniFi', model: 'UVC-G5-Turret-Ultra', label: 'G5 Turret Ultra · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
     { id: 'uvc-g5-dome-ultra', vendor: 'UniFi', model: 'UVC-G5-Dome-Ultra', label: 'G5 Dome Ultra · 4 MP 30 fps · 4.2 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.2 },
     { id: 'uvc-g5-pro', vendor: 'UniFi', model: 'UVC-G5-Pro', label: 'G5 Pro · 4K 30 fps · 10 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10, note: '12.95 W with the Enhancer accessory.' },
-    { id: 'uvc-g5-ptz', vendor: 'UniFi', model: 'UVC-G5-PTZ', label: 'G5 PTZ · 4 MP 30 fps · 14 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 14, scene: 'high', unverified: 'IR' },
+    { id: 'uvc-g5-ptz', vendor: 'UniFi', model: 'UVC-G5-PTZ', label: 'G5 PTZ · 4 MP 30 fps · 14 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 14, scene: 'high' },
     { id: 'uvc-g6-bullet', vendor: 'UniFi', model: 'UVC-G6-Bullet', label: 'G6 Bullet · 4K 30 fps · 9.9 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9.9 },
     { id: 'uvc-g6-turret', vendor: 'UniFi', model: 'UVC-G6-Turret', label: 'G6 Turret · 4K 30 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.5 },
     { id: 'uvc-g6-dome', vendor: 'UniFi', model: 'UVC-G6-Dome', label: 'G6 Dome · 4K 30 fps · 9.25 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9.25 },
@@ -168,40 +169,65 @@
     { id: 'uvc-ai-turret', vendor: 'UniFi', model: 'UVC-AI-Turret', label: 'AI Turret · 4K 30 fps · 20 W (PoE+)', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 20 },
     { id: 'uvc-ai-dome', vendor: 'UniFi', model: 'UVC-AI-Dome', label: 'AI Dome · 4K 30 fps · 10 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10 },
     { id: 'uvc-ai-lpr', vendor: 'UniFi', model: 'UVC-AI-LPR', label: 'AI LPR · 4K 30 fps 3× · 25.5 W (PoE+)', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 25.5, scene: 'high' },
-    { id: 'uvc-ai-360', vendor: 'UniFi', model: 'UVC-AI-360', label: 'AI 360 · 4 MP 1920×1920 30 fps · 8.64 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.64, unverified: 'IR' },
+    { id: 'uvc-ai-360', vendor: 'UniFi', model: 'UVC-AI-360', label: 'AI 360 · 4 MP 1920×1920 30 fps · 8.64 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.64 },
     { id: 'uvc-ai-theta', vendor: 'UniFi', model: 'UVC-AI-Theta', label: 'AI Theta · 8 MP 24 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 24, nightIR: false, poeW: 12.5, note: 'With the 360 lens: 6 MP at 20 fps.', unverified: 'IR' },
     { id: 'uvc-ai-theta-pro', vendor: 'UniFi', model: 'UVC-AI-Theta-Pro', label: 'AI Theta Pro · 4 MP 2160×2160 24 fps · 12.5 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: false, poeW: 12.5, unverified: 'IR' },
-    // Milesight AI series (datasheets as quoted by distributors, Sept 2026;
-    // milesight.com/support/download/datasheet is the source of record).
+    // Milesight AI series and road-traffic cameras. Checked against the
+    // datasheets on resource.milesight.com (linked from
+    // milesight.com/support/download/datasheet), October 2026.
     // Power is the datasheet maximum with IR on, PoE where both are given.
-    // Cameras support H.265+ (smart); presets assume plain H.265.
-    { id: 'ms-c2975', vendor: 'Milesight', model: 'MS-C2975-PD', label: 'AI Mini Dome · 2 MP 30 fps · 4.6 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.6, note: 'Up to 60 fps.' },
+    // Cameras support H.265+ (smart); presets assume plain H.265. Where a
+    // camera runs faster than 30 fps the preset uses 30 and the note says so.
+    // Some ids predate the datasheet check and no longer match the model code;
+    // they are kept so saved projects still find their preset.
+    { id: 'ms-c2975', vendor: 'Milesight', model: 'MS-C2975-PD', label: 'AI Weather-proof Mini Dome · 2 MP 30 fps · 5.1 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.1, note: 'R variant: up to 60 fps.' },
     { id: 'ms-c5375', vendor: 'Milesight', model: 'MS-C5375-PD', label: 'AI Weather-proof Mini Dome · 5 MP 30 fps · 5.8 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.8 },
     { id: 'ms-c8175', vendor: 'Milesight', model: 'MS-C8175-PD', label: 'AI Weather-proof Mini Dome · 4K 30 fps · 6.6 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.6 },
-    { id: 'ms-c2973', vendor: 'Milesight', model: 'MS-C2973-PD', label: 'AI Vandal-proof Mini Dome · 2 MP 30 fps · 4.7 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.7 },
-    { id: 'ms-c5373', vendor: 'Milesight', model: 'MS-C5373-PD', label: 'AI Vandal-proof Mini Dome · 5 MP 30 fps · 4.7 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.7 },
-    { id: 'ms-c8173', vendor: 'Milesight', model: 'MS-C8173-PD', label: 'AI Vandal-proof Mini Dome · 4K 30 fps · 6 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6 },
-    { id: 'ms-c2976', vendor: 'Milesight', model: 'MS-C2976', label: 'AI Motorized Mini Dome · 2 MP 30 fps · 6.4 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.4 },
-    { id: 'ms-c5372', vendor: 'Milesight', model: 'MS-C5372', label: 'AI Motorized Mini Dome · 5 MP 30 fps · 6.5 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.5 },
-    { id: 'ms-c8172', vendor: 'Milesight', model: 'MS-C8172', label: 'AI Motorized Mini Dome · 4K 30 fps · 8.4 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.4 },
-    { id: 'ms-c5371', vendor: 'Milesight', model: 'MS-C5371-X12', label: 'AI Motorized Pro Dome 12× · 5 MP 30 fps · 9.4 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9.4 },
-    { id: 'ms-c2963', vendor: 'Milesight', model: 'MS-C2963-PD', label: 'AI Vandal-proof Mini Bullet · 2 MP 30 fps · 5.1 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.1 },
-    { id: 'ms-c5363', vendor: 'Milesight', model: 'MS-C5363-PD', label: 'AI Vandal-proof Mini Bullet · 5 MP 30 fps · 6 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6 },
-    { id: 'ms-c8163', vendor: 'Milesight', model: 'MS-C8163-PD', label: 'AI Vandal-proof Mini Bullet · 4K 30 fps · 7 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 7 },
-    { id: 'ms-c2964', vendor: 'Milesight', model: 'MS-C2964-FPE', label: 'AI Motorized Bullet · 2 MP 30 fps · 11.5 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11.5, note: 'Up to 60 fps.' },
+    { id: 'ms-c2973', vendor: 'Milesight', model: 'MS-C2973-PD', label: 'AI Vandal-proof Mini Dome · 2 MP 30 fps · 4.7 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.7, note: 'R variant: up to 60 fps.' },
+    { id: 'ms-c5373', vendor: 'Milesight', model: 'MS-C5373-PD', label: 'AI Vandal-proof Mini Dome · 5 MP 30 fps · 6 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6 },
+    { id: 'ms-c8173', vendor: 'Milesight', model: 'MS-C8173-PD', label: 'AI Vandal-proof Mini Dome · 4K 30 fps · 6.1 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.1 },
+    { id: 'ms-c2976', vendor: 'Milesight', model: 'MS-C2975-FPD', label: 'AI Motorized Dome · 2 MP 30 fps · 6.4 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.4, note: 'R variant: up to 60 fps.' },
+    { id: 'ms-c5375-f', vendor: 'Milesight', model: 'MS-C5375-FPD', label: 'AI Motorized Dome · 5 MP 30 fps · 6.5 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.5 },
+    { id: 'ms-c8175-f', vendor: 'Milesight', model: 'MS-C8175-FPD', label: 'AI Motorized Dome · 4K 30 fps · 8.4 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.4 },
+    { id: 'ms-c2972', vendor: 'Milesight', model: 'MS-C2972-RFPE', label: 'AI Motorized Pro Dome · 2 MP 30 fps · 8.5 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.5, note: 'Up to 60 fps (90 fps on T series).' },
+    { id: 'ms-c5372', vendor: 'Milesight', model: 'MS-C5372-FPE', label: 'AI Motorized Pro Dome · 5 MP 30 fps · 6.8 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 6.8 },
+    { id: 'ms-c8172', vendor: 'Milesight', model: 'MS-C8172-FPE', label: 'AI Motorized Pro Dome · 4K 30 fps · 8.1 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.1 },
+    { id: 'ms-c5371', vendor: 'Milesight', model: 'MS-C5371-X12PE', label: 'AI 12× PTZ Dome · 5 MP 30 fps · 17.3 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 17.3, scene: 'high' },
+    { id: 'ms-c2963', vendor: 'Milesight', model: 'MS-C2964-PD', label: 'AI Vandal-proof Mini Bullet · 2 MP 30 fps · 5.1 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.1 },
+    { id: 'ms-c5363', vendor: 'Milesight', model: 'MS-C5364-PD', label: 'AI Vandal-proof Mini Bullet · 5 MP 30 fps · 5.4 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.4 },
+    { id: 'ms-c8163', vendor: 'Milesight', model: 'MS-C8164-PD', label: 'AI Vandal-proof Mini Bullet · 4K 30 fps · 5.8 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5.8 },
+    { id: 'ms-c2964', vendor: 'Milesight', model: 'MS-C2964-RFPE', label: 'AI Motorized Bullet · 2 MP 30 fps · 11.5 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11.5, note: 'Up to 60 fps (90 fps on T series).' },
     { id: 'ms-c5364', vendor: 'Milesight', model: 'MS-C5364-FPE', label: 'AI Motorized Bullet · 5 MP 30 fps · 11 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11 },
     { id: 'ms-c8164', vendor: 'Milesight', model: 'MS-C8164-FPE', label: 'AI Motorized Bullet · 4K 30 fps · 13 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 13 },
-    { id: 'ms-c2966', vendor: 'Milesight', model: 'MS-C2966-FPE', label: 'AI Motorized Pro Bullet Plus · 2 MP 30 fps · 8 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8, note: 'Up to 60 fps. 4×/12× versions draw up to 17.8 W.' },
-    { id: 'ms-c5366', vendor: 'Milesight', model: 'MS-C5366-FPE', label: 'AI Motorized Pro Bullet Plus · 5 MP 30 fps · 8 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8, note: '4×/12× versions draw up to 17.8 W.' },
-    { id: 'ms-c8166', vendor: 'Milesight', model: 'MS-C8166-FPE', label: 'AI Motorized Pro Bullet Plus · 4K 30 fps · 9 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9 },
-    { id: 'ms-c2966-lpr', vendor: 'Milesight', model: 'MS-C2966-RFLPE', label: 'AI LPR Pro Bullet Plus · 2 MP 30 fps · 8 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8, scene: 'high', note: 'Up to 60 fps for plate capture; datasheet lists 6 W without IR.' },
-    { id: 'ms-c5376', vendor: 'Milesight', model: 'MS-C5376-PE', label: 'AI 180° Panoramic Mini Dome · 5 MP 30 fps · 8.8 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.8 },
+    { id: 'ms-c2966', vendor: 'Milesight', model: 'MS-C2966-RFPE', label: 'AI Motorized Pro Bullet Plus · 2 MP 30 fps · 16.1 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 16.1, note: 'Up to 60 fps (90 fps on T series).' },
+    { id: 'ms-c5366', vendor: 'Milesight', model: 'MS-C5366-FPE', label: 'AI Motorized Pro Bullet Plus · 5 MP 30 fps · 11 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11 },
+    { id: 'ms-c8166', vendor: 'Milesight', model: 'MS-C8166-FPE', label: 'AI Motorized Pro Bullet Plus · 4K 30 fps · 12.1 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.1 },
+    { id: 'ms-c2966-lpr', vendor: 'Milesight', model: 'MS-C2966-RFLPE', label: 'AI LPR Pro Bullet Plus · 2 MP 30 fps · 10.5 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10.54, scene: 'high', note: 'Up to 60 fps for plate capture.' },
+    { id: 'ms-c5376', vendor: 'Milesight', model: 'MS-C5376-PE', label: 'AI 180° Panoramic Mini Dome · 4 MP 2560×1440 30 fps · 8.8 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.8, note: '5 MP sensor; streams top out at 2560×1440.' },
     { id: 'ms-c8176', vendor: 'Milesight', model: 'MS-C8176-PE', label: 'AI 180° Panoramic Mini Dome · 4K 25 fps · 9 W', resolution: '8MP', codec: 'h265', fps: 25, nightIR: true, poeW: 9 },
-    { id: 'ms-c5365', vendor: 'Milesight', model: 'MS-C5365-PE', label: 'AI 180° Panoramic Mini Bullet · 5 MP 30 fps · 7 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 7 },
-    { id: 'ms-c8165', vendor: 'Milesight', model: 'MS-C8165-PE', label: 'AI 180° Panoramic Mini Bullet · 4K 25 fps · 9 W', resolution: '8MP', codec: 'h265', fps: 25, nightIR: true, poeW: 9 },
-    { id: 'ms-c9674', vendor: 'Milesight', model: 'MS-C9674-PA', label: 'AI 360° Fisheye · 12 MP 25 fps · 11 W', resolution: '12MP', codec: 'h265', fps: 25, nightIR: true, poeW: 11, note: 'PB variant: 8 W.' },
-    { id: 'ms-c2961-ptz', vendor: 'Milesight', model: 'MS-C2961-X12PE', label: 'AI 12× PTZ Bullet · 2 MP 30 fps · 20.2 W (PoE+)', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 20.2, scene: 'high' },
-    { id: 'ms-c5361-ptz', vendor: 'Milesight', model: 'MS-C5361-X12PE', label: 'AI 12× PTZ Bullet · 5 MP 30 fps · 19.3 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 19.3, scene: 'high' }
+    { id: 'ms-c5365', vendor: 'Milesight', model: 'MS-C5365-PE', label: 'AI 180° Panoramic Mini Bullet · 4 MP 2560×1440 30 fps · 7.7 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 7.7, note: '5 MP sensor; streams top out at 2560×1440.' },
+    { id: 'ms-c8165', vendor: 'Milesight', model: 'MS-C8165-PE', label: 'AI 180° Panoramic Mini Bullet · 4K 25 fps · 8.4 W', resolution: '8MP', codec: 'h265', fps: 25, nightIR: true, poeW: 8.4 },
+    { id: 'ms-c8274', vendor: 'Milesight', model: 'MS-C8274-PA', label: 'AI 360° Fisheye · 4K 30 fps · 8 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8, note: 'Fisheye stream 2144×2144; 25 fps on 50 Hz.' },
+    { id: 'ms-c9674', vendor: 'Milesight', model: 'MS-C9674-PA', label: 'AI 360° Fisheye · 12 MP 30 fps · 11 W', resolution: '12MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11, note: 'Fisheye stream 3000×3000; 25 fps on 50 Hz.' },
+    { id: 'ms-c2961-ptz', vendor: 'Milesight', model: 'MS-C2961-X12PE', label: 'AI 12× PTZ Bullet · 2 MP 30 fps · 20.2 W (PoE+)', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 20.2, scene: 'high', note: 'Up to 60 fps (90 fps on T series).' },
+    { id: 'ms-c5361-ptz', vendor: 'Milesight', model: 'MS-C5361-X12PE', label: 'AI 12× PTZ Bullet · 5 MP 30 fps · 19.3 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 19.3, scene: 'high' },
+    // Speed domes also run from 24 V AC/DC. Several exceed the 25.5 W an
+    // 802.3at (PoE+) port delivers although the datasheet lists 802.3at.
+    { id: 'ms-c2941-x25', vendor: 'Milesight', model: 'MS-C2941-X25RPE', label: 'AI 25× Speed Dome · 2 MP 30 fps · 28.7 W (PoE++ or 24 V)', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 28.7, scene: 'high', note: 'Up to 60 fps. Above PoE+ budget: use PoE++ or 24 V.' },
+    { id: 'ms-c2941-x30', vendor: 'Milesight', model: 'MS-C2941-X30RPE', label: 'AI 30× Speed Dome · 2 MP 30 fps · 28 W (PoE++ or 24 V)', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 28, scene: 'high', note: 'Up to 60 fps. Above PoE+ budget: use PoE++ or 24 V.' },
+    { id: 'ms-c2941-x42', vendor: 'Milesight', model: 'MS-C2941-X42RPE', label: 'AI 42× Speed Dome · 2 MP 30 fps · 24.2 W (PoE+)', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 24.2, scene: 'high', note: 'Up to 60 fps.' },
+    { id: 'ms-c5341-x25', vendor: 'Milesight', model: 'MS-C5341-X25PE', label: 'AI 25× Speed Dome · 5 MP 30 fps · 27.7 W (PoE++ or 24 V)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 27.7, scene: 'high', note: 'Above PoE+ budget: use PoE++ or 24 V.' },
+    { id: 'ms-c5341-x30', vendor: 'Milesight', model: 'MS-C5341-X30PE', label: 'AI 30× Speed Dome · 5 MP 30 fps · 25.2 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 25.2, scene: 'high' },
+    { id: 'ms-c5341-x42', vendor: 'Milesight', model: 'MS-C5341-X42PE', label: 'AI 42× Speed Dome · 5 MP 30 fps · 25.5 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 25.5, scene: 'high' },
+    { id: 'ms-c8241-x36', vendor: 'Milesight', model: 'MS-C8241-X36PE', label: 'AI 36× Speed Dome · 4K 30 fps · 28.4 W (PoE++ or 24 V)', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 28.4, scene: 'high', note: 'Above PoE+ budget: use PoE++ or 24 V.' },
+    // Road-traffic cameras (TS series): supplementary IR, plate capture.
+    { id: 'ms-ts2966', vendor: 'Milesight', model: 'TS2966-X12TPE', label: 'AI Road Traffic Pro Bullet Plus 12× · 2 MP 30 fps · 11.4 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11.4, scene: 'high', note: 'Up to 90 fps.' },
+    { id: 'ms-ts4466', vendor: 'Milesight', model: 'TS4466-X4RPE', label: 'AI Road Traffic Pro Bullet Plus 4× · 4 MP 30 fps · 13.1 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 13.1, scene: 'high', note: '2688×1520, up to 60 fps.' },
+    { id: 'ms-ts5366', vendor: 'Milesight', model: 'TS5366-X12PE', label: 'AI Road Traffic Pro Bullet Plus 12× · 5 MP 30 fps · 12.7 W', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.7, scene: 'high' },
+    { id: 'ms-ts8266', vendor: 'Milesight', model: 'TS8266-X4PE', label: 'AI Road Traffic Pro Bullet Plus 4× · 4K 30 fps · 12.35 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.35, scene: 'high' },
+    { id: 'ms-ts4467', vendor: 'Milesight', model: 'TS4467-X20RPE', label: 'AI Road Traffic PTZ Bullet Plus 20× · 4 MP 30 fps · 25.9 W (PoE++ or 12 V)', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 25.9, scene: 'high', note: '2688×1520, up to 60 fps. Above PoE+ budget: use PoE++ or 12 V DC.' },
+    { id: 'ms-ts5367', vendor: 'Milesight', model: 'TS5367-X12PE', label: 'AI Road Traffic PTZ Bullet Plus 12× · 5 MP 30 fps · 21.7 W (PoE+)', resolution: '5MP', codec: 'h265', fps: 30, nightIR: true, poeW: 21.7, scene: 'high' },
+    { id: 'ms-ts4441', vendor: 'Milesight', model: 'TS4441-X36RPE', label: 'AI Road Traffic Speed Dome 36× · 4 MP 30 fps · 26.8 W (PoE++ or 24 V)', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 26.8, scene: 'high', note: '2688×1520, up to 60 fps. Above PoE+ budget: use PoE++ or 24 V.' }
   ]
 
   /** Preset vendors in display order, Generic first. */

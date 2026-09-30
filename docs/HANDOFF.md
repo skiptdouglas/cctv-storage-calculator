@@ -11,7 +11,7 @@ project. It is for whoever continues the work on a desktop machine.
 | Hosted page | https://skiptdouglas.github.io/cctv-storage-calculator/ (redeploys on every push to `main`) |
 | Private copy in Claude | https://claude.ai/artifact/VjbDwATm8AhqxGgZhN5C8A (updated by republishing `dist/artifact.html`) |
 | SOP | `docs/SOP.md` (v1.6). A copy also lives on the `claude/surveillance-storage-calculator-sop-4cfuxe` branch of `skiptdouglas/lina` at `docs/sop/surveillance-storage-calculator.md` |
-| Change log | `CHANGELOG.md`; current version 0.7.2 |
+| Change log | `CHANGELOG.md`; current version 0.7.3 |
 
 ## State of the project
 
@@ -63,6 +63,12 @@ mirrors. The UniFi and Milesight presets were therefore built from search
 results that quote the datasheets, not from the datasheets themselves.
 
 ## What to do first on the desktop
+
+Steps 1 and 2 were done on 1 October 2026 (0.7.3): every UniFi and Milesight
+preset was checked against the vendor datasheets, and the missing Milesight
+speed domes, fisheye and traffic cameras were added. Still open: IR on the
+UniFi AI Theta / Theta Pro and the Theta's 360-lens resolution (not stated
+on techspecs), and thermal Milesight models (none found).
 
 1. **Verify the vendor presets against the real datasheets.** Open the
    `PRESETS` array in `src/calc.js` and check each UniFi and Milesight row

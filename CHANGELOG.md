@@ -3,6 +3,26 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.7.3 — 2026-10-01
+
+### Fixed
+- **Vendor presets checked against the manufacturers' own datasheets**
+  (techspecs.ui.com, dl.ui.com, resource.milesight.com) instead of reseller
+  copies.
+- UniFi: G4 PTZ has IR (was set to no IR). IR confirmed on G5 PTZ and AI 360.
+  G4 Doorbell Pro notes that its 10 W comes from AC or USB-C, not PoE.
+- Milesight: corrected maximum power on 14 presets, model codes on the mini
+  bullets (MS-Cxx64-PD) and motorized domes (MS-Cxx75-FPD), and the MS-C5371,
+  which is a 12× PTZ dome drawing 17.3 W. The 5 MP 180° panoramics are now
+  sized at 2560×1440, their largest stream. The 12 MP fisheye runs 30 fps.
+  Removed the unsupported "up to 17.8 W" and "PB variant" notes.
+
+### Added
+- Milesight Motorized Pro Domes (MS-C2972 / C5372 / C8172), the 4K fisheye
+  MS-C8274-PA, seven AI Speed Domes (MS-C2941 / C5341 / C8241) and seven
+  road-traffic cameras (TS series). Presets whose ids predate the check keep
+  them so saved projects still load.
+
 ## 0.7.2 — 2026-09-30
 
 ### Added
