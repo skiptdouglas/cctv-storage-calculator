@@ -449,7 +449,7 @@ test('presets fill in camera settings and keep the rest', () => {
 })
 
 test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
-  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi'])
+  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight'])
   const g5 = C.applyPreset(C.newGroup(1), 'uvc-g5-bullet')
   assert.deepEqual([g5.resolution, g5.codec, g5.fps, g5.nightIR, g5.poeW], ['4MP', 'h265', 30, true, 4])
   const pro = C.applyPreset(C.newGroup(1), 'uvc-g5-pro')
@@ -459,4 +459,16 @@ test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
   const unifi = C.PRESETS.filter((p) => p.vendor === 'UniFi')
   assert.ok(unifi.length >= 20)
   assert.ok(unifi.every((p) => p.model && p.model.startsWith('UVC-') && typeof p.poeW === 'number' && p.poeW > 0))
+})
+
+test('Milesight presets carry datasheet values', () => {
+  const ms = C.PRESETS.filter((p) => p.vendor === 'Milesight')
+  assert.ok(ms.length >= 25)
+  assert.ok(ms.every((p) => p.model && p.model.startsWith('MS-C') && typeof p.poeW === 'number' && p.poeW > 0 && p.nightIR === true))
+  const fisheye = C.applyPreset(C.newGroup(1), 'ms-c9674')
+  assert.deepEqual([fisheye.resolution, fisheye.fps, fisheye.poeW], ['12MP', 25, 11])
+  const ptz = C.applyPreset(C.newGroup(1), 'ms-c5361-ptz')
+  assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['5MP', 19.3, 'high'])
+  const ids = C.PRESETS.map((p) => p.id)
+  assert.equal(new Set(ids).size, ids.length, 'preset ids are unique')
 })

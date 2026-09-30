@@ -143,6 +143,36 @@ Not included: G4/G6 Instant and the doorbells other than G4 Doorbell Pro
 power figure found). "Unverified" IR entries mean the sources seen did not
 state whether the model has IR illumination.
 
+## Milesight presets
+
+Values are from Milesight datasheets as quoted by distributors and reseller
+listings (September 2026); the datasheets on milesight.com are the source of
+record. Power is the datasheet maximum with IR on (PoE figure where both PoE
+and DC are given). All models support H.265+; presets assume plain H.265, so
+tick the smart codec yourself if you will enable it. 2 MP models run up to
+60 fps; presets use 30.
+
+| Preset | Models | Resolution | fps | Max PoE (IR on) |
+| --- | --- | --- | --- | --- |
+| AI Mini Dome | MS-C2975-PD | 2 MP | 30 | 4.6 W |
+| AI Weather-proof Mini Dome | MS-C5375-PD / MS-C8175-PD | 5 MP / 4K | 30 | 5.8 / 6.6 W |
+| AI Vandal-proof Mini Dome | MS-C2973 / C5373 / C8173-PD | 2 / 5 MP / 4K | 30 | 4.7 / 4.7 / 6 W |
+| AI Motorized Mini Dome | MS-C2976 / C5372 / C8172 | 2 / 5 MP / 4K | 30 | 6.4 / 6.5 / 8.4 W |
+| AI Motorized Pro Dome 12× | MS-C5371-X12 | 5 MP | 30 | 9.4 W |
+| AI Vandal-proof Mini Bullet | MS-C2963 / C5363 / C8163-PD | 2 / 5 MP / 4K | 30 | 5.1 / 6 / 7 W |
+| AI Motorized Bullet | MS-C2964 / C5364 / C8164 | 2 / 5 MP / 4K | 30 | 11.5 / 11 / 13 W |
+| AI Motorized Pro Bullet Plus | MS-C2966 / C5366 / C8166-FPE | 2 / 5 MP / 4K | 30 | 8 / 8 / 9 W (4×/12×: up to 17.8 W) |
+| AI LPR Pro Bullet Plus | MS-C2966-RFLPE | 2 MP | 30 (up to 60) | 8 W |
+| AI 180° Panoramic Mini Dome | MS-C5376-PE / MS-C8176-PE | 5 MP / 4K | 30 / 25 | 8.8 / 9 W |
+| AI 180° Panoramic Mini Bullet | MS-C5365-PE / MS-C8165-PE | 5 MP / 4K | 30 / 25 | 7 / 9 W |
+| AI 360° Fisheye | MS-C9674-PA | 12 MP 4000×3000 | 25 | 11 W (PB: 8 W) |
+| AI 12× PTZ Bullet | MS-C2961-X12PE / MS-C5361-X12PE | 2 / 5 MP | 30 | 20.2 / 19.3 W PoE+ |
+
+Not included: the AI Speed Domes (MS-C2941 / C5341 / C8241, 25×–42×), the
+5 MP fisheye and the thermal and traffic cameras, because the sources seen
+gave no reliable maximum power figure. Add them from the datasheet when you
+have it.
+
 ## License
 
 MIT

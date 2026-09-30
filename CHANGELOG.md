@@ -3,6 +3,14 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.7.2 — 2026-09-30
+
+### Added
+- **Milesight presets.** 27 Milesight AI-series cameras (mini, vandal-proof,
+  weather-proof and motorized domes; mini, motorized and Pro Bullet Plus
+  bullets; LPR; 180° panoramic; 360° fisheye; 12× PTZ bullets) with datasheet
+  resolution, frame rate, IR and maximum PoE draw.
+
 ## 0.7.1 — 2026-09-30
 
 ### Added
