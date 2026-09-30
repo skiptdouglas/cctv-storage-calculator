@@ -89,6 +89,7 @@ npm run serve        # build and serve dist/ on http://localhost:8080
 | `test/smoke.test.js`    | Browser smoke test of the built page (Playwright).              |
 | `CHANGELOG.md`          | What changed in each version.                                   |
 | `docs/SOP.md`           | The standard operating procedure the calculator implements.     |
+| `docs/HANDOFF.md`       | Where things stand and what to do next.                         |
 
 To change a planning bitrate, duty cycle or threshold, edit the tables and the
 `K` constants at the top of `src/calc.js`. Update `docs/SOP.md` to match and
