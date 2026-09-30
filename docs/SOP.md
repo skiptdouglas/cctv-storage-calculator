@@ -3,7 +3,7 @@
 | Field           | Value                                            |
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
-| Version         | 1.5                                              |
+| Version         | 1.6                                              |
 | Effective date  | 2026-09-28                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
@@ -57,7 +57,8 @@ record them in the worksheet (Appendix A):
 
 1. Camera model and quantity. For DVRs, note the camera type (analog CIF, D1
    or 960H, or HD-over-coax such as HD-TVI/AHD/HD-CVI, which use the MP
-   resolutions).
+   resolutions). Note where each group records: which recorder, a cloud
+   (VSaaS) plan, or the camera's own SD card.
 2. Resolution (e.g. 2 MP / 1080p, 4 MP, 8 MP / 4K).
 3. Frame rate (fps) actually configured for recording, not the camera maximum,
    and any lower night-time frame rate.
@@ -171,6 +172,21 @@ Also calculate **aggregate bitrate** (`Σ bitrate × quantity`, in Mbps). Confir
 it is within the NVR/VMS server's rated recording throughput and the network
 uplink. Keep aggregate bitrate at or below **70%** of the recorder's rated
 inbound bandwidth.
+
+### Step 5 notes — several recorders, cloud, SD cards and archive tiers
+
+- **Several recorders:** size each recorder for the groups that record to it
+  (Steps 4–7 per recorder). Report the site total and each recorder.
+- **Cloud (VSaaS):** size the plan in GB (daily GB × retention days, and per
+  month for billing). Keep the cameras' combined upload at or below 70% of the
+  site's internet upload speed. No RAID or headroom applies; the provider
+  holds the copies.
+- **SD-card (edge) recording:** days per card = card GB ÷ (daily GB per camera
+  × 1.05). The card must cover the retention period unless a recorder also
+  records the camera.
+- **Archive tier:** when older footage moves to a NAS or cloud archive, size
+  the recorders for the days kept on site and the archive for the remaining
+  days, both with the overhead and headroom of Step 6.
 
 ### Step 5a — Check network, PoE, viewing and disk throughput
 
@@ -344,6 +360,7 @@ Keep the following in the project file for the life of the system:
 | 1.3     | 2026-09-28 |        | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
 | 1.4     | 2026-09-28 |        | Table 1 adds analog CIF, D1, 960H; No RAID allowed for non-critical systems |
 | 1.5     | 2026-09-28 |        | Coax cameras excluded from switch/PoE steps; night rate limited to continuous/motion; appendices reordered; worksheet columns added; existing-array check in §7 |
+| 1.6     | 2026-09-30 |        | Step 5 notes: several recorders, cloud plans, SD-card recording, archive tiers |
 
 ---
 

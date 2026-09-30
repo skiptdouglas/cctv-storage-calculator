@@ -243,7 +243,7 @@
   table.groups {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1400px;
+    min-width: 1720px;
   }
   .groups th {
     text-align: left;
@@ -465,6 +465,45 @@
   @media (max-width: 1039px) {
     .summary { order: -1; }
   }
+  .groups select[data-k="preset"] { max-width: 150px; }
+  .groups input[data-k="sdGB"] { width: 70px; text-align: right; }
+  table.recorders { min-width: 980px; }
+  .recorders input[data-rk="name"] { width: 130px; }
+  .recorders input[data-rk="bays"], .recorders input[data-rk="inboundMbps"], .recorders input[data-rk="existingDisks"] { width: 80px; text-align: right; }
+  .rec-block + .rec-block { margin-top: 14px; }
+  .rec-block .rec-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .rec-block .rec-line b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ok-days { color: var(--ok); } .bad-days { color: var(--crit); }
+
+  /* Report view */
+  #reportView { max-width: 900px; margin: 0 auto; }
+  #reportView .report-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .report { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 28px 32px; color: var(--ink); }
+  .report h1 { font-size: 26px; margin: 0 0 2px; }
+  .report h2 { font-size: 16px; margin: 26px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+  .report .meta { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+  .report table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .report th, .report td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .report th { font-family: var(--font-display); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  .report td.n, .report th.n { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .report .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 24px; }
+  .report .kv div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line); padding: 4px 0; font-size: 13px; }
+  .report .kv b { font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .report ul.rchecks { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 4px; }
+  .report ul.rchecks li { font-size: 13px; padding: 6px 10px; border-radius: 5px; }
+  .report ul.rchecks li b { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 8px; }
+  .report .sign { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; font-size: 13px; }
+  .report .sign div { border-top: 1px solid var(--ink); padding-top: 6px; color: var(--muted); }
+  .report .foot { margin-top: 24px; font-size: 11px; color: var(--muted); }
+  body.report-mode .layout, body.report-mode header.top, body.report-mode footer.notes { display: none; }
+  @media print {
+    body { background: #fff; color: #000; }
+    #reportView .report-bar, .layout, header.top, footer.notes { display: none !important; }
+    .report { border: 0; padding: 0; color: #000; }
+    .report h2 { break-after: avoid; }
+    .report table, .report .kv { break-inside: auto; }
+    .report tr { break-inside: avoid; }
+  }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -483,8 +522,13 @@
     <div class="main">
       <section class="panel" aria-labelledby="site-h">
         <div class="panel-head">
-          <h2 id="site-h">Site and array</h2>
+          <h2 id="site-h">Site</h2>
           <div class="btn-row">
+            <button type="button" id="btnSaveFile" title="Download this project as a file">Save file</button>
+            <button type="button" id="btnLoadFile" title="Open a saved project file">Load file</button>
+            <input type="file" id="fileIn" accept=".json,application/json" hidden aria-label="Project file">
+            <button type="button" id="btnCopyProject" title="Copy the project as text, for hosts that block downloads">Copy project</button>
+            <button type="button" id="btnPasteProject" title="Paste project text copied from another browser">Paste project</button>
             <button type="button" id="btnExample">Load example</button>
             <button type="button" id="btnClear">Clear all</button>
           </div>
@@ -516,29 +560,6 @@
               <small>File system adds ×1.05</small>
             </div>
             <div class="field">
-              <label for="pArrayMode">Array</label>
-              <select id="pArrayMode">
-                <option value="design">Size a new array</option>
-                <option value="existing">Check an existing array</option>
-              </select>
-              <small>Existing: enter the disks you have</small>
-            </div>
-            <div class="field">
-              <label for="pDisk">Disk size</label>
-              <select id="pDisk"></select>
-              <small>Surveillance-rated drives</small>
-            </div>
-            <div class="field" id="existingField" hidden>
-              <label for="pExisting">Disks installed</label>
-              <input id="pExisting" type="number" min="1" step="1" inputmode="numeric">
-              <small>Total, including any hot spare</small>
-            </div>
-            <div class="field">
-              <label for="pRaid">RAID level</label>
-              <select id="pRaid"></select>
-              <small>RAID 6 is the default</small>
-            </div>
-            <div class="field">
               <span class="label">Footage type</span>
               <label class="check" for="pEvidential">
                 <input id="pEvidential" type="checkbox">
@@ -552,12 +573,22 @@
               <small>Used where a group sets Night FPS</small>
             </div>
             <div class="field">
-              <label for="pBays">Recorder drive bays</label>
-              <input id="pBays" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+              <span class="label">Storage tiers</span>
+              <label class="check" for="pArchive">
+                <input id="pArchive" type="checkbox">
+                <span>Archive tier for older footage</span>
+              </label>
+              <small>Recorders keep recent days; the rest goes to a NAS or cloud archive</small>
             </div>
             <div class="field">
-              <label for="pMbps">Recorder rated inbound (Mbps)</label>
-              <input id="pMbps" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+              <label for="pHot">Days on recorder</label>
+              <input id="pHot" type="number" min="1" step="1" placeholder="all" inputmode="numeric">
+              <small>Only with an archive tier</small>
+            </div>
+            <div class="field">
+              <label for="pUpload">Internet upload (Mbps)</label>
+              <input id="pUpload" type="number" min="0" step="1" placeholder="optional" inputmode="numeric">
+              <small>Checked against cloud-recorded cameras</small>
             </div>
           </div>
           <div class="ratios" id="ratiosBlock" hidden>
@@ -565,6 +596,37 @@
             <p>Raw bitrate = width × height × color depth × fps. Color depth is 16 bits per pixel below 4K and 30 bits at 4K and above. Each codec divides the raw bitrate by its ratio; scene, quality and night IR then apply as usual.</p>
             <div class="fields" id="ratioFields"></div>
           </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="rec-h">
+        <div class="panel-head">
+          <h2 id="rec-h">Recorders</h2>
+          <button type="button" id="btnAddRecorder">Add recorder</button>
+        </div>
+        <div class="table-scroll">
+          <table class="groups recorders">
+            <thead>
+              <tr>
+                <th>Recorder</th>
+                <th>Array</th>
+                <th class="num">Disks installed</th>
+                <th>Disk size</th>
+                <th>RAID</th>
+                <th class="num">Bays</th>
+                <th class="num">Rated in Mbps</th>
+                <th class="num">Cameras</th>
+                <th class="num">Needs</th>
+                <th class="num">Disks</th>
+                <th class="num">Days fit</th>
+                <th><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="recorderRows"></tbody>
+          </table>
+        </div>
+        <div class="switch-foot">
+          <span>Each camera group picks a recorder in its "Records to" column. Cloud and SD-card groups bypass the recorders.</span>
         </div>
       </section>
 
@@ -581,6 +643,7 @@
             <thead>
               <tr>
                 <th class="w-name">Group</th>
+                <th>Preset</th>
                 <th class="w-qty num">Qty</th>
                 <th>Resolution</th>
                 <th>Codec</th>
@@ -595,6 +658,8 @@
                 <th class="w-meas num">Measured Mbps</th>
                 <th>Switch</th>
                 <th class="num">PoE W / cam</th>
+                <th>Records to</th>
+                <th class="num">SD GB</th>
                 <th class="num">Mbps / cam</th>
                 <th class="num">GB / day</th>
                 <th><span class="visually-hidden">Actions</span></th>
@@ -688,6 +753,11 @@
           <div class="total"><dt>Usable array</dt><dd id="sUsable">0 TB</dd></div>
           <div><dt>Shown by the OS</dt><dd id="sTiB">0 TiB</dd></div>
           <div class="total"><dt>Expected retention</dt><dd id="sDays">0 days</dd></div>
+          <div class="group-label" id="otherLabel" hidden>Other storage</div>
+          <div id="sArchiveRow" hidden><dt>Archive tier usable</dt><dd id="sArchive">0 TB</dd></div>
+          <div id="sCloudRow" hidden><dt>Cloud storage</dt><dd id="sCloud">0 TB</dd></div>
+          <div id="sCloudUpRow" hidden><dt>Cloud upload</dt><dd id="sCloudUp">0 Mbps</dd></div>
+          <div id="sEdgeRow" hidden><dt>SD-card cameras</dt><dd id="sEdge">0</dd></div>
           <div class="group-label">Throughput</div>
           <div><dt>Camera traffic in</dt><dd id="sAgg">0 Mbps</dd></div>
           <div class="total"><dt>Recorder must handle</dt><dd id="sRec">0 Mbps</dd></div>
@@ -697,34 +767,47 @@
           <div><dt>Busiest switch uplink</dt><dd id="sSwitch">—</dd></div>
         </dl>
 
-        <div class="bays-block">
-          <div class="bays-title">
-            <strong id="arrayTitle">Array</strong>
-            <span class="eyebrow" id="arrayRaw"></span>
-          </div>
-          <div class="bays" id="bays" role="img" aria-label="Disk layout"></div>
-          <div class="legend">
-            <span><i style="background:var(--disk-data)"></i>Data</span>
-            <span><i style="background:var(--disk-parity)"></i><span id="parityLabel">Parity</span></span>
-            <span><i style="background:var(--disk-spare)"></i>Hot spare</span>
-          </div>
+        <div id="recBlocks"></div>
+        <div class="legend">
+          <span><i style="background:var(--disk-data)"></i>Data</span>
+          <span><i style="background:var(--disk-parity)"></i>Parity / mirror</span>
+          <span><i style="background:var(--disk-spare)"></i>Hot spare</span>
         </div>
 
         <ul class="checks" id="checks"></ul>
 
         <div class="export">
           <div class="btn-row">
+            <button type="button" class="primary" id="btnPrint">Print report</button>
             <button type="button" id="btnReport">Copy report</button>
             <button type="button" id="btnCsv">Copy CSV</button>
           </div>
           <div class="toast" id="toast" role="status" aria-live="polite"></div>
           <textarea id="exportText" readonly hidden aria-label="Export text"></textarea>
+          <div class="btn-row" id="pasteRow" hidden>
+            <button type="button" class="primary" id="btnApplyPaste">Apply pasted project</button>
+            <button type="button" id="btnCancelPaste">Cancel</button>
+          </div>
         </div>
       </div>
     </aside>
   </div>
 
+  <section id="reportView" hidden aria-label="Printable report">
+    <div class="report-bar">
+      <div class="btn-row">
+        <button type="button" id="btnBack">← Back to calculator</button>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="primary" id="btnDoPrint">Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="report" id="reportBody"></div>
+  </section>
+
   <footer class="notes">
+    <div>Presets are generic camera types with vendor-neutral planning values; a datasheet or a measured stream is always better. PoE for PTZs and heated housings varies a lot by model.</div>
+    <div>Cloud (VSaaS) groups are sized in GB for the plan and checked against the internet upload; SD-card groups are checked per camera against the card size. Neither uses the recorders. The archive tier sizes the recorders for the days kept on site and the archive for the rest.</div>
     <div>Raw-pixel method: width × height × color depth (16-bit below 4K, 30-bit at 4K and above) × fps ÷ the codec's compression ratio. It usually gives higher figures than typical bitrates, most of all at 4K. Use it to compare with tools that work this way; the SOP sizes with typical or measured bitrates.</div>
     <div>Estimates start from SOP Table 1 H.264 bitrates at 15 fps, medium motion and medium quality, then scale by codec (Smart H.264+ ×0.6, H.265 ×0.5, AV1 ×0.35, Smart H.265+ ×0.25, MJPEG ×5), frame rate, scene (×0.7 low, ×1.5 high), quality (×0.7 low, ×1.4 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
     <div>With a Night FPS set, storage uses the day and night bitrates averaged over the night hours; throughput uses the higher of the two.</div>
@@ -746,6 +829,7 @@
 
     let state = load() || { ...C.exampleProject(), isExample: true }
     let switchSeq = Date.now()
+    let recSeq = Date.now()
 
     function load() {
       try {
@@ -767,8 +851,6 @@
     const escAttr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
     // ---- Site fields ----
-    $('pDisk').innerHTML = options(C.DISK_SIZES_TB.map((t) => ({ id: t, label: `${t} TB` })), state.project.diskTB)
-    $('pRaid').innerHTML = options(C.RAID_LEVELS, state.project.raid)
     $('pLiveType').innerHTML = options(C.LIVE_STREAM_TYPES, state.project.liveStreamType)
     $('pMethod').innerHTML = options(C.METHODS, state.project.method)
     $('ratioFields').innerHTML = C.CODECS.map((c) => `
@@ -794,14 +876,9 @@
       ['pName', 'name', 'text'],
       ['pRetention', 'retentionDays', 'number'],
       ['pHeadroom', 'headroom', 'number'],
-      ['pDisk', 'diskTB', 'number'],
-      ['pRaid', 'raid', 'text'],
       ['pNight', 'nightHours', 'number'],
       ['pEvidential', 'evidential', 'checkbox'],
-      ['pArrayMode', 'arrayMode', 'text'],
-      ['pExisting', 'existingDisks', 'raw'],
-      ['pBays', 'recorderBays', 'raw'],
-      ['pMbps', 'recorderMbps', 'raw'],
+      ['pUpload', 'internetUploadMbps', 'raw'],
       ['pLive', 'liveStreams', 'number'],
       ['pLiveType', 'liveStreamType', 'text'],
       ['pPlayback', 'playbackStreams', 'number'],
@@ -822,8 +899,21 @@
         if (el.type === 'checkbox') el.checked = p[key] !== false
         else el.value = p[key] ?? ''
       })
+      $('pArchive').checked = !!(p.archive && p.archive.enabled)
+      $('pHot').value = (p.archive && p.archive.hotDays) ?? ''
+      $('pHot').disabled = !$('pArchive').checked
       fillRatios()
     }
+    $('pArchive').addEventListener('change', () => {
+      state.project.archive = { ...(state.project.archive || {}), enabled: $('pArchive').checked }
+      $('pHot').disabled = !$('pArchive').checked
+      if ($('pArchive').checked && !$('pHot').value) { $('pHot').value = 7; state.project.archive.hotDays = 7 }
+      touched()
+    })
+    $('pHot').addEventListener('input', () => {
+      state.project.archive = { ...(state.project.archive || {}), hotDays: $('pHot').value === '' ? '' : parseFloat($('pHot').value) }
+      touched()
+    })
 
     projectFields.unshift(['pMethod', 'method', 'text'])
 
@@ -845,6 +935,7 @@
       return `
         <tr data-i="${i}"${coax ? ' class="coax"' : ''}>
           <td><input data-k="name" type="text" value="${escAttr(g.name)}" aria-label="Group name"></td>
+          <td><select data-k="preset" aria-label="Camera preset"><option value="">Custom</option>${options(C.PRESETS, g.preset)}</select></td>
           <td><input data-k="qty" type="number" min="0" step="1" value="${escAttr(g.qty)}" aria-label="Quantity" inputmode="numeric"></td>
           <td><select data-k="resolution" aria-label="Resolution">${options(C.RESOLUTIONS, g.resolution)}</select></td>
           <td><select data-k="codec" aria-label="Codec">${options(C.CODECS, g.codec)}</select></td>
@@ -859,6 +950,8 @@
           <td><input data-k="measuredMbps" type="number" min="0" step="0.1" value="${escAttr(g.measuredMbps)}" aria-label="Measured bitrate in Mbps" inputmode="decimal"></td>
           <td><select data-k="switch" aria-label="Switch"${coax ? ' disabled title="Analog cameras connect to the DVR by coax"' : ''}>${coax ? '<option value="">Coax to DVR</option>' : switchOptions(g.switch)}</select></td>
           <td><input data-k="poeW" type="number" min="0" step="0.5" value="${coax ? '' : escAttr(g.poeW)}" placeholder="${coax ? '—' : ''}" aria-label="PoE watts per camera"${coax ? ' disabled title="Analog cameras are not PoE"' : ''} inputmode="decimal"></td>
+          <td><select data-k="target" aria-label="Records to">${targetOptions(g)}</select></td>
+          <td><input data-k="sdGB" type="number" min="0" step="32" value="${escAttr(g.sdGB)}" placeholder="${g.target === 'edge' ? '256' : '—'}" aria-label="SD card size in GB"${g.target === 'edge' ? '' : ' disabled'} inputmode="numeric"></td>
           <td class="out" data-out="mbps"></td>
           <td class="out" data-out="gb"></td>
           <td>
@@ -870,6 +963,13 @@
             </button>
           </td>
         </tr>`
+    }
+
+    // One select covers the recorders plus cloud and SD card. Values: rec:<id>, cloud, edge.
+    function targetOptions(g) {
+      const recs = state.project.recorders.map((r) => ({ id: `rec:${r.id}`, label: escAttr(r.name || 'Recorder') }))
+      const cur = g.target === 'recorder' || !g.target ? `rec:${(state.project.recorders.find((r) => r.id === g.recorder) || state.project.recorders[0]).id}` : g.target
+      return options([...recs, { id: 'cloud', label: 'Cloud (VSaaS)' }, { id: 'edge', label: 'Edge SD card' }], cur)
     }
 
     function switchOptions(selected) {
@@ -890,10 +990,32 @@
       if (!k) return
       const i = Number(el.closest('tr').dataset.i)
       const g = state.groups[i]
+      const tr = el.closest('tr')
+      if (k === 'preset') {
+        state.groups[i] = C.applyPreset(g, el.value)
+        const html = rowHTML(state.groups[i], i)
+        tr.outerHTML = html
+        touched()
+        const sel = $('groupRows').querySelector(`tr[data-i="${i}"] [data-k="preset"]`)
+        if (sel) sel.focus()
+        return
+      }
+      if (k === 'target') {
+        if (el.value.startsWith('rec:')) { g.target = 'recorder'; g.recorder = el.value.slice(4) } else g.target = el.value
+        const sd = tr.querySelector('[data-k="sdGB"]')
+        sd.disabled = g.target !== 'edge'
+        sd.placeholder = g.target === 'edge' ? '256' : '—'
+        touched()
+        return
+      }
       if (el.type === 'checkbox') g[k] = el.checked
       else if (el.type === 'number') g[k] = el.value === '' ? '' : parseFloat(el.value)
       else g[k] = el.value
-      const tr = el.closest('tr')
+      // Editing a field a preset sets makes the group custom again.
+      if (['resolution', 'codec', 'fps', 'nightIR', 'poeW', 'scene', 'measuredMbps'].includes(k) && g.preset) {
+        g.preset = ''
+        tr.querySelector('[data-k="preset"]').value = ''
+      }
       if (k === 'mode') {
         tr.querySelector('[data-k="hours"]').disabled = g.mode !== 'scheduled'
         const nf = tr.querySelector('[data-k="nightFps"]')
@@ -982,6 +1104,74 @@
       if (last) { last.focus(); last.select() }
     })
 
+    // ---- Recorders ----
+    function recorderRowHTML(rec, i) {
+      const existing = rec.arrayMode === 'existing'
+      return `
+        <tr data-ri="${i}">
+          <td><input data-rk="name" type="text" value="${escAttr(rec.name)}" aria-label="Recorder name"></td>
+          <td><select data-rk="arrayMode" aria-label="Array mode"><option value="design"${existing ? '' : ' selected'}>Size new</option><option value="existing"${existing ? ' selected' : ''}>Check existing</option></select></td>
+          <td><input data-rk="existingDisks" type="number" min="1" step="1" value="${escAttr(rec.existingDisks)}" placeholder="${existing ? 'total' : '—'}" aria-label="Disks installed"${existing ? '' : ' disabled'} inputmode="numeric"></td>
+          <td><select data-rk="diskTB" aria-label="Disk size">${options(C.DISK_SIZES_TB.map((t) => ({ id: t, label: `${t} TB` })), rec.diskTB)}</select></td>
+          <td><select data-rk="raid" aria-label="RAID level">${options(C.RAID_LEVELS, rec.raid)}</select></td>
+          <td><input data-rk="bays" type="number" min="0" step="1" value="${escAttr(rec.bays)}" placeholder="opt." aria-label="Drive bays" inputmode="numeric"></td>
+          <td><input data-rk="inboundMbps" type="number" min="0" step="1" value="${escAttr(rec.inboundMbps)}" placeholder="opt." aria-label="Rated inbound Mbps" inputmode="numeric"></td>
+          <td class="out" data-rout="cams"></td>
+          <td class="out" data-rout="need"></td>
+          <td class="out" data-rout="disks"></td>
+          <td class="out" data-rout="days"></td>
+          <td>
+            <button type="button" class="icon danger" data-ract="del" title="Remove recorder" aria-label="Remove recorder"${state.project.recorders.length <= 1 ? ' disabled' : ''}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>
+            </button>
+          </td>
+        </tr>`
+    }
+    function renderRecorders() {
+      $('recorderRows').innerHTML = state.project.recorders.map(recorderRowHTML).join('')
+    }
+    function refreshTargetSelects() {
+      $('groupRows').querySelectorAll('select[data-k="target"]').forEach((sel, i) => {
+        sel.innerHTML = targetOptions(state.groups[i])
+      })
+    }
+    $('recorderRows').addEventListener('input', onRecorderEdit)
+    $('recorderRows').addEventListener('change', (e) => {
+      onRecorderEdit(e)
+      if (e.target.dataset.rk === 'name') refreshTargetSelects()
+    })
+    function onRecorderEdit(e) {
+      const el = e.target
+      const k = el.dataset.rk
+      if (!k) return
+      const tr = el.closest('tr')
+      const rec = state.project.recorders[Number(tr.dataset.ri)]
+      rec[k] = el.type === 'number' || k === 'diskTB' ? (el.value === '' ? '' : parseFloat(el.value)) : el.value
+      if (k === 'arrayMode') {
+        const ex = tr.querySelector('[data-rk="existingDisks"]')
+        ex.disabled = rec.arrayMode !== 'existing'
+        ex.placeholder = rec.arrayMode === 'existing' ? 'total' : '—'
+      }
+      touched()
+    }
+    $('recorderRows').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-ract="del"]')
+      if (!btn || state.project.recorders.length <= 1) return
+      const i = Number(btn.closest('tr').dataset.ri)
+      const [gone] = state.project.recorders.splice(i, 1)
+      const first = state.project.recorders[0].id
+      state.groups.forEach((g) => { if (g.recorder === gone.id) g.recorder = first })
+      renderRecorders(); refreshTargetSelects(); touched()
+    })
+    $('btnAddRecorder').addEventListener('click', () => {
+      const n = state.project.recorders.length + 1
+      state.project.recorders.push({ ...C.newRecorder(n), id: `r${++recSeq}` })
+      renderRecorders(); refreshTargetSelects(); touched()
+      const inputs = $('recorderRows').querySelectorAll('input[data-rk="name"]')
+      const last = inputs[inputs.length - 1]
+      if (last) { last.focus(); last.select() }
+    })
+
     function meter(value, limit, load, unit, cap) {
       if (load === null) return `<div class="meter-none">${fmt(value, 0)} ${unit} · no limit set</div>`
       const cls = load > 1 ? 'critical' : load > cap ? 'warn' : ''
@@ -1003,7 +1193,7 @@
 
     $('btnExample').addEventListener('click', () => {
       state = { ...C.exampleProject(), isExample: true }
-      fillProject(); renderSwitches(); renderRows(); update(); save()
+      fillProject(); renderRecorders(); renderSwitches(); renderRows(); update(); save()
     })
 
     let clearArmed = null
@@ -1017,10 +1207,10 @@
       clearTimeout(clearArmed); clearArmed = null
       btn.textContent = 'Clear all'
       state = {
-        ...C.withDefaults({ retentionDays: 30, headroom: 1.2, diskTB: 12, raid: 'raid6' }, [C.newGroup(1)]),
+        ...C.withDefaults({ retentionDays: 30, headroom: 1.2 }, [C.newGroup(1)]),
         isExample: false
       }
-      fillProject(); renderSwitches(); renderRows(); update(); save()
+      fillProject(); renderRecorders(); renderSwitches(); renderRows(); update(); save()
     })
 
     function touched() {
@@ -1033,7 +1223,6 @@
     function update() {
       const r = C.calculateProject(state.project, state.groups)
       const t = r.totals
-      const a = r.array
       $('exampleChip').hidden = !state.isExample
 
       $('groupRows').querySelectorAll('tr').forEach((tr, i) => {
@@ -1049,15 +1238,17 @@
       })
 
       const days = Number(state.project.retentionDays) || 0
-      const existing = a.existing
-      $('existingField').hidden = state.project.arrayMode !== 'existing'
+      const active = r.recorders.filter((rec) => rec.cameras > 0)
+      const existing = active.length > 0 && active.every((rec) => rec.array.existing)
+      const hot = t.hotDays
+      const onRec = r.archive.enabled ? ` · ${hot} on recorders` : ''
       if (existing) {
         const fit = Number.isFinite(t.expectedRetentionDays) ? Math.floor(t.expectedRetentionDays) : 0
         $('sumRequired').innerHTML = `${fmt(fit, 0)}<span>days</span>`
-        $('sumCaption').textContent = `fit on the existing array · ${days} required · needs ${fmt(t.requiredTB, 1)} TB usable`
+        $('sumCaption').textContent = `fit on the existing array${active.length > 1 ? 's (least)' : ''} · ${hot} required${r.archive.enabled ? ' on recorders' : ''} · needs ${fmt(t.requiredTB, 1)} TB usable`
       } else {
         $('sumRequired').innerHTML = `${fmt(t.requiredTB, 1)}<span>TB</span>`
-        $('sumCaption').textContent = `usable storage for ${days} day${days === 1 ? '' : 's'} of footage`
+        $('sumCaption').textContent = `usable recorder storage for ${days} day${days === 1 ? '' : 's'} of footage${onRec}${r.recorders.length > 1 ? ` across ${r.recorders.length} recorders` : ''}`
       }
       const raw = state.project.method === 'raw'
       $('ratiosBlock').hidden = !raw
@@ -1090,16 +1281,50 @@
       const un = r.network.unassigned.cameras
       $('unassignedNote').textContent = r.network.switches.length && un
         ? `${un} camera${un === 1 ? '' : 's'} not on a switch` : ''
-      $('sUsable').textContent = `${fmt(a.usableTB, 0)} TB`
-      $('sTiB').textContent = `${fmt(a.usableTiB, 1)} TiB`
+      const usableTB = r.recorders.reduce((s, rec) => s + rec.array.usableTB, 0)
+      const usableTiB = r.recorders.reduce((s, rec) => s + rec.array.usableTiB, 0)
+      $('sUsable').textContent = `${fmt(usableTB, 0)} TB`
+      $('sTiB').textContent = `${fmt(usableTiB, 1)} TiB`
       $('sDays').textContent = Number.isFinite(t.expectedRetentionDays)
-        ? `${Math.floor(t.expectedRetentionDays)} days` : '—'
+        ? `${Math.floor(t.expectedRetentionDays)} days${active.length > 1 ? ' (least)' : ''}` : '—'
 
-      $('arrayTitle').textContent =
-        `${existing ? 'Existing: ' : ''}${a.totalDisks} × ${a.diskTB} TB · ${a.raidLabel}${a.spareDisks ? ' + spare' : ''}`
-      $('arrayRaw').textContent = `${fmt(a.rawTB, 0)} TB raw`
-      $('parityLabel').textContent = a.raid === 'raid10' ? 'Mirror' : 'Parity'
-      renderBays(a)
+      // Other storage: archive, cloud, SD cards
+      const hasOther = r.archive.enabled || r.cloud.cameras > 0 || r.edge.length > 0
+      $('otherLabel').hidden = !hasOther
+      $('sArchiveRow').hidden = !r.archive.enabled
+      $('sArchive').textContent = `${fmt(r.archive.requiredTB, 1)} TB · ${r.archive.archiveDays} days`
+      $('sCloudRow').hidden = r.cloud.cameras === 0
+      $('sCloud').textContent = `${fmt(r.cloud.retentionTB, 2)} TB · ${fmt(r.cloud.monthlyGB, 0)} GB/mo`
+      $('sCloudUpRow').hidden = r.cloud.cameras === 0
+      $('sCloudUp').textContent = `${fmt(r.cloud.uploadMbps, 1)} Mbps${r.cloud.uploadLoad !== null ? ` · ${Math.round(r.cloud.uploadLoad * 100)}%` : ''}`
+      $('sEdgeRow').hidden = r.edge.length === 0
+      const edgeCams = r.edge.reduce((s, e) => s + e.cameras, 0)
+      const edgeMin = r.edge.filter((e) => e.sdGB > 0).map((e) => e.daysFit)
+      $('sEdge').textContent = `${edgeCams} · ${edgeMin.length ? `${fmt(Math.min(...edgeMin), 1)} days min` : 'no card size'}`
+
+      // Recorder table outputs and one bay diagram per recorder
+      $('recorderRows').querySelectorAll('tr').forEach((tr, i) => {
+        const rec = r.recorders[i]
+        if (!rec) return
+        tr.querySelector('[data-rout="cams"]').textContent = String(rec.cameras)
+        tr.querySelector('[data-rout="need"]').innerHTML = `${fmt(rec.requiredTB, 1)} TB<span class="sub">${fmt(rec.gbPerDay, 0)} GB/day</span>`
+        tr.querySelector('[data-rout="disks"]').innerHTML = `${rec.array.totalDisks} × ${rec.array.diskTB} TB<span class="sub">${fmt(rec.array.usableTB, 0)} TB usable</span>`
+        const ok = rec.cameras > 0 && Number.isFinite(rec.expectedRetentionDays) && rec.expectedRetentionDays + 1e-9 >= rec.hotDays
+        tr.querySelector('[data-rout="days"]').innerHTML = rec.cameras === 0 ? '—'
+          : `<span class="${ok ? 'ok-days' : 'bad-days'}">${Number.isFinite(rec.expectedRetentionDays) ? Math.floor(rec.expectedRetentionDays) : '—'}</span><span class="sub">of ${rec.hotDays}</span>`
+      })
+      $('recBlocks').innerHTML = r.recorders.map((rec) => {
+        const a = rec.array
+        const many = r.recorders.length > 1
+        return `<div class="rec-block bays-block">
+          <div class="bays-title">
+            <strong>${many ? `${escAttr(rec.name)} · ` : ''}${a.existing ? 'Existing: ' : ''}${a.totalDisks} × ${a.diskTB} TB · ${escAttr(a.raidLabel)}${a.spareDisks ? ' + spare' : ''}</strong>
+            <span class="eyebrow">${fmt(a.rawTB, 0)} TB raw</span>
+          </div>
+          <div class="bays" role="img" aria-label="${a.dataDisks} data, ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}, ${a.spareDisks} hot spare disks">${baysHTML(a)}</div>
+          ${many ? `<div class="rec-line"><span>${rec.cameras} cameras · <b>${fmt(rec.requiredTB, 1)} TB</b> needed</span><span><b>${fmt(a.usableTB, 0)} TB</b> usable · <b>${Number.isFinite(rec.expectedRetentionDays) ? Math.floor(rec.expectedRetentionDays) : '—'}</b> days</span></div>` : ''}
+        </div>`
+      }).join('')
 
       const labels = { ok: 'Meets retention', info: 'Check notes', warn: 'Review design', critical: 'Does not meet SOP' }
       const status = $('status')
@@ -1131,7 +1356,7 @@
     }
     let lastResult = null
 
-    function renderBays(a) {
+    function baysHTML(a) {
       const MAX = 48
       const total = a.dataDisks + a.parityDisks + a.spareDisks
       const cells = []
@@ -1141,9 +1366,7 @@
       push('spare', a.spareDisks)
       const shown = cells.map((c) => `<div class="bay ${c}" title="${c}"></div>`).join('')
       const more = total > MAX ? `<div class="bay-more">+${fmt(total - MAX, 0)} more disks</div>` : ''
-      $('bays').innerHTML = shown + more
-      $('bays').setAttribute('aria-label',
-        `${a.dataDisks} data, ${a.parityDisks} ${a.raid === 'raid10' ? 'mirror' : 'parity'}, ${a.spareDisks} hot spare disks`)
+      return shown + more
     }
 
     // ---- Export ----
@@ -1173,7 +1396,137 @@
     $('btnCsv').addEventListener('click', () =>
       copy(C.formatCSV(state.groups, lastResult), 'CSV'))
 
+    // ---- Save / load project ----
+    const FILE_VERSION = 1
+    function projectJSON() {
+      return JSON.stringify({ app: 'cctv-storage-calculator', version: FILE_VERSION, savedAt: new Date().toISOString(), project: state.project, groups: state.groups }, null, 2)
+    }
+    function fileName() {
+      const base = (state.project.name || 'site').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'site'
+      return `${base}.cctv.json`
+    }
+    function applyProjectText(text, source) {
+      let data
+      try { data = JSON.parse(text) } catch (e) { toast(`That ${source} is not a project file.`); return false }
+      if (!data || typeof data !== 'object' || !data.project || !Array.isArray(data.groups)) {
+        toast(`That ${source} is not a project file.`); return false
+      }
+      state = { ...C.withDefaults(data.project, data.groups), isExample: false }
+      fillProject(); renderRecorders(); renderSwitches(); renderRows(); update(); save()
+      toast(`Loaded "${state.project.name || 'Untitled site'}".`)
+      return true
+    }
+    $('btnSaveFile').addEventListener('click', () => {
+      try {
+        const blob = new Blob([projectJSON()], { type: 'application/json' })
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = fileName()
+        document.body.appendChild(a); a.click(); a.remove()
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000)
+        toast(`Saving ${fileName()}. If no download appears, use Copy project instead.`)
+      } catch (e) {
+        toast('This browser blocked the download. Use Copy project instead.')
+      }
+    })
+    $('btnLoadFile').addEventListener('click', () => $('fileIn').click())
+    $('fileIn').addEventListener('change', () => {
+      const f = $('fileIn').files && $('fileIn').files[0]
+      if (!f) return
+      const reader = new FileReader()
+      reader.onload = () => applyProjectText(String(reader.result), 'file')
+      reader.onerror = () => toast('Could not read that file.')
+      reader.readAsText(f)
+      $('fileIn').value = ''
+    })
+    $('btnCopyProject').addEventListener('click', () => copy(projectJSON(), 'project'))
+    $('btnPasteProject').addEventListener('click', () => {
+      const ta = $('exportText')
+      ta.readOnly = false
+      ta.value = ''
+      ta.placeholder = 'Paste the project text here, then click Apply.'
+      ta.hidden = false
+      $('pasteRow').hidden = false
+      ta.focus()
+    })
+    function endPaste() {
+      const ta = $('exportText')
+      ta.readOnly = true; ta.placeholder = ''; ta.hidden = true; ta.value = ''
+      $('pasteRow').hidden = true
+    }
+    $('btnApplyPaste').addEventListener('click', () => { if (applyProjectText($('exportText').value, 'text')) endPaste() })
+    $('btnCancelPaste').addEventListener('click', endPaste)
+
+    // ---- Printable report ----
+    function reportHTML(r) {
+      const p = state.project
+      const esc = escAttr
+      const n = (v, d = 1) => fmt(v, d)
+      const many = r.recorders.length > 1
+      const label = (list, id) => esc(((list.find((x) => x.id === id)) || {}).label || id || '')
+      const now = new Date()
+      const groupsRows = state.groups.map((g, i) => {
+        const row = r.rows[i]
+        const nf = C.nightFps(g)
+        const where = row.target === 'cloud' ? 'Cloud' : row.target === 'edge' ? `SD ${g.sdGB || '?'} GB` : (r.recorders.find((x) => x.id === row.recorderId) || {}).name || ''
+        return `<tr><td>${esc(g.name || `Group ${i + 1}`)}</td><td class="n">${row.qty}</td><td>${label(C.RESOLUTIONS, g.resolution)}</td><td>${label(C.CODECS, g.codec)}</td><td class="n">${esc(g.fps)}${nf !== null ? ` / ${nf}` : ''}</td><td>${label(C.SCENES, g.scene)}, ${label(C.QUALITIES, g.quality || 'medium').toLowerCase()}</td><td>${label(C.MODES, g.mode)}${g.mode === 'scheduled' ? ` ${esc(g.hours)} h` : ''}</td><td class="n">${n(row.mbps, 2)}${row.measured ? ' <small>meas.</small>' : ''}</td><td class="n">${n(row.gbPerDay, 1)}</td><td>${esc(where)}</td></tr>`
+      }).join('')
+      const recRows = r.recorders.map((rec) => {
+        const a = rec.array
+        return `<tr><td>${esc(rec.name)}</td><td class="n">${rec.cameras}</td><td class="n">${n(rec.gbPerDay, 0)}</td><td class="n">${n(rec.requiredTB, 2)}</td><td>${a.existing ? 'Existing: ' : ''}${a.totalDisks} × ${a.diskTB} TB ${esc(a.raidLabel)}${a.spareDisks ? ' + spare' : ''}</td><td class="n">${n(a.usableTB, 1)}</td><td class="n">${Number.isFinite(rec.expectedRetentionDays) ? Math.floor(rec.expectedRetentionDays) : '—'} / ${rec.hotDays}</td><td class="n">${n(rec.aggregateMbps, 0)} → ≥ ${n(rec.minRecorderMbps, 0)}</td></tr>`
+      }).join('')
+      const swRows = r.network.switches.map((sw) => `<tr><td>${esc(sw.name)}</td><td class="n">${sw.cameras}</td><td class="n">${n(sw.mbps, 0)}${sw.uplinkLoad !== null ? ` / ${n(sw.uplinkMbps, 0)} (${Math.round(sw.uplinkLoad * 100)}%)` : ''}</td><td class="n">${n(sw.poeW, 0)}${sw.poeLoad !== null ? ` / ${n(sw.poeBudgetW, 0)} (${Math.round(sw.poeLoad * 100)}%)` : ''}</td></tr>`).join('')
+      const order = { critical: 0, warn: 1, ok: 2, info: 3 }
+      const names = { ok: 'OK', info: 'Note', warn: 'Warning', critical: 'Fix' }
+      const checks = [...r.checks].sort((x, y) => order[x.level] - order[y.level]).map((c) => `<li class="lvl-${c.level}"><b>${names[c.level]}</b>${esc(c.text)}</li>`).join('')
+      const other = []
+      if (r.archive.enabled) other.push(`<div><span>Archive tier (${r.archive.archiveDays} days)</span><b>${n(r.archive.requiredTB, 1)} TB usable</b></div>`)
+      if (r.cloud.cameras) other.push(`<div><span>Cloud storage (${r.cloud.cameras} cameras)</span><b>${n(r.cloud.retentionTB, 2)} TB · ${n(r.cloud.monthlyGB, 0)} GB/month</b></div><div><span>Cloud upload</span><b>${n(r.cloud.uploadMbps, 1)} Mbps${r.cloud.uploadLoad !== null ? ` (${Math.round(r.cloud.uploadLoad * 100)}%)` : ''}</b></div>`)
+      r.edge.forEach((e) => other.push(`<div><span>${esc(e.name)}: ${e.cameras} × ${n(e.sdGB, 0)} GB SD</span><b>${Number.isFinite(e.daysFit) ? n(e.daysFit, 1) : '—'} days each</b></div>`))
+      return `
+        <div class="meta">Storage sizing report · SOP-VSS-001 · ${now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        <h1>${esc(p.name || 'Untitled site')}</h1>
+        <div class="meta">${r.totals.cameras} cameras · ${esc(p.retentionDays)} days retention${r.archive.enabled ? ` (${r.archive.hotDays} on recorders)` : ''} · headroom ×${Number(p.headroom).toFixed(2)} · ${label(C.METHODS, p.method)}</div>
+        <h2>Summary</h2>
+        <div class="kv">
+          <div><span>Recorder storage required</span><b>${n(r.totals.requiredTB, 2)} TB usable</b></div>
+          <div><span>Recording per day</span><b>${n(r.totals.recorderGbPerDay, 0)} GB</b></div>
+          <div><span>Raw footage kept</span><b>${n(r.totals.rawTB, 2)} TB</b></div>
+          <div><span>Expected retention</span><b>${Number.isFinite(r.totals.expectedRetentionDays) ? Math.floor(r.totals.expectedRetentionDays) : '—'} days</b></div>
+          <div><span>Camera traffic in</span><b>${n(r.totals.aggregateMbps, 0)} Mbps</b></div>
+          <div><span>Viewing traffic out</span><b>${n(r.viewing.totalMbps, 1)} Mbps</b></div>
+          <div><span>Disk write / read</span><b>${n(r.disk.writeMBps, 1)} / ${n(r.disk.readMBps, 1)} MB/s</b></div>
+          ${other.join('')}
+        </div>
+        <h2>Recorder${many ? 's' : ''}</h2>
+        <table><thead><tr><th>Recorder</th><th class="n">Cameras</th><th class="n">GB/day</th><th class="n">Needs TB</th><th>Array</th><th class="n">Usable TB</th><th class="n">Days fit / req.</th><th class="n">In Mbps → rating</th></tr></thead><tbody>${recRows}</tbody></table>
+        <h2>Camera groups</h2>
+        <table><thead><tr><th>Group</th><th class="n">Qty</th><th>Resolution</th><th>Codec</th><th class="n">fps</th><th>Scene, quality</th><th>Recording</th><th class="n">Mbps/cam</th><th class="n">GB/day</th><th>Records to</th></tr></thead><tbody>${groupsRows}</tbody></table>
+        ${r.network.switches.length ? `<h2>Switches</h2><table><thead><tr><th>Switch</th><th class="n">Cameras</th><th class="n">Uplink Mbps</th><th class="n">PoE W</th></tr></thead><tbody>${swRows}</tbody></table>` : ''}
+        <h2>Checks</h2>
+        <ul class="rchecks">${checks}</ul>
+        <div class="sign"><div>Designed by / date</div><div>Reviewed by / date</div><div>Approved by / date</div></div>
+        <div class="foot">Estimates use SOP Table 1 planning bitrates unless a measured bitrate is entered. Decimal units: 1 TB = 1,000 GB. Confirm bitrates within 7 days of installation (SOP §7).</div>`
+    }
+    function showReport() {
+      $('reportBody').innerHTML = reportHTML(lastResult)
+      $('reportView').hidden = false
+      document.body.classList.add('report-mode')
+      window.scrollTo(0, 0)
+    }
+    function hideReport() {
+      $('reportView').hidden = true
+      document.body.classList.remove('report-mode')
+    }
+    $('btnPrint').addEventListener('click', showReport)
+    $('btnBack').addEventListener('click', hideReport)
+    $('btnDoPrint').addEventListener('click', () => {
+      try { window.print() } catch (e) { /* not available */ }
+      toast('If no print dialog opened, use your browser\'s Print command on this page.')
+    })
+
     fillProject()
+    renderRecorders()
     renderSwitches()
     renderRows()
     update()

@@ -3,6 +3,34 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.7.0 — 2026-09-30
+
+### Added
+- **Several recorders per site.** A Recorders panel lists each NVR/DVR with its
+  own disk size, RAID, bays and rated input; camera groups pick which one they
+  record to. Each is sized separately; the summary shows the total and a bay
+  diagram per recorder.
+- **Camera presets.** A per-group dropdown of generic camera types (domes,
+  bullets, PTZ, LPR, fisheye, multi-sensor, HD-over-coax, analog) that fills
+  in resolution, codec, frame rate, IR and PoE. Editing any of those marks the
+  group Custom again.
+- **Cloud (VSaaS) recording.** Groups sent to the cloud are sized in GB for
+  the plan (per retention period and per month) and their uploads are checked
+  against the internet upload speed.
+- **Edge SD-card recording.** Groups on SD cards report the days each card
+  holds against the retention requirement.
+- **Archive tier.** Keep recent days on the recorders and size a NAS or cloud
+  archive for the rest.
+- **Save and load projects** as `.cctv.json` files, plus copy/paste as text
+  for hosts that block downloads.
+- **Printable report** with summary, recorders, camera groups, switches,
+  checks and sign-off lines; prints or saves as PDF from the browser.
+- GitHub Pages now deploys on every push to `main`.
+
+### Changed
+- Recorder settings moved from the Site panel into the Recorders panel.
+  Saved projects from earlier versions load unchanged.
+
 ## 0.6.3 — 2026-09-30
 
 ### Changed

@@ -1,13 +1,13 @@
-# Publishes dist/ to GitHub Pages. Run by hand from the Actions tab
-# (Actions → Pages → Run workflow).
+# Publishes dist/ to GitHub Pages on every push to main, and by hand from
+# the Actions tab (Actions → Pages → Run workflow).
 #
 # One-time setup, which the workflow's own token is not allowed to do:
 # Settings → Pages → Build and deployment → Source: "GitHub Actions".
-# Pages is free on public repositories; a private repository needs GitHub Pro
-# or a Team/Enterprise plan. The run fails until Pages is switched on.
 name: Pages
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

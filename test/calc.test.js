@@ -298,7 +298,7 @@ test('analog coax cameras have no PoE and no switch traffic', () => {
   assert.equal(res.network.coax.cameras, 16)
   close(res.network.coax.mbps, 16)
   assert.ok(res.checks.some((c) => /coax/.test(c.text)))
-  assert.match(C.formatCSV([g], res), /,coax,0\.0$/m)
+  assert.match(C.formatCSV([g], res), /,coax,0\.0,NVR,$/m)
 })
 
 test('night fps is ignored for scheduled recording', () => {
@@ -353,4 +353,97 @@ test('CSV export neutralises spreadsheet formulas', () => {
   assert.ok(lines[1].startsWith(`"'=HYPERLINK(""http://x"",""click"")",`), lines[1])
   assert.ok(lines[2].startsWith(`'-2+3,`), lines[2])
   assert.ok(lines[3].startsWith(`"Plain, name",`), lines[3])
+})
+
+test('legacy single-recorder fields migrate into recorders[0]', () => {
+  const { project } = C.withDefaults({ retentionDays: 14, diskTB: 8, raid: 'raid5', recorderBays: 4, recorderMbps: 100, arrayMode: 'existing', existingDisks: 3 }, [])
+  assert.equal(project.recorders.length, 1)
+  assert.deepEqual(
+    [project.recorders[0].diskTB, project.recorders[0].raid, project.recorders[0].bays, project.recorders[0].inboundMbps, project.recorders[0].arrayMode, project.recorders[0].existingDisks],
+    [8, 'raid5', 4, 100, 'existing', 3]
+  )
+  assert.equal('diskTB' in project, false)
+  assert.deepEqual(project.archive, { enabled: false, hotDays: '' })
+})
+
+test('two recorders are sized separately and summed', () => {
+  const { project, groups } = C.exampleProject()
+  const p = { ...project, recorders: [
+    { id: 'r1', name: 'NVR A', diskTB: 12, raid: 'raid6', bays: '', inboundMbps: '', arrayMode: 'design', existingDisks: '' },
+    { id: 'r2', name: 'NVR B', diskTB: 10, raid: 'raid5', bays: '', inboundMbps: '', arrayMode: 'design', existingDisks: '' }
+  ] }
+  const gs = groups.map((g, i) => ({ ...g, recorder: i === 0 ? 'r1' : 'r2' }))
+  const r = C.calculateProject(p, gs)
+  assert.equal(r.recorders.length, 2)
+  assert.equal(r.recorders[0].cameras, 24)
+  assert.equal(r.recorders[1].cameras, 16)
+  close(r.recorders[0].requiredTB, 777.6 * 30 / 1000 * 1.26)
+  close(r.recorders[1].requiredTB, (777.6 + 52.9) * 30 / 1000 * 1.26, 0.05)
+  close(r.totals.requiredTB, r.recorders[0].requiredTB + r.recorders[1].requiredTB)
+  assert.equal(r.recorders[1].array.raid, 'raid5')
+  // checks are prefixed with the recorder name when there is more than one
+  assert.ok(r.checks.some((c) => /^NVR B: RAID 5/.test(c.text)))
+  assert.ok(r.checks.some((c) => /^NVR A: Meets the 30-day/.test(c.text)))
+  // a group pointing at a missing recorder falls back to the first
+  const fb = C.calculateProject(p, gs.map((g) => ({ ...g, recorder: 'nope' })))
+  assert.equal(fb.recorders[0].cameras, 40)
+})
+
+test('cloud groups leave the recorder and are checked against internet upload', () => {
+  const { project, groups } = C.exampleProject()
+  const gs = groups.map((g, i) => (i === 2 ? { ...g, target: 'cloud' } : g))
+  const r = C.calculateProject(project, gs)
+  assert.equal(r.cloud.cameras, 10)
+  close(r.cloud.gbPerDay, 52.92, 0.05)
+  close(r.cloud.retentionTB, 1.5876, 0.01)
+  close(r.cloud.monthlyGB, 52.92 * 30.44, 2)
+  close(r.cloud.uploadMbps, 14)
+  assert.equal(r.recorders[0].cameras, 30)
+  close(r.totals.aggregateMbps, 144)
+  assert.ok(r.checks.some((c) => c.level === 'info' && /record to the cloud/.test(c.text)))
+  const tight = C.calculateProject({ ...project, internetUploadMbps: 15 }, gs)
+  assert.ok(tight.checks.some((c) => c.level === 'warn' && /internet upload/.test(c.text)))
+  const over = C.calculateProject({ ...project, internetUploadMbps: 10 }, gs)
+  assert.ok(over.checks.some((c) => c.level === 'critical' && /more than the 10 Mbps/.test(c.text)))
+})
+
+test('edge SD groups report days per card', () => {
+  const { project, groups } = C.exampleProject()
+  const gs = groups.map((g, i) => (i === 0 ? { ...g, target: 'edge', sdGB: 256 } : g))
+  const r = C.calculateProject(project, gs)
+  assert.equal(r.edge.length, 1)
+  // 32.4 GB/day × 1.05 → 256 GB holds 7.5 days
+  close(r.edge[0].daysFit, 256 / (32.4 * 1.05), 0.01)
+  assert.equal(r.recorders[0].cameras, 16)
+  assert.ok(r.checks.some((c) => c.level === 'critical' && /SD card holds about 7\.5 days/.test(c.text)))
+  const big = C.calculateProject(project, gs.map((g) => (g.target === 'edge' ? { ...g, sdGB: 2048 } : g)))
+  assert.ok(!big.checks.some((c) => /SD card holds/.test(c.text)))
+  const blank = C.calculateProject(project, gs.map((g) => (g.target === 'edge' ? { ...g, sdGB: '' } : g)))
+  assert.ok(blank.checks.some((c) => c.level === 'warn' && /no card size/.test(c.text)))
+})
+
+test('archive tier sizes recorders for the hot days and the archive for the rest', () => {
+  const { project, groups } = C.exampleProject()
+  const r = C.calculateProject({ ...project, archive: { enabled: true, hotDays: 7 } }, groups)
+  assert.equal(C.hotDaysOf({ ...project, archive: { enabled: true, hotDays: 7 } }), 7)
+  assert.equal(r.archive.enabled, true)
+  assert.equal(r.archive.archiveDays, 23)
+  close(r.recorders[0].rawTB, 1608.12 * 7 / 1000, 0.01)
+  close(r.archive.rawTB, 1608.12 * 23 / 1000, 0.01)
+  close(r.archive.requiredTB, r.archive.rawTB * 1.26, 0.01)
+  assert.ok(r.checks.some((c) => /Meets the 7-day requirement on the recorder/.test(c.text)))
+  assert.ok(r.checks.some((c) => c.level === 'info' && /Archive tier/.test(c.text)))
+  // hot days at or above retention means no archive
+  assert.equal(C.calculateProject({ ...project, archive: { enabled: true, hotDays: 30 } }, groups).archive.enabled, false)
+  assert.equal(C.calculateProject({ ...project, archive: { enabled: false, hotDays: 7 } }, groups).archive.enabled, false)
+})
+
+test('presets fill in camera settings and keep the rest', () => {
+  const g = { ...C.newGroup(1), name: 'Car park', qty: 6, switch: 'sw1', mode: 'motion-high' }
+  const p = C.applyPreset(g, 'ptz2')
+  assert.equal(p.preset, 'ptz2')
+  assert.deepEqual([p.resolution, p.codec, p.fps, p.nightIR, p.poeW, p.scene], ['2MP', 'h265', 25, true, 25, 'high'])
+  assert.deepEqual([p.name, p.qty, p.switch, p.mode], ['Car park', 6, 'sw1', 'motion-high'])
+  assert.equal(C.applyPreset(g, 'nope').preset, '')
+  assert.ok(C.PRESETS.every((pr) => C.RESOLUTIONS.some((r) => r.id === pr.resolution) && C.CODECS.some((c) => c.id === pr.codec)))
 })

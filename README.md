@@ -36,9 +36,20 @@ Everything you type stays in your browser.
   budgets, viewing traffic beyond the recorder or WAN link, and unverified
   smart-codec savings.
   It also confirms the expected retention in days.
-- **Existing sites:** switch the array setting to "Check an existing array",
-  enter the disks installed, and see the days that fit, the storage to add if
-  it falls short, or roughly how many more cameras it has room for.
+- **Existing sites:** set a recorder to "Check existing", enter the disks
+  installed, and see the days that fit, the storage to add if it falls short,
+  or roughly how many more cameras it has room for.
+- **Several recorders:** add NVRs or DVRs in the Recorders panel and choose
+  which one each camera group records to. Each is sized on its own.
+- **Presets:** pick a generic camera type (dome, bullet, PTZ, LPR, fisheye,
+  multi-sensor, HD-over-coax, analog) to fill in resolution, codec, frame
+  rate, IR and PoE.
+- **Cloud, SD cards and archive:** groups can record to a cloud plan (sized
+  in GB, uploads checked against the internet connection) or to SD cards
+  (days per card), and an archive tier can hold older footage off the
+  recorders.
+- **Save, load and print:** save a project as a `.cctv.json` file or copy it
+  as text, load it back later, and print a report or save it as PDF.
 - **Export:** copy a plain-text report or a CSV of the camera groups.
 
 The page opens with the SOP's worked example (40 cameras, 30 days → 60.8 TB
@@ -52,10 +63,9 @@ open dist/index.html # or double-click it; any static host works too
 ```
 
 `dist/index.html` is one file with everything inlined. You can email it, put it
-on a file share, or host it on GitHub Pages: turn on Pages once (Settings →
-Pages → Source: GitHub Actions), then run the `Pages` workflow from the Actions
-tab whenever you want to publish the current `main`. It works fully offline: the
-fonts are embedded in the file.
+on a file share, or host it on GitHub Pages (turn on Pages once under Settings →
+Pages → Source: GitHub Actions; every push to `main` then publishes). It works
+fully offline: the fonts are embedded in the file.
 
 ## Develop
 
@@ -89,10 +99,9 @@ run `npm test`.
 - Table 1 bitrates are generic planning figures. Use the manufacturer's
   calculator or measured bitrates for final designs, and measure after install
   (SOP §7).
-- Sizes a single array per project. For several recorders, run one project
-  per recorder.
-- Does not model cloud (VSaaS) plans, edge (SD card) recording or tiered
-  archive storage.
+- Cloud plans are sized in GB only; pricing and per-camera plan limits vary by
+  provider.
+- Presets are generic types, not vendor models.
 
 ## License
 
