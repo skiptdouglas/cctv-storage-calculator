@@ -806,7 +806,7 @@
   </section>
 
   <footer class="notes">
-    <div>Presets are generic camera types with vendor-neutral planning values; a datasheet or a measured stream is always better. PoE for PTZs and heated housings varies a lot by model.</div>
+    <div>Generic presets are vendor-neutral planning values. UniFi presets use Ubiquiti's published resolution, maximum frame rate, IR and maximum PoE draw, and assume Enhanced (H.265) encoding; UniFi Protect sets each camera's bitrate from its quality level, so for a final design read the bitrate from the camera's settings and enter it as Measured. A datasheet or a measured stream always beats a preset.</div>
     <div>Cloud (VSaaS) groups are sized in GB for the plan and checked against the internet upload; SD-card groups are checked per camera against the card size. Neither uses the recorders. The archive tier sizes the recorders for the days kept on site and the archive for the rest.</div>
     <div>Raw-pixel method: width × height × color depth (16-bit below 4K, 30-bit at 4K and above) × fps ÷ the codec's compression ratio. It usually gives higher figures than typical bitrates, most of all at 4K. Use it to compare with tools that work this way; the SOP sizes with typical or measured bitrates.</div>
     <div>Estimates start from SOP Table 1 H.264 bitrates at 15 fps, medium motion and medium quality, then scale by codec (Smart H.264+ ×0.6, H.265 ×0.5, AV1 ×0.35, Smart H.265+ ×0.25, MJPEG ×5), frame rate, scene (×0.7 low, ×1.5 high), quality (×0.7 low, ×1.4 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>
@@ -935,7 +935,7 @@
       return `
         <tr data-i="${i}"${coax ? ' class="coax"' : ''}>
           <td><input data-k="name" type="text" value="${escAttr(g.name)}" aria-label="Group name"></td>
-          <td><select data-k="preset" aria-label="Camera preset"><option value="">Custom</option>${options(C.PRESETS, g.preset)}</select></td>
+          <td><select data-k="preset" aria-label="Camera preset">${presetOptions(g.preset)}</select></td>
           <td><input data-k="qty" type="number" min="0" step="1" value="${escAttr(g.qty)}" aria-label="Quantity" inputmode="numeric"></td>
           <td><select data-k="resolution" aria-label="Resolution">${options(C.RESOLUTIONS, g.resolution)}</select></td>
           <td><select data-k="codec" aria-label="Codec">${options(C.CODECS, g.codec)}</select></td>
@@ -963,6 +963,12 @@
             </button>
           </td>
         </tr>`
+    }
+
+    function presetOptions(selected) {
+      return '<option value="">Custom</option>' + C.PRESET_VENDORS.map((v) =>
+        `<optgroup label="${escAttr(v)}">${options(C.PRESETS.filter((p) => (p.vendor || 'Generic') === v), selected)}</optgroup>`
+      ).join('')
     }
 
     // One select covers the recorders plus cloud and SD card. Values: rec:<id>, cloud, edge.

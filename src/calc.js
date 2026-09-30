@@ -124,23 +124,57 @@
     { id: 'edge', label: 'Edge SD card' }
   ]
 
-  // Generic camera-type presets. Vendor-neutral planning values; datasheet
-  // figures beat them. Editable here; the UI lists them in this order.
+  // Camera presets. `vendor: 'Generic'` entries are vendor-neutral planning
+  // values. Vendor entries carry spec-sheet resolution, max frame rate, IR and
+  // max PoE draw; the bitrate is still estimated unless the user enters the
+  // figure the camera reports. Editable here; the UI groups them by vendor.
   const PRESETS = [
-    { id: 'dome2', label: 'Dome 2 MP, H.265, IR', resolution: '2MP', codec: 'h265', fps: 15, nightIR: true, poeW: 6 },
-    { id: 'dome4', label: 'Dome 4 MP, H.265, IR', resolution: '4MP', codec: 'h265', fps: 15, nightIR: true, poeW: 7 },
-    { id: 'bullet4', label: 'Bullet 4 MP, H.265, long IR', resolution: '4MP', codec: 'h265', fps: 15, nightIR: true, poeW: 9 },
-    { id: 'bullet8', label: 'Bullet 8 MP (4K), H.265, IR', resolution: '8MP', codec: 'h265', fps: 15, nightIR: true, poeW: 11 },
-    { id: 'turret5', label: 'Turret 5 MP, Smart H.265+, IR', resolution: '5MP', codec: 'smart', fps: 15, nightIR: true, poeW: 7 },
-    { id: 'lpr', label: 'LPR / ANPR 2 MP, 30 fps', resolution: '2MP', codec: 'h264', fps: 30, nightIR: true, poeW: 12, scene: 'high' },
-    { id: 'ptz2', label: 'PTZ 2 MP 25×, H.265 (PoE+)', resolution: '2MP', codec: 'h265', fps: 25, nightIR: true, poeW: 25, scene: 'high' },
-    { id: 'ptz4', label: 'PTZ 4 MP 32×, IR, heater (PoE++)', resolution: '4MP', codec: 'h265', fps: 25, nightIR: true, poeW: 60, scene: 'high' },
-    { id: 'fisheye12', label: 'Fisheye 12 MP, H.265', resolution: '12MP', codec: 'h265', fps: 15, nightIR: false, poeW: 9 },
-    { id: 'multi4x5', label: 'Multi-sensor 4 × 5 MP (one sensor per camera row)', resolution: '5MP', codec: 'h265', fps: 15, nightIR: true, poeW: 6, note: 'Enter 4 cameras per unit.' },
-    { id: 'tvi2', label: 'HD-TVI / AHD 2 MP over coax', resolution: '2MP', codec: 'h265', fps: 15, nightIR: true, poeW: '', coax: true },
-    { id: 'analog960', label: 'Analog 960H over coax', resolution: '960H', codec: 'h264', fps: 15, nightIR: true, poeW: '' },
-    { id: 'indoor2', label: 'Indoor cube 2 MP, no IR', resolution: '2MP', codec: 'h265', fps: 10, nightIR: false, poeW: 4, scene: 'low' }
+    { id: 'dome2', vendor: 'Generic', label: 'Dome 2 MP, H.265, IR', resolution: '2MP', codec: 'h265', fps: 15, nightIR: true, poeW: 6 },
+    { id: 'dome4', vendor: 'Generic', label: 'Dome 4 MP, H.265, IR', resolution: '4MP', codec: 'h265', fps: 15, nightIR: true, poeW: 7 },
+    { id: 'bullet4', vendor: 'Generic', label: 'Bullet 4 MP, H.265, long IR', resolution: '4MP', codec: 'h265', fps: 15, nightIR: true, poeW: 9 },
+    { id: 'bullet8', vendor: 'Generic', label: 'Bullet 8 MP (4K), H.265, IR', resolution: '8MP', codec: 'h265', fps: 15, nightIR: true, poeW: 11 },
+    { id: 'turret5', vendor: 'Generic', label: 'Turret 5 MP, Smart H.265+, IR', resolution: '5MP', codec: 'smart', fps: 15, nightIR: true, poeW: 7 },
+    { id: 'lpr', vendor: 'Generic', label: 'LPR / ANPR 2 MP, 30 fps', resolution: '2MP', codec: 'h264', fps: 30, nightIR: true, poeW: 12, scene: 'high' },
+    { id: 'ptz2', vendor: 'Generic', label: 'PTZ 2 MP 25×, H.265 (PoE+)', resolution: '2MP', codec: 'h265', fps: 25, nightIR: true, poeW: 25, scene: 'high' },
+    { id: 'ptz4', vendor: 'Generic', label: 'PTZ 4 MP 32×, IR, heater (PoE++)', resolution: '4MP', codec: 'h265', fps: 25, nightIR: true, poeW: 60, scene: 'high' },
+    { id: 'fisheye12', vendor: 'Generic', label: 'Fisheye 12 MP, H.265', resolution: '12MP', codec: 'h265', fps: 15, nightIR: false, poeW: 9 },
+    { id: 'multi4x5', vendor: 'Generic', label: 'Multi-sensor 4 × 5 MP (one sensor per camera row)', resolution: '5MP', codec: 'h265', fps: 15, nightIR: true, poeW: 6, note: 'Enter 4 cameras per unit.' },
+    { id: 'tvi2', vendor: 'Generic', label: 'HD-TVI / AHD 2 MP over coax', resolution: '2MP', codec: 'h265', fps: 15, nightIR: true, poeW: '', coax: true },
+    { id: 'analog960', vendor: 'Generic', label: 'Analog 960H over coax', resolution: '960H', codec: 'h264', fps: 15, nightIR: true, poeW: '' },
+    { id: 'indoor2', vendor: 'Generic', label: 'Indoor cube 2 MP, no IR', resolution: '2MP', codec: 'h265', fps: 10, nightIR: false, poeW: 4, scene: 'low' },
+    // Ubiquiti UniFi Protect (spec sheets as republished by resellers, Sept 2026;
+    // techspecs.ui.com is the source of record). Protect records H.264
+    // ("Standard") or H.265 ("Enhanced") per camera; presets assume Enhanced.
+    // Protect sets bitrate from a quality level, so read the camera's actual
+    // bitrate in its settings and enter it as Measured for a final design.
+    { id: 'uvc-g4-bullet', vendor: 'UniFi', model: 'UVC-G4-Bullet', label: 'G4 Bullet · 4 MP 24 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: true, poeW: 4 },
+    { id: 'uvc-g4-dome', vendor: 'UniFi', model: 'UVC-G4-Dome', label: 'G4 Dome · 4 MP 24 fps · 5 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: true, poeW: 5 },
+    { id: 'uvc-g4-pro', vendor: 'UniFi', model: 'UVC-G4-Pro', label: 'G4 Pro · 4K 50 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.5, note: 'Camera max is 50 fps; preset uses 30.' },
+    { id: 'uvc-g4-ptz', vendor: 'UniFi', model: 'UVC-G4-PTZ', label: 'G4 PTZ · 4K 24 fps 22× · 42.9 W (PoE++)', resolution: '8MP', codec: 'h265', fps: 24, nightIR: false, poeW: 42.9, scene: 'high', unverified: 'IR' },
+    { id: 'uvc-g4-doorbell-pro', vendor: 'UniFi', model: 'UVC-G4-Doorbell-Pro', label: 'G4 Doorbell Pro · 2 MP 30 fps · 10 W', resolution: '2MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10, scene: 'high' },
+    { id: 'uvc-g5-bullet', vendor: 'UniFi', model: 'UVC-G5-Bullet', label: 'G5 Bullet · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
+    { id: 'uvc-g5-dome', vendor: 'UniFi', model: 'UVC-G5-Dome', label: 'G5 Dome · 4 MP 30 fps · 5 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 5 },
+    { id: 'uvc-g5-flex', vendor: 'UniFi', model: 'UVC-G5-Flex', label: 'G5 Flex · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
+    { id: 'uvc-g5-turret-ultra', vendor: 'UniFi', model: 'UVC-G5-Turret-Ultra', label: 'G5 Turret Ultra · 4 MP 30 fps · 4 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4 },
+    { id: 'uvc-g5-dome-ultra', vendor: 'UniFi', model: 'UVC-G5-Dome-Ultra', label: 'G5 Dome Ultra · 4 MP 30 fps · 4.2 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 4.2 },
+    { id: 'uvc-g5-pro', vendor: 'UniFi', model: 'UVC-G5-Pro', label: 'G5 Pro · 4K 30 fps · 10 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10, note: '12.95 W with the Enhancer accessory.' },
+    { id: 'uvc-g5-ptz', vendor: 'UniFi', model: 'UVC-G5-PTZ', label: 'G5 PTZ · 4 MP 30 fps · 14 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 14, scene: 'high', unverified: 'IR' },
+    { id: 'uvc-g6-bullet', vendor: 'UniFi', model: 'UVC-G6-Bullet', label: 'G6 Bullet · 4K 30 fps · 9.9 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9.9 },
+    { id: 'uvc-g6-turret', vendor: 'UniFi', model: 'UVC-G6-Turret', label: 'G6 Turret · 4K 30 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 12.5 },
+    { id: 'uvc-g6-dome', vendor: 'UniFi', model: 'UVC-G6-Dome', label: 'G6 Dome · 4K 30 fps · 9.25 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 9.25 },
+    { id: 'uvc-g6-pro-dome', vendor: 'UniFi', model: 'UVC-G6-Pro-Dome', label: 'G6 Pro Dome · 4K 30 fps · 15 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 15 },
+    { id: 'uvc-g6-ptz', vendor: 'UniFi', model: 'UVC-G6-PTZ', label: 'G6 PTZ · 4K 30 fps dual lens · 24.5 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 24.5, scene: 'high' },
+    { id: 'uvc-ai-pro', vendor: 'UniFi', model: 'UVC-AI-Pro', label: 'AI Pro · 4K 30 fps · 11 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 11, note: '22 W with the Enhancer accessory.' },
+    { id: 'uvc-ai-turret', vendor: 'UniFi', model: 'UVC-AI-Turret', label: 'AI Turret · 4K 30 fps · 20 W (PoE+)', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 20 },
+    { id: 'uvc-ai-dome', vendor: 'UniFi', model: 'UVC-AI-Dome', label: 'AI Dome · 4K 30 fps · 10 W', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 10 },
+    { id: 'uvc-ai-lpr', vendor: 'UniFi', model: 'UVC-AI-LPR', label: 'AI LPR · 4K 30 fps 3× · 25.5 W (PoE+)', resolution: '8MP', codec: 'h265', fps: 30, nightIR: true, poeW: 25.5, scene: 'high' },
+    { id: 'uvc-ai-360', vendor: 'UniFi', model: 'UVC-AI-360', label: 'AI 360 · 4 MP 1920×1920 30 fps · 8.64 W', resolution: '4MP', codec: 'h265', fps: 30, nightIR: true, poeW: 8.64, unverified: 'IR' },
+    { id: 'uvc-ai-theta', vendor: 'UniFi', model: 'UVC-AI-Theta', label: 'AI Theta · 8 MP 24 fps · 12.5 W', resolution: '8MP', codec: 'h265', fps: 24, nightIR: false, poeW: 12.5, note: 'With the 360 lens: 6 MP at 20 fps.', unverified: 'IR' },
+    { id: 'uvc-ai-theta-pro', vendor: 'UniFi', model: 'UVC-AI-Theta-Pro', label: 'AI Theta Pro · 4 MP 2160×2160 24 fps · 12.5 W', resolution: '4MP', codec: 'h265', fps: 24, nightIR: false, poeW: 12.5, unverified: 'IR' }
   ]
+
+  /** Preset vendors in display order, Generic first. */
+  const PRESET_VENDORS = [...new Set(PRESETS.map((p) => p.vendor || 'Generic'))]
 
   const LIVE_STREAM_TYPES = [
     { id: 'sub', label: 'Substream (low res)' },
@@ -949,6 +983,7 @@
     LIVE_STREAM_TYPES,
     TARGETS,
     PRESETS,
+    PRESET_VENDORS,
     CONSTANTS: K,
     estimateBitrate,
     colorDepth,

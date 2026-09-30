@@ -447,3 +447,16 @@ test('presets fill in camera settings and keep the rest', () => {
   assert.equal(C.applyPreset(g, 'nope').preset, '')
   assert.ok(C.PRESETS.every((pr) => C.RESOLUTIONS.some((r) => r.id === pr.resolution) && C.CODECS.some((c) => c.id === pr.codec)))
 })
+
+test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
+  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi'])
+  const g5 = C.applyPreset(C.newGroup(1), 'uvc-g5-bullet')
+  assert.deepEqual([g5.resolution, g5.codec, g5.fps, g5.nightIR, g5.poeW], ['4MP', 'h265', 30, true, 4])
+  const pro = C.applyPreset(C.newGroup(1), 'uvc-g5-pro')
+  assert.deepEqual([pro.resolution, pro.fps, pro.poeW], ['8MP', 30, 10])
+  const ptz = C.applyPreset(C.newGroup(1), 'uvc-g6-ptz')
+  assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['8MP', 24.5, 'high'])
+  const unifi = C.PRESETS.filter((p) => p.vendor === 'UniFi')
+  assert.ok(unifi.length >= 20)
+  assert.ok(unifi.every((p) => p.model && p.model.startsWith('UVC-') && typeof p.poeW === 'number' && p.poeW > 0))
+})

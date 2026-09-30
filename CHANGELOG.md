@@ -3,6 +3,14 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.7.1 — 2026-09-30
+
+### Added
+- **UniFi presets.** 24 Ubiquiti UniFi Protect cameras (G4, G5, G6 and AI
+  series, PTZs, LPR, 360/Theta, Doorbell Pro) with resolution, maximum frame
+  rate, IR and maximum PoE draw from the published spec sheets. Presets are
+  now grouped by vendor in the dropdown.
+
 ## 0.7.0 — 2026-09-30
 
 ### Added

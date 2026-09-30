@@ -101,7 +101,47 @@ run `npm test`.
   (SOP §7).
 - Cloud plans are sized in GB only; pricing and per-camera plan limits vary by
   provider.
-- Presets are generic types, not vendor models.
+- Generic presets are planning types, not vendor models. The UniFi presets
+  use Ubiquiti's published specs (see below) but the bitrate is still an
+  estimate: UniFi Protect sets it from a quality level, so read the actual
+  figure in the camera's settings and enter it as Measured.
+
+## UniFi presets
+
+Values are from Ubiquiti's spec sheets as republished by resellers and
+reviewers (September 2026). techspecs.ui.com is the source of record; check
+it before quoting. Presets assume Enhanced (H.265) encoding; Standard is
+H.264.
+
+| Preset | Resolution | Max fps | IR | Max PoE |
+| --- | --- | --- | --- | --- |
+| G4 Bullet | 4 MP 2688×1512 | 24 | yes | 4 W |
+| G4 Dome | 4 MP | 24 | yes | 5 W |
+| G4 Pro | 8 MP 4K | 50 (preset 30) | yes | 12.5 W |
+| G4 PTZ | 8 MP 4K, 22× | 24 | unverified | 42.9 W PoE++ |
+| G4 Doorbell Pro | 2 MP 1600×1200 | 30 | yes | 10 W |
+| G5 Bullet / Flex / Turret Ultra | 4 MP 2688×1512 | 30 | yes | 4 W |
+| G5 Dome | 4 MP | 30 | yes | 5 W |
+| G5 Dome Ultra | 4 MP | 30 | yes | 4.2 W |
+| G5 Pro | 8 MP 4K, 3× | 30 | yes | 10 W (12.95 W with Enhancer) |
+| G5 PTZ | 4 MP | 30 | unverified | 14 W |
+| G6 Bullet | 8 MP 4K | 30 | yes | 9.9 W |
+| G6 Turret | 8 MP 4K | 30 | yes | 12.5 W |
+| G6 Dome | 8 MP 4K | 30 | yes | 9.25 W |
+| G6 Pro Dome | 8 MP 4K | 30 | yes | 15 W |
+| G6 PTZ | 8 MP 4K dual lens | 30 | yes | 24.5 W |
+| AI Pro | 8 MP 4K | 30 | yes | 11 W (22 W with Enhancer) |
+| AI Turret | 8 MP 4K | 30 | yes, 40 m | 20 W PoE+ |
+| AI Dome | 8 MP 4K | 30 | yes | 10 W |
+| AI LPR | 8 MP 4K, 3× | 30 | yes, 15 m | 25.5 W PoE+ |
+| AI 360 | 4 MP 1920×1920 | 30 | unverified | 8.64 W |
+| AI Theta | 8 MP 3264×2448 (360 lens: 6 MP, 20 fps) | 24 | unverified | 12.5 W |
+| AI Theta Pro | 4 MP 2160×2160 | 24 | unverified | 12.5 W |
+
+Not included: G4/G6 Instant and the doorbells other than G4 Doorbell Pro
+(USB or Wi-Fi powered, no PoE figure), AI Bullet, AI DSLR and G6 Entry (no
+power figure found). "Unverified" IR entries mean the sources seen did not
+state whether the model has IR illumination.
 
 ## License
 
