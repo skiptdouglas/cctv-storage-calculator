@@ -317,6 +317,16 @@
   }
   .headline .big span { font-size: 22px; font-weight: 600; color: var(--muted); margin-left: 4px; }
   .headline .caption { color: var(--muted); }
+  .verdict {
+    display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start;
+    margin-top: 10px; padding: 8px 10px; border-radius: 6px; font-size: 13px;
+  }
+  .verdict b {
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; padding-top: 1px;
+  }
+  .verdict span { color: var(--ink); }
+  .verdict small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
   .compare {
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px;
     margin-top: 10px; padding: 8px 10px;
@@ -665,6 +675,7 @@
         <div class="headline">
           <div class="big" id="sumRequired">0<span>TB</span></div>
           <div class="caption" id="sumCaption">usable storage required</div>
+          <div class="verdict" id="verdict" hidden><b id="verdictLabel"></b><span id="verdictText"></span></div>
           <div class="compare" id="compare"><span id="compareLabel"></span><b id="compareValue"></b></div>
         </div>
 
@@ -1097,10 +1108,24 @@
 
       const order = { critical: 0, warn: 1, ok: 2, info: 3 }
       const names = { ok: 'OK', info: 'Note', warn: 'Warning', critical: 'Fix' }
-      $('checks').innerHTML = [...r.checks]
-        .sort((x, y) => order[x.level] - order[y.level])
+      const sorted = [...r.checks].sort((x, y) => order[x.level] - order[y.level])
+      $('checks').innerHTML = sorted
         .map((c) => `<li class="lvl-${c.level}"><b>${names[c.level]}</b><span>${escAttr(c.text)}</span></li>`)
         .join('')
+
+      // Why the badge says what it says, right under the headline figure.
+      const top = sorted[0]
+      const verdict = $('verdict')
+      if (top && (top.level === 'critical' || top.level === 'warn') && t.cameras > 0) {
+        const more = sorted.filter((c) => c.level === top.level).length - 1
+        verdict.hidden = false
+        verdict.className = `verdict lvl-${top.level}`
+        $('verdictLabel').textContent = names[top.level]
+        $('verdictText').innerHTML = escAttr(top.text) +
+          (more > 0 ? `<small>${more} more ${top.level === 'critical' ? 'to fix' : 'warning' + (more === 1 ? '' : 's')} in the checks below.</small>` : '')
+      } else {
+        verdict.hidden = true
+      }
 
       lastResult = r
     }

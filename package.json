@@ -1,6 +1,6 @@
 {
   "name": "cctv-storage-calculator",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Size recording storage for CCTV / IP camera systems following SOP-VSS-001.",
   "private": true,
   "license": "MIT",

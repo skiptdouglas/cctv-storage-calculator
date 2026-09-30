@@ -3,6 +3,12 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.6.3 — 2026-09-30
+
+### Changed
+- The reason for a red or amber status is now shown directly under the
+  headline figure, not only in the check list further down.
+
 ## 0.6.2 — 2026-09-30
 
 ### Changed

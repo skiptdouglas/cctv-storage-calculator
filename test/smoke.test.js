@@ -40,6 +40,14 @@ test('built page loads, calculates and survives a reload', { skip: !chromium || 
     assert.equal(await row.locator('[data-k="switch"]').isDisabled(), true)
     assert.equal(await row.locator('[data-k="poeW"]').isDisabled(), true)
 
+    // Verdict line explains a red badge; hidden when nothing is wrong
+    assert.equal(await page.locator('#verdict').isHidden(), true)
+    await page.selectOption('#pRaid', 'jbod')
+    assert.equal((await page.textContent('#status')).trim(), 'Does not meet SOP')
+    assert.match(await page.textContent('#verdictText'), /No RAID/)
+    await page.selectOption('#pRaid', 'raid6')
+    assert.equal(await page.locator('#verdict').isHidden(), true)
+
     // Existing-array mode shows days that fit
     await page.selectOption('#pArrayMode', 'existing')
     await page.fill('#pExisting', '9')
