@@ -1416,7 +1416,19 @@
       toast(`Loaded "${state.project.name || 'Untitled site'}".`)
       return true
     }
-    $('btnSaveFile').addEventListener('click', () => {
+    $('btnSaveFile').addEventListener('click', async () => {
+      // Inside the claude.ai viewer, downloads go through its own save prompt.
+      let viewerSave = null
+      try { viewerSave = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('downloads') : null } catch (e) { viewerSave = null }
+      if (viewerSave) {
+        try {
+          await viewerSave.save({ filename: fileName(), data: projectJSON() })
+          toast(`Saved ${fileName()}.`)
+        } catch (e) {
+          toast(e && e.code === 'declined' ? 'Save cancelled.' : 'Could not save here. Use Copy project instead.')
+        }
+        return
+      }
       try {
         const blob = new Blob([projectJSON()], { type: 'application/json' })
         const a = document.createElement('a')
