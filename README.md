@@ -54,8 +54,8 @@ open dist/index.html # or double-click it; any static host works too
 `dist/index.html` is one file with everything inlined. You can email it, put it
 on a file share, or host it on GitHub Pages: turn on Pages (Settings → Pages →
 Source: GitHub Actions), then run the `Pages` workflow from the Actions tab
-whenever you want to publish the current `main`. It needs internet access only to
-load its web fonts, and falls back to system fonts without it.
+whenever you want to publish the current `main`. It works fully offline: the
+fonts are embedded in the file.
 
 ## Develop
 
@@ -72,7 +72,9 @@ npm run serve        # build and serve dist/ on http://localhost:8080
 | ----------------------- | --------------------------------------------------------------- |
 | `src/calc.js`           | Calculation engine. Pure functions, works in browser and Node.  |
 | `src/page.html`         | UI: markup, styles and app script. `<!-- @calc -->` marks where the engine is inlined. |
-| `scripts/build.js`      | Inlines the engine and writes the single-file builds.           |
+| `scripts/build.js`      | Inlines the engine and fonts and writes the single-file builds. |
+| `scripts/fetch-fonts.js`| Re-downloads the fonts into `src/fonts.css` (needs network).    |
+| `src/fonts.css`         | Embedded fonts (SIL Open Font License).                         |
 | `test/calc.test.js`     | Engine tests, including the SOP worked example.                 |
 | `test/smoke.test.js`    | Browser smoke test of the built page (Playwright).              |
 | `CHANGELOG.md`          | What changed in each version.                                   |

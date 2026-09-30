@@ -3,6 +3,13 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.6.2 — 2026-09-30
+
+### Changed
+- Fonts are embedded in the page, so it works with no internet connection and
+  makes no external requests at all. The file grows by about 260 KB.
+  `npm run fonts` refreshes them.
+
 ## 0.6.1 — 2026-09-28
 
 Security review.
