@@ -129,11 +129,12 @@ H.264.
 | G6 Turret | 8 MP 4K | 30 | yes | 12.5 W |
 | G6 Dome | 8 MP 4K | 30 | yes | 9.25 W |
 | G6 Pro Dome | 8 MP 4K | 30 | yes | 15 W |
-| G6 PTZ | 8 MP 4K dual lens | 30 | yes | 24.5 W |
+| G6 PTZ | 8 MP 4K, wide + tele, 10× hybrid | 30 | yes, 30 m | 24.5 W PoE+ |
 | AI Pro | 8 MP 4K | 30 | yes | 11 W (22 W with Enhancer) |
 | AI Turret | 8 MP 4K | 30 | yes, 40 m | 20 W PoE+ |
 | AI Dome | 8 MP 4K | 30 | yes | 10 W |
 | AI LPR | 8 MP 4K, 3× | 30 | yes, 15 m | 25.5 W PoE+ |
+| AI PTZ Precision | 8 MP 4K, 31× | 30 | yes, 100 m | 51 W PoE++ |
 | AI 360 | 4 MP 1920×1920 | 30 | yes | 8.64 W |
 | AI Theta | 8 MP 3264×2448 (360 lens: 6 MP, 20 fps) | 24 | unverified | 12.5 W |
 | AI Theta Pro | 4 MP 2160×2160 | 24 | unverified | 12.5 W |

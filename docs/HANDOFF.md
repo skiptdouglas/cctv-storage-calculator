@@ -11,7 +11,7 @@ project. It is for whoever continues the work on a desktop machine.
 | Hosted page | https://skiptdouglas.github.io/cctv-storage-calculator/ (redeploys on every push to `main`) |
 | Private copy in Claude | https://claude.ai/artifact/VjbDwATm8AhqxGgZhN5C8A (updated by republishing `dist/artifact.html`) |
 | SOP | `docs/SOP.md` (v1.6). A copy also lives on the `claude/surveillance-storage-calculator-sop-4cfuxe` branch of `skiptdouglas/lina` at `docs/sop/surveillance-storage-calculator.md` |
-| Change log | `CHANGELOG.md`; current version 0.7.3 |
+| Change log | `CHANGELOG.md`; current version 0.7.4 |
 
 ## State of the project
 

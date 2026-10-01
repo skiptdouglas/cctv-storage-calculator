@@ -3,6 +3,15 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.7.4 — 2026-10-01
+
+### Added
+- UniFi AI PTZ Precision preset (4K, 31×, 51 W PoE++), from techspecs.ui.com.
+
+### Changed
+- G6 PTZ notes its wide and tele 8 MP sensors (10× hybrid zoom), confirmed
+  on techspecs.ui.com.
+
 ## 0.7.3 — 2026-10-01
 
 ### Fixed
