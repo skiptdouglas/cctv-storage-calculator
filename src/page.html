@@ -966,8 +966,8 @@
     }
 
     function presetOptions(selected) {
-      return '<option value="">Custom</option>' + C.PRESET_VENDORS.map((v) =>
-        `<optgroup label="${escAttr(v)}">${options(C.PRESETS.filter((p) => (p.vendor || 'Generic') === v), selected)}</optgroup>`
+      return '<option value="">Custom</option>' + C.PRESET_GROUPS.map((g) =>
+        `<optgroup label="${escAttr(g)}">${options(C.PRESETS.filter((p) => C.presetGroup(p) === g), selected)}</optgroup>`
       ).join('')
     }
 

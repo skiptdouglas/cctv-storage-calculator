@@ -3,6 +3,23 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.8.0 — 2026-10-01
+
+### Added
+- **The rest of Milesight's current PoE range: 73 more presets** (118 in all),
+  from the NDAA datasheets on resource.milesight.com. New are the 4 MP and
+  6 MP siblings of existing families, IR mini domes, weather-proof mini
+  bullets, Color+ (white-light) bullets, motorized Pro Bullets, 4×/12× Pro
+  Bullet Plus, TrueColor domes, bullets and turrets, OpenVision cameras, PTZ
+  Bullet Plus and PTZ domes, the 4 MP and 5-inch speed domes, the 4×5 MP
+  multi-directional and dual-sensor 180° panoramics, and radar and G1
+  road-traffic cameras.
+
+### Changed
+- The preset dropdown splits a vendor into families where presets carry a
+  `family` (Milesight: domes, bullets, panoramic & multi-sensor, PTZ & speed
+  domes, traffic & LPR).
+
 ## 0.7.4 — 2026-10-01
 
 ### Added

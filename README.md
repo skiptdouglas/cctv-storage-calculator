@@ -154,36 +154,94 @@ given). All models support H.265+; presets assume plain H.265, so tick the
 smart codec yourself if you will enable it. Where a camera runs faster than
 30 fps the preset uses 30.
 
-| Preset | Models | Resolution | fps (max) | Max PoE (IR on) |
-| --- | --- | --- | --- | --- |
-| AI Weather-proof Mini Dome | MS-C2975 / C5375 / C8175-PD | 2 / 5 MP / 4K | 30 (2 MP R: 60) | 5.1 / 5.8 / 6.6 W |
-| AI Vandal-proof Mini Dome | MS-C2973 / C5373 / C8173-PD | 2 / 5 MP / 4K | 30 (2 MP R: 60) | 4.7 / 6 / 6.1 W |
-| AI Motorized Dome | MS-C2975 / C5375 / C8175-FPD | 2 / 5 MP / 4K | 30 (2 MP R: 60) | 6.4 / 6.5 / 8.4 W |
-| AI Motorized Pro Dome | MS-C2972-RFPE / C5372 / C8172-FPE | 2 / 5 MP / 4K | 30 (2 MP: 60) | 8.5 / 6.8 / 8.1 W |
-| AI 12× PTZ Dome | MS-C5371-X12PE | 5 MP | 30 | 17.3 W PoE+ |
-| AI Vandal-proof Mini Bullet | MS-C2964 / C5364 / C8164-PD | 2 / 5 MP / 4K | 30 | 5.1 / 5.4 / 5.8 W |
-| AI Motorized Bullet | MS-C2964-RFPE / C5364 / C8164-FPE | 2 / 5 MP / 4K | 30 (2 MP: 60) | 11.5 / 11 / 13 W |
-| AI Motorized Pro Bullet Plus | MS-C2966-RFPE / C5366 / C8166-FPE | 2 / 5 MP / 4K | 30 (2 MP: 60) | 16.1 / 11 / 12.1 W |
-| AI LPR Pro Bullet Plus | MS-C2966-RFLPE | 2 MP | 30 (60) | 10.54 W |
-| AI 180° Panoramic Mini Dome | MS-C5376-PE / MS-C8176-PE | 4 MP 2560×1440 (5 MP sensor) / 4K | 30 / 25 | 8.8 / 9 W |
-| AI 180° Panoramic Mini Bullet | MS-C5365-PE / MS-C8165-PE | 4 MP 2560×1440 (5 MP sensor) / 4K | 30 / 25 | 7.7 / 8.4 W |
-| AI 360° Fisheye | MS-C8274-PA / MS-C9674-PA | 4K / 12 MP 4000×3000 | 30 (25 at 50 Hz) | 8 / 11 W |
-| AI 12× PTZ Bullet | MS-C2961-X12PE / MS-C5361-X12PE | 2 / 5 MP | 30 (2 MP: 60) | 20.2 / 19.3 W PoE+ |
-| AI Speed Dome 25× / 30× / 42× | MS-C2941-X25 / X30 / X42RPE | 2 MP | 30 (60) | 28.7 / 28 / 24.2 W |
-| AI Speed Dome 25× / 30× / 42× | MS-C5341-X25 / X30 / X42PE | 5 MP | 30 | 27.7 / 25.2 / 25.5 W |
-| AI Speed Dome 36× | MS-C8241-X36PE | 4K | 30 | 28.4 W |
-| AI Road Traffic Pro Bullet Plus | TS2966-X12TPE / TS4466-X4RPE / TS5366-X12PE / TS8266-X4PE | 2 / 4 / 5 MP / 4K | 30 (2 MP: 90, 4 MP: 60) | 11.4 / 13.1 / 12.7 / 12.35 W |
-| AI Road Traffic PTZ Bullet Plus | TS4467-X20RPE / TS5367-X12PE | 4 / 5 MP | 30 (4 MP: 60) | 25.9 / 21.7 W |
-| AI Road Traffic Speed Dome | TS4441-X36RPE | 4 MP | 30 (60) | 26.8 W |
+Presets are grouped by family in the dropdown, as below. Notes on each preset
+give the exact resolution where it differs from the size bucket, the
+camera's top frame rate, and power caveats.
+
+### Domes
+
+| Preset | Models | Resolution | Max PoE (IR on) |
+| --- | --- | --- | --- |
+| AI Weather-proof Mini Dome | MS-C2975-PD / MS-C5375-PD / MS-C8175-PD / MS-C4575-PD | 2 MP / 5 MP / 4K / 4 MP | 5.1 W / 5.8 W / 6.6 W / 5.8 W |
+| AI Vandal-proof Mini Dome | MS-C2973-PD / MS-C5373-PD / MS-C8173-PD / MS-C4573-PD | 2 MP / 5 MP / 4K / 4 MP | 4.7 W / 6 W / 6.1 W / 6 W |
+| AI Motorized Dome | MS-C2975-FPD / MS-C5375-FPD / MS-C8175-FPD / MS-C4575-FPD | 2 MP / 5 MP / 4K / 4 MP | 6.4 W / 6.5 W / 8.4 W / 6.5 W |
+| AI Motorized Pro Dome | MS-C2972-RFPE / MS-C5372-FPE / MS-C8172-FPE / MS-C4472-RFPE / MS-C6772-FPE / MS-C8272-FPE | 2 MP / 5 MP / 4K / 4 MP / 6 MP / 4K | 8.5 W / 6.8 W / 8.1 W / 7.6 W / 7 W / 8 W |
+| AI IR Mini Dome | MS-C2983-PD / MS-C4583-PD / MS-C5383-PD / MS-C8183-PD | 2 MP / 4 MP / 5 MP / 4K | 4.6 W / 5 W / 5 W / 5.4 W |
+| AI TrueColor Pro Dome | MS-CQ4472-HPG1 / MS-CQ5472-HPG1 / MS-CQ8172-HPG1 / MS-CQ8272-HPG1 | 4 MP / 5 MP / 4K / 4K | 7.72 W / 8 W / 8.5 W / 9.6 W |
+| AI TrueColor Turret | MS-CQ4431-HYPG1 / MS-CQ5431-HYPG1 / MS-CQ8131-HYPG1 / MS-CQ8231-HYPG1 | 4 MP / 5 MP / 4K / 4K | 9.62 W / 10 W / 11.5 W / 11.5 W |
+| OpenVision Pro Dome | MS-C5372-RFIPKG1 / MS-C8272-RFIPKG1 | 5 MP / 4K | 10.5 W / 11 W |
+
+### Bullets
+
+| Preset | Models | Resolution | Max PoE (IR on) |
+| --- | --- | --- | --- |
+| AI Vandal-proof Mini Bullet | MS-C2964-PD / MS-C5364-PD / MS-C8164-PD / MS-C4564-PD | 2 MP / 5 MP / 4K / 4 MP | 5.1 W / 5.4 W / 5.8 W / 5.4 W |
+| AI Motorized Bullet | MS-C2964-RFPE / MS-C5364-FPE / MS-C8164-FPE / MS-C2964-FPD | 2 MP / 5 MP / 4K / 2 MP | 11.5 W / 11 W / 13 W / 7 W |
+| AI Motorized Pro Bullet Plus | MS-C2966-RFPE / MS-C5366-FPE / MS-C8166-FPE / MS-C4466-RFPE / MS-C6766-FPE / MS-C8266-FPE | 2 MP / 5 MP / 4K / 4 MP / 6 MP / 4K | 16.1 W / 11 W / 12.1 W / 16.1 W / 10.5 W / 13.7 W |
+| AIoT Pro Bullet Plus 12× | MS-C2966-X12ROPC | 2 MP | 15 W |
+| AI Color+ Vandal-proof Mini Bullet | MS-C2964-UPD / MS-C5364-UPD / MS-C8164-UPD | 2 MP / 5 MP / 4K | 5 W / 5 W / 6 W |
+| AI Weather-proof Mini Bullet | MS-C2963-RPE / MS-C5363-PE / MS-C8163-PE / MS-C2963-PD | 2 MP / 5 MP / 4K / 2 MP | 9 W / 9 W / 10.2 W / 9 W |
+| AI Pro Bullet Plus 12× | MS-C2966-X12RPE / MS-C5366-X12PE | 2 MP / 5 MP | 16.1 W / 15.2 W |
+| AI Pro Bullet Plus 4× | MS-C4466-X4RPE / MS-C8266-X4PE | 4 MP / 4K | 15.6 W / 16 W |
+| AI Motorized Pro Bullet | MS-C2962-RFPE / MS-C5362-FPE / MS-C6762-FPE / MS-C8162-FPE | 2 MP / 5 MP / 6 MP / 4K | 10.6 W / 9.7 W / 9.6 W / 10.6 W |
+| AI TrueColor Bullet | MS-CQ4468-HYPG1 / MS-CQ5468-HYPG1 / MS-CQ8168-HYPG1 / MS-CQ8268-HYPG1 | 4 MP / 5 MP / 4K / 4K | 9.86 W / 10 W / 11.5 W / 11.5 W |
+| OpenVision Pro Bullet Plus | MS-C5366-RFIPKG1 / MS-C8266-RFIPKG1 | 5 MP / 4K | 16 W / 17.5 W |
+
+### Panoramic & multi-sensor
+
+| Preset | Models | Resolution | Max PoE (IR on) |
+| --- | --- | --- | --- |
+| AI 180° Panoramic Mini Dome | MS-C5376-PE / MS-C8176-PE | 4 MP 2560×1440 / 4K | 8.8 W / 9 W |
+| AI 180° Panoramic Mini Bullet | MS-C5365-PE / MS-C8165-PE | 4 MP 2560×1440 / 4K | 7.7 W / 8.4 W |
+| AI 360° Fisheye | MS-C8274-PA / MS-C9674-PA | 4K / 12 MP | 8 W / 11 W |
+| AI 4×5 MP Multi-directional | MS-C5321-FPE | 5 MP | 22.4 W per unit |
+| AI Dual-sensor 180° Panoramic | MS-C8477-PC | 5084×1520 | 12 W |
+| OpenVision TrueColor Dual-sensor 180° Panoramic | MS-C8477-HPKG1 | 5120×1520 | 15 W |
+
+### PTZ & speed domes
+
+| Preset | Models | Resolution | Max PoE (IR on) |
+| --- | --- | --- | --- |
+| AI 12× PTZ Dome | MS-C5371-X12PE | 5 MP | 17.3 W |
+| AI 12× PTZ Bullet | MS-C2961-X12PE / MS-C5361-X12PE | 2 MP / 5 MP | 20.2 W / 19.3 W |
+| AI 25× Speed Dome | MS-C2941-X25RPE / MS-C5341-X25PE | 2 MP / 5 MP | 28.7 W / 27.7 W |
+| AI 30× Speed Dome | MS-C2941-X30RPE / MS-C5341-X30PE | 2 MP / 5 MP | 28 W / 25.2 W |
+| AI 42× Speed Dome | MS-C2941-X42RPE / MS-C5341-X42PE | 2 MP / 5 MP | 24.2 W / 25.5 W |
+| AI 36× Speed Dome | MS-C8241-X36PE | 4K | 28.4 W |
+| AI PTZ Bullet Plus 12× | MS-C2967-X12RPE / MS-C5367-X12PE | 2 MP / 5 MP | 25.3 W / 21.7 W |
+| AI PTZ Bullet Plus 23× | MS-C2967-X23RPE / MS-C5367-X23PE | 2 MP / 5 MP | 21.7 W / 25 W |
+| AI PTZ Bullet Plus 20× | MS-C4467-X20RPE / MS-C8267-X20PE | 4 MP / 4K | 24 W / 25 W |
+| AI PTZ Dome 12× | MS-C2971-X12RPE | 2 MP | 17 W |
+| AI PTZ Dome 23× | MS-C2971-X23RPE | 2 MP | 19 W |
+| AI PTZ Dome 20× | MS-C4471-X20RPE | 4 MP | 20.3 W |
+| AI Speed Dome 36× | MS-C4441-X36RPE | 4 MP | 26.8 W |
+| AI 5-inch Speed Dome 25× | MS-C5342-X25RPG1 | 5 MP | 21 W |
+
+### Traffic & LPR
+
+| Preset | Models | Resolution | Max PoE (IR on) |
+| --- | --- | --- | --- |
+| AI LPR Pro Bullet Plus | MS-C2966-RFLPE | 2 MP | 10.54 W |
+| AI Road Traffic Pro Bullet Plus 12× | TS2966-X12TPE / TS5366-X12PE / TS5366-X12RIPG1 | 2 MP / 5 MP / 5 MP | 11.4 W / 12.7 W / 16.7 W |
+| AI Road Traffic Pro Bullet Plus 4× | TS4466-X4RPE / TS8266-X4PE / TS4466-X4RIPG1 / TS8266-X4RIPG1 | 4 MP / 4K / 4 MP / 4K | 13.1 W / 12.35 W / 17.8 W / 19.1 W |
+| AI Road Traffic PTZ Bullet Plus 20× | TS4467-X20RPE | 4 MP | 25.9 W |
+| AI Road Traffic PTZ Bullet Plus 12× | TS5367-X12PE | 5 MP | 21.7 W |
+| AI Road Traffic Speed Dome 36× | TS4441-X36RPE | 4 MP | 26.8 W |
+| AI Road Traffic Radar Pro Bullet Plus 4× | TS4466-X4RIVPG1 / TS8266-X4RIVPG1 / TS4466-X4RVPE / TS8266-X4VPE | 4 MP / 4K / 4 MP / 4K | 21 W / 21.6 W / 15.6 W / 16.6 W |
+| AI Road Traffic Radar Motorized Pro Bullet Plus | TS4466-RFIVPG1 / TS8266-RFIVPG1 | 4 MP / 4K | 20.4 W / 21 W |
+| AI Road Traffic Radar Pro Bullet Plus 12× | TS2966-X12TVPE / TS5366-X12VPE | 2 MP / 5 MP | 17 W / 16 W |
+| AI Road Traffic PTZ Bullet 12× | TS2961-X12TPE | 2 MP | 18.9 W |
 
 Speed domes and some traffic cameras draw more than the 25.5 W an 802.3at
 (PoE+) port delivers, although the datasheet lists 802.3at. Plan a PoE++ port
 or the camera's 24 V AC/DC (or 12 V DC) supply for those.
 
-Not included: thermal and bi-spectrum cameras (none found on Milesight's
-datasheet page), a 5 MP fisheye (no longer listed), the 4 MP speed dome
-MS-C4441, and the other traffic families (supplement lights, radar,
-TrafficX), which were not checked.
+Not included: thermal and bi-spectrum cameras (none on Milesight's datasheet
+page); solar, 4G and 5G kits; project-based and pre-NDAA datasheet copies;
+models that run only from 12 V or 24 V (TrafficX, road-traffic supplement-light
+cameras, the TS4441 24 V variant); and the AI TrueColor Dual-sensor 180°
+Panoramic, whose datasheet link returned 404. The AI 4×5 MP Multi-directional
+camera is one row per sensor: enter 4 cameras per unit.
 
 ## License
 

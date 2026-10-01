@@ -466,8 +466,11 @@ test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
 
 test('Milesight presets carry datasheet values', () => {
   const ms = C.PRESETS.filter((p) => p.vendor === 'Milesight')
-  assert.ok(ms.length >= 25)
-  assert.ok(ms.every((p) => p.model && /^(MS-C|TS)\d{4}-/.test(p.model) && typeof p.poeW === 'number' && p.poeW > 0 && p.nightIR === true))
+  assert.ok(ms.length >= 100)
+  assert.ok(ms.every((p) => p.model && /^(MS-CQ?|TS)\d{4}-/.test(p.model) && typeof p.poeW === 'number' && p.poeW > 0 && typeof p.nightIR === 'boolean'))
+  assert.equal(C.applyPreset(C.newGroup(1), 'ms-c8164-upd').nightIR, false, 'Color+ uses white light, not IR')
+  const multi = C.applyPreset(C.newGroup(1), 'ms-c5321-fpe')
+  assert.deepEqual([multi.resolution, multi.poeW], ['5MP', 5.6], 'one row per sensor')
   const fisheye = C.applyPreset(C.newGroup(1), 'ms-c9674')
   assert.deepEqual([fisheye.resolution, fisheye.fps, fisheye.poeW], ['12MP', 30, 11])
   const ptzDome = C.applyPreset(C.newGroup(1), 'ms-c5371')
@@ -478,6 +481,9 @@ test('Milesight presets carry datasheet values', () => {
   assert.equal(panoramic.resolution, '4MP', '5 MP sensor streams at 2560x1440')
   const ptz = C.applyPreset(C.newGroup(1), 'ms-c5361-ptz')
   assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['5MP', 19.3, 'high'])
+  assert.deepEqual(C.PRESET_GROUPS, ['Generic', 'UniFi', 'Milesight · Domes', 'Milesight · Bullets',
+    'Milesight · Panoramic & multi-sensor', 'Milesight · PTZ & speed domes', 'Milesight · Traffic & LPR'])
+  assert.ok(ms.every((p) => p.family), 'every Milesight preset has a family')
   const ids = C.PRESETS.map((p) => p.id)
   assert.equal(new Set(ids).size, ids.length, 'preset ids are unique')
 })
