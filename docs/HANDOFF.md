@@ -91,7 +91,6 @@ on techspecs), and thermal Milesight models (none found).
 
 - Check the generic planning numbers (bitrate table, PoE estimates,
   compression ratios) against the cameras actually installed.
-- Fill in the SOP blanks: document owner and author in the revision table.
 - Decide what to do with the `lina` branch (merge or delete).
 - Try "Save file" inside the Claude artifact viewer and "Print / Save as
   PDF" on the Pages site; both were implemented but could not be exercised

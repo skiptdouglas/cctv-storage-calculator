@@ -4,7 +4,7 @@
 | --------------- | ------------------------------------------------ |
 | Document ID     | SOP-VSS-001                                      |
 | Version         | 1.6                                              |
-| Effective date  | 2026-09-28                                       |
+| Effective date  | 2026-09-30                                       |
 | Owner           | Security Systems / Infrastructure Engineering    |
 | Review cycle    | Annually, or when camera standards change        |
 
@@ -354,13 +354,13 @@ Keep the following in the project file for the life of the system:
 
 | Version | Date       | Author | Change          |
 | ------- | ---------- | ------ | --------------- |
-| 1.0     | 2026-09-28 |        | Initial release |
-| 1.1     | 2026-09-28 |        | Added Step 5a: network, PoE, viewing and disk throughput |
-| 1.2     | 2026-09-28 |        | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
-| 1.3     | 2026-09-28 |        | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
-| 1.4     | 2026-09-28 |        | Table 1 adds analog CIF, D1, 960H; No RAID allowed for non-critical systems |
-| 1.5     | 2026-09-28 |        | Coax cameras excluded from switch/PoE steps; night rate limited to continuous/motion; appendices reordered; worksheet columns added; existing-array check in §7 |
-| 1.6     | 2026-09-30 |        | Step 5 notes: several recorders, cloud plans, SD-card recording, archive tiers |
+| 1.0     | 2026-09-28 | FPH    | Initial release |
+| 1.1     | 2026-09-28 | FPH    | Added Step 5a: network, PoE, viewing and disk throughput |
+| 1.2     | 2026-09-28 | FPH    | Table 1 adds Smart H.264+, AV1, MJPEG; quality and day/night frame-rate adjustments |
+| 1.3     | 2026-09-28 | FPH    | Table 1 adds 1, 3 and 6 MP; Appendix C raw-pixel method |
+| 1.4     | 2026-09-28 | FPH    | Table 1 adds analog CIF, D1, 960H; No RAID allowed for non-critical systems |
+| 1.5     | 2026-09-28 | FPH    | Coax cameras excluded from switch/PoE steps; night rate limited to continuous/motion; appendices reordered; worksheet columns added; existing-array check in §7 |
+| 1.6     | 2026-09-30 | FPH    | Step 5 notes: several recorders, cloud plans, SD-card recording, archive tiers |
 
 ---
 
