@@ -11,7 +11,7 @@ project. It is for whoever continues the work on a desktop machine.
 | Hosted page | https://skiptdouglas.github.io/cctv-storage-calculator/ (redeploys on every push to `main`) |
 | Private copy in Claude | https://claude.ai/artifact/VjbDwATm8AhqxGgZhN5C8A (updated by republishing `dist/artifact.html`) |
 | SOP | `docs/SOP.md` (v1.6). A copy also lives on the `claude/surveillance-storage-calculator-sop-4cfuxe` branch of `skiptdouglas/lina` at `docs/sop/surveillance-storage-calculator.md` |
-| Change log | `CHANGELOG.md`; current version 0.8.0 |
+| Change log | `CHANGELOG.md`; current version 0.9.0 |
 
 ## State of the project
 
@@ -81,7 +81,7 @@ on techspecs), and thermal Milesight models (none found).
    Fix any wrong value, remove the `unverified` field, run `npm test`, and
    note the check in `CHANGELOG.md`.
 2. **Add the missing models** from step 1 once their datasheets are open.
-3. **Next vendors** if wanted: Hikvision, Dahua, Axis, Hanwha, Reolink. The
+3. **Next vendors** if wanted (Hikvision added in 0.9.0): Dahua, Axis, Hanwha, Reolink. The
    pattern is the same: add rows to `PRESETS` with `vendor`, `model`, `label`,
    `resolution`, `codec`, `fps`, `nightIR`, `poeW`, optional `scene` and
    `note`; the dropdown groups by vendor automatically; extend the vendor

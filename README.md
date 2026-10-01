@@ -243,6 +243,135 @@ cameras, the TS4441 24 V variant); and the AI TrueColor Dual-sensor 180°
 Panoramic, whose datasheet link returned 404. The AI 4×5 MP Multi-directional
 camera is one row per sensor: enter 4 cameras per unit.
 
+## Hikvision presets
+
+Values are from the datasheets linked on hikvision.com product pages
+(assets.hikvision.com), October 2026: the Pro Series (DS-2CD2xxx), Ultra
+Series (DS-2CD3xxx), DeepinView (iDS-2CD7xxx), PanoVu and fisheye
+(DS-2CD6xxx) and PTZ (DS-2DE) lines. Power is the datasheet's PoE maximum.
+Presets assume H.265; Hikvision's H.265+ is the smart codec.
+
+Hikvision is on the US NDAA §889 and FCC covered lists: barred from US federal
+procurement and from new FCC equipment authorisations. Check whether that
+applies to your project before specifying it.
+
+ColorVu models use white light instead of IR, so their presets have night IR
+off. Smart hybrid light models default to IR. Model codes keep Hikvision's
+bracketed option letters, e.g. `DS-2CD2147G2-L(SU)`.
+
+### Domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| DS-2CD2143G2-IS | Pro AcuSense Fixed Dome | 4 MP | 30 | 6.5 W |
+| DS-2CD2146G2-I | Pro AcuSense Fixed Dome | 4 MP | 30 | 6.5 W |
+| DS-2CD2147G2-L(SU) | Pro ColorVu Fixed Dome | 4 MP | 30 | 6.5 W |
+| DS-2CD2147G3-LI(S2U)Y | Pro Smart Hybrid Light with ColorVu Fixed Dome | 4 MP | 30 | 9 W |
+| DS-2CD2166G2-ISU | Pro AcuSense Fixed Dome | 6 MP | 30 | 7.5 W |
+| DS-2CD2167G3-LIS2UY | Pro Smart Hybrid Light ColorVu Fixed Dome | 6 MP | 30 | 10.5 W |
+| DS-2CD2183G2-IS | Pro AcuSense Vandal WDR Fixed Dome | 4K | 20 | 7.5 W |
+| DS-2CD2186G2-I(SU) | Pro AcuSense DarkFighter Fixed Dome | 4K | 24 | 7.5 W |
+| DS-2CD2187G2-LSU | Pro ColorVu Fixed Dome | 4K | 24 | 8.5 W |
+| DS-2CD2187G3-LIS2UY | Pro Smart Hybrid Light with ColorVu Fixed Mini Dome | 4K | 30 | 10.5 W |
+| DS-2CD2343G2-I(U) | Pro AcuSense Fixed Turret | 4 MP | 30 | 7 W |
+| DS-2CD2346G2-I(U) | Pro AcuSense DarkFighter Fixed Turret | 4 MP | 30 | 6.8 W |
+| DS-2CD2347G2-L(U) | Pro ColorVu Fixed Turret | 4 MP | 30 | 7.6 W |
+| DS-2CD2347G3-LI2UY | Pro Smart Hybrid Light with ColorVu Fixed Turret | 4 MP | 30 | 11 W |
+| DS-2CD2366G2-I | Pro AcuSense Fixed Turret | 6 MP | 30 | 6.5 W |
+| DS-2CD2367G2-L | Pro ColorVu Fixed Turret | 6 MP | 24 | 10.5 W |
+| DS-2CD2383G2-I | Pro AcuSense Fixed Turret | 4K | 20 | 7.5 W |
+| DS-2CD2386G2-I(U) | Pro AcuSense DarkFighter Fixed Turret | 4K | 24 | 6.8 W |
+| DS-2CD2387G2-L(U) | Pro ColorVu Fixed Turret | 4K | 24 | 6.5 W |
+| DS-2CD2387G3-LI2UY | Pro Smart Hybrid Light with ColorVu Fixed Turret | 4K | 30 | 11 W |
+| DS-2CD2H86G2-IZS | Pro AcuSense DarkFighter Motorized Varifocal Turret | 4K | 24 | 12.5 W |
+| DS-2CD3143G2-I(S)U | Ultra Vandal WDR Fixed Dome | 4 MP | 30 | 10 W |
+| DS-2CD3146G2-IS(U) | Ultra AcuSense Fixed Dome | 4 MP | 30 | 9 W |
+| DS-2CD3147G3-LISUY | Ultra Dual Illumination Fixed Mini Dome | 4 MP | 30 | 11 W |
+| DS-2CD3186G2-IS(U)(H) | Ultra AcuSense Fixed Dome | 4K | 24 | 9.5 W |
+| DS-2CD3187G3-LISUY | Ultra Dual Illumination Fixed Mini Dome | 4K | 30 | 11.5 W |
+| DS-2CD3343G2-I(S)U(B) | Ultra AcuSense Fixed Turret | 4 MP | 30 | 9 W |
+| DS-2CD3346G2-IS(U) | Ultra AcuSense Fixed Turret | 4 MP | 30 | 8.5 W |
+| DS-2CD3347G2-LS(U) | Ultra ColorVu Fixed Turret | 4 MP | 30 | 7.6 W |
+| DS-2CD3347G3-LISUY | Ultra Dual Illumination Fixed Turret | 4 MP | 30 | 11 W |
+| DS-2CD3386G2-IS(U)(H) | Ultra AcuSense Fixed Turret | 4K | 24 | 9.5 W |
+| DS-2CD3387G2-LSU | Ultra ColorVu Fixed Turret | 4K | 24 | 6.6 W |
+| DS-2CD3387G3-LISU | Ultra Dual Illumination Fixed Turret | 4K | 30 | 11 W |
+| iDS-2CD7146G2-IZ(H)S(Y)(1T) | DeepinView Moto Varifocal Dome | 4 MP | 30 | 16.8 W (PoE+) |
+| iDS-2CD7547G2-XZHS(Y) | DarkFighterS DeepinView PTRZ Dome | 4 MP | 30 | 20.5 W (PoE+) |
+
+### Bullets
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| DS-2CD2043G2-I(U) | Pro AcuSense Fixed Bullet | 4 MP | 30 | 7 W |
+| DS-2CD2046G2-I(U) | Pro AcuSense DarkFighter Fixed Bullet | 4 MP | 30 | 7 W |
+| DS-2CD2047G2-L(U) | Pro ColorVu Fixed Mini Bullet | 4 MP | 30 | 7.5 W |
+| DS-2CD2047G3-LIY | Pro Smart Hybrid Light with ColorVu Fixed Mini Bullet | 4 MP | 30 | 6.5 W |
+| DS-2CD2066G2-IU | Pro AcuSense Fixed Bullet | 6 MP | 30 | 7.2 W |
+| DS-2CD2067G2-LU | Pro ColorVu Fixed Mini Bullet | 6 MP | 24 | 7.5 W |
+| DS-2CD2083G2-I | Pro AcuSense Fixed Bullet | 4K | 20 | 7.2 W |
+| DS-2CD2086G2-I(U) | Pro AcuSense DarkFighter Fixed Mini Bullet | 4K | 24 | 7.2 W |
+| DS-2CD2087G2-L(U) | Pro ColorVu Fixed Bullet | 4K | 24 | 7.5 W |
+| DS-2CD2087G3-LIY | Pro Smart Hybrid Light with ColorVu Fixed Mini Bullet | 4K | 30 | 7 W |
+| DS-2CD2T46G2-4IY | Pro AcuSense DarkFighter Fixed Bullet | 4 MP | 30 | 12 W |
+| DS-2CD2T47G2-L | Pro ColorVu Fixed Bullet | 4 MP | 30 | 10.5 W |
+| DS-2CD2T87G2-L | Pro ColorVu Fixed Bullet | 4K | 24 | 9.5 W |
+| DS-2CD2T87G3-LIY | Pro Smart Hybrid Light Fixed Bullet | 4K | 30 | 12.5 W |
+| DS-2CD3043G2-LIU | Ultra AcuSense Smart Hybrid Light Fixed Bullet | 4 MP | 30 | 8 W |
+| DS-2CD3043G3-LIUY | Ultra AcuSense Smart Hybrid Light Fixed Bullet | 4 MP | 30 | 7.3 W |
+| DS-2CD3046G3-IUY | Ultra AcuSense Fixed Mini Bullet | 4 MP | 30 | 8 W |
+| DS-2CD3047G2-LS | Ultra ColorVu Fixed Mini Bullet | 4 MP | 30 | 8.5 W |
+| DS-2CD3047G3-LIUY | Ultra Dual Illumination Fixed Mini Bullet | 4 MP | 30 | 6.5 W |
+| DS-2CD3086G3-LIU(Y) | Ultra Dual Illumination Fixed Mini Bullet | 4K | 30 | 7 W |
+| DS-2CD3087G2-LSU | Ultra ColorVu Fixed Bullet | 4K | 24 | 8.5 W |
+| DS-2CD3087G3-LIU | Ultra Dual Illumination Fixed Mini Bullet | 4K | 30 | 7 W |
+| DS-2CD3646G3T-IZSUY | Ultra AcuSense Varifocal Bullet | 4 MP | 30 | 18 W (PoE+) |
+| DS-2CD3686G2-IZS | Ultra AcuSense IR Varifocal Bullet | 4K | 24 | 15 W |
+| IDS-2CD7A46G2/V-XZHS(Y) | DeepinViewX Moto Varifocal Bullet | 4 MP | 30 | 23.1 W (PoE+) |
+| IDS-2CD7A86G2/V-XZHS(Y) | DeepinViewX Moto Varifocal Bullet | 4K | 30 | 24.7 W (PoE+) |
+| iDS-2CD7A87G2-XZHS(Y) | DarkFighterS DeepinView Moto Varifocal Bullet | 4K | 30 | 25 W (PoE+) |
+| iDS-2CD7T46G2/VX3-I(H)S(Y) | DeepinView Triple Fixed Lens Bullet | 4 MP | 30 | 25.5 W (PoE+) |
+
+### Panoramic & multi-sensor
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| DS-2CD2347G3P-LIS2UY/S(L)(RB) | Pro Panoramic ColorVu Fixed Turret | 3040×1368 | 24 | 24 W (PoE+) |
+| DS-2CD2387G2P-LSU/SL | Pro Panoramic Fixed Turret | 5120×1440 | 20 | 12.5 W |
+| DS-2CD2T87G2P-LSU/SL | Pro Panoramic Fixed Bullet | 5120×1440 | 20 | 12.5 W |
+| DS-2CD3956G2-IS(U) | Ultra AcuSense Fisheye | 2560×1920 | 30 | 7.5 W |
+| DS-2CD6365G1-IVS | DeepinView Fisheye | 2560×2560 | 30 | 12.5 W |
+| DS-2CD63C5G1-IVS | DeepinView IR Fisheye | 3504×3504 | 30 | 12.5 W |
+| DS-2CD6944G1-IHS(U)Y | 180° PanoVu | 4800×2688 | 30 | 25 W (PoE+) |
+| DS-2CD6D54G2-IZHS | 4-Directional Multisensor | 5 MP | 30 | 25 W (PoE+) per unit |
+| DS-2CD6D82G2-IS | Dual-Directional PanoVu | 4K | 20 | 14 W per unit |
+| DS-2CD6W65G1-IVS | DeepinView Fisheye | 2560×2560 | 30 | 10 W |
+
+### PTZ & speed domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| DS-2DE2A404IW-DE3(S6) | 4x IR PTZ | 4 MP | 30 | 9.2 W |
+| DS-2DE2A404IWG1-E | 4X IR Mini Outdoor AcuSense PTZ | 4 MP | 30 | 9.2 W |
+| DS-2DE3A404IW-DE(S6) | 4 x IR PTZ | 4 MP | 30 | 14 W |
+| DS-2DE4A225IWG-E | 25X DarkFighter IR AcuSense Speed Dome | 2 MP | 30 | 24 W (PoE+) |
+| DS-2DE4A425IWG1-E | 25X DarkFighter IR AcuSense Speed Dome | 4 MP | 30 | 24 W (PoE+) |
+| DS-2DE5425IWG-E | 25x IR Speed Dome | 4 MP | 30 | 24 W (PoE+) |
+| DS-2DE5425IWG1-E | 25X DarkFighter IR AcuSense Speed Dome | 4 MP | 30 | 24 W (PoE+) |
+| DS-2DE5432IWG1-E | 32X DarkFighter IR AcuSense Speed Dome | 4 MP | 30 | 24 W (PoE+) |
+| DS-2DE7A232IWG-EB | 32 x IR Speed Dome | 2 MP | 30 | 42 W (Hi-PoE) |
+| DS-2DE7A232IWG1-E | 32X DarkFighter IR AcuSense Speed Dome | 2 MP | 30 | 48 W (PoE++) |
+| DS-2DE7A425IWG1-E | 25X DarkFighter IR AcuSense Speed Dome | 4 MP | 30 | 48 W (PoE++) |
+| DS-2DE7A432IWG1-E | 32X DarkFighter IR AcuSense Speed Dome | 4 MP | 30 | 48 W (PoE++) |
+| DS-2DE7A825IWG-EB | 25 x IR Speed Dome | 4K | 24 | 42 W (Hi-PoE) |
+| DS-2DE7A825IWG1-E | 25X DarkFighter IR AcuSense Speed Dome | 4K | 30 | 48 W (PoE++) |
+
+Not included: Value Series (DS-2CD1xxx) and HiLook, Wi-Fi, 4G, solar, thermal
+and explosion-proof models, LPR cameras (no PoE-powered model found), and the
+TandemVu PTZs (DS-2SE4C425 gives no wattage; DS-2SE7C425 pairs a 60 W PTZ with
+a panoramic channel that doesn't fit one camera row). The DS-2CD6D54G2 and
+DS-2CD6D82G2 multi-directional cameras are one row per sensor.
+
 ## License
 
 MIT

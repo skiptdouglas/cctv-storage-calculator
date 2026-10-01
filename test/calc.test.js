@@ -449,7 +449,7 @@ test('presets fill in camera settings and keep the rest', () => {
 })
 
 test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
-  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight'])
+  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight', 'Hikvision'])
   const g5 = C.applyPreset(C.newGroup(1), 'uvc-g5-bullet')
   assert.deepEqual([g5.resolution, g5.codec, g5.fps, g5.nightIR, g5.poeW], ['4MP', 'h265', 30, true, 4])
   const pro = C.applyPreset(C.newGroup(1), 'uvc-g5-pro')
@@ -482,8 +482,21 @@ test('Milesight presets carry datasheet values', () => {
   const ptz = C.applyPreset(C.newGroup(1), 'ms-c5361-ptz')
   assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['5MP', 19.3, 'high'])
   assert.deepEqual(C.PRESET_GROUPS, ['Generic', 'UniFi', 'Milesight · Domes', 'Milesight · Bullets',
-    'Milesight · Panoramic & multi-sensor', 'Milesight · PTZ & speed domes', 'Milesight · Traffic & LPR'])
+    'Milesight · Panoramic & multi-sensor', 'Milesight · PTZ & speed domes', 'Milesight · Traffic & LPR',
+    'Hikvision · Domes', 'Hikvision · Bullets', 'Hikvision · Panoramic & multi-sensor', 'Hikvision · PTZ & speed domes'])
   assert.ok(ms.every((p) => p.family), 'every Milesight preset has a family')
   const ids = C.PRESETS.map((p) => p.id)
   assert.equal(new Set(ids).size, ids.length, 'preset ids are unique')
+})
+
+test('Hikvision presets carry datasheet values', () => {
+  const hik = C.PRESETS.filter((p) => p.vendor === 'Hikvision')
+  assert.ok(hik.length >= 50)
+  assert.ok(hik.every((p) => p.family && /^i?DS-2(CD|DE)/i.test(p.model) && typeof p.poeW === 'number' && p.poeW > 0))
+  const colorvu = C.applyPreset(C.newGroup(1), 'hik-ds-2cd2147g2-l-su')
+  assert.deepEqual([colorvu.resolution, colorvu.nightIR, colorvu.poeW], ['4MP', false, 6.5], 'ColorVu has no IR')
+  const ptz = C.applyPreset(C.newGroup(1), 'hik-ds-2de7a825iwg1-e')
+  assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['8MP', 48, 'high'])
+  const multi = C.applyPreset(C.newGroup(1), 'hik-ds-2cd6d54g2-izhs')
+  assert.equal(multi.poeW, 6.25, 'one row per sensor')
 })

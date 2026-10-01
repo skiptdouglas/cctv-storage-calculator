@@ -3,6 +3,14 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.9.0 — 2026-10-01
+
+### Added
+- **Hikvision presets.** 87 cameras from the Pro, Ultra, DeepinView, PanoVu,
+  fisheye and PTZ lines, with datasheet resolution, frame rate, IR or ColorVu
+  white light, and maximum PoE draw, grouped by family. The README notes
+  Hikvision's NDAA §889 / FCC covered-list status.
+
 ## 0.8.0 — 2026-10-01
 
 ### Added
