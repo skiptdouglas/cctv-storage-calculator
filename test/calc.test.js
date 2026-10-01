@@ -449,7 +449,7 @@ test('presets fill in camera settings and keep the rest', () => {
 })
 
 test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
-  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight', 'Hikvision', 'Dahua', 'Axis'])
+  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight', 'Hikvision', 'Dahua', 'Axis', 'Hanwha', 'Reolink'])
   const g5 = C.applyPreset(C.newGroup(1), 'uvc-g5-bullet')
   assert.deepEqual([g5.resolution, g5.codec, g5.fps, g5.nightIR, g5.poeW], ['4MP', 'h265', 30, true, 4])
   const pro = C.applyPreset(C.newGroup(1), 'uvc-g5-pro')
@@ -485,7 +485,9 @@ test('Milesight presets carry datasheet values', () => {
     'Milesight · Panoramic & multi-sensor', 'Milesight · PTZ & speed domes', 'Milesight · Traffic & LPR',
     'Hikvision · Domes', 'Hikvision · Bullets', 'Hikvision · Panoramic & multi-sensor', 'Hikvision · PTZ & speed domes',
     'Dahua · Domes', 'Dahua · Bullets', 'Dahua · Panoramic & multi-sensor', 'Dahua · PTZ & speed domes',
-    'Axis · Domes', 'Axis · Bullets', 'Axis · Box & block', 'Axis · Panoramic & multi-sensor', 'Axis · PTZ & speed domes'])
+    'Axis · Domes', 'Axis · Bullets', 'Axis · Box & block', 'Axis · Panoramic & multi-sensor', 'Axis · PTZ & speed domes',
+    'Hanwha · Domes', 'Hanwha · Bullets', 'Hanwha · Box & block', 'Hanwha · Panoramic & multi-sensor', 'Hanwha · PTZ & speed domes',
+    'Reolink · Domes', 'Reolink · Bullets', 'Reolink · Panoramic & multi-sensor', 'Reolink · PTZ & speed domes'])
   assert.ok(ms.every((p) => p.family), 'every Milesight preset has a family')
   const ids = C.PRESETS.map((p) => p.id)
   assert.equal(new Set(ids).size, ids.length, 'preset ids are unique')
@@ -522,4 +524,25 @@ test('Dahua presets carry datasheet values', () => {
   assert.deepEqual([wizcolor.resolution, wizcolor.fps, wizcolor.nightIR], ['8MP', 20, false], 'WizColor uses white light')
   const ptz = C.applyPreset(C.newGroup(1), 'dahua-sd8c448pa-hnf')
   assert.deepEqual([ptz.nightIR, ptz.poeW, ptz.scene], [true, 33, 'high'])
+})
+
+test('Hanwha presets carry spec-table values', () => {
+  const hw = C.PRESETS.filter((p) => p.vendor === 'Hanwha')
+  assert.ok(hw.length >= 50)
+  assert.ok(hw.every((p) => p.family && /^[A-Z]{3}-[A-Z0-9]+/.test(p.model) && typeof p.poeW === 'number' && p.poeW > 0))
+  const dome = C.applyPreset(C.newGroup(1), 'hanwha-xnv-8082r')
+  assert.deepEqual([dome.resolution, dome.nightIR, dome.poeW], ['6MP', true, 12.95])
+  const fisheye = C.applyPreset(C.newGroup(1), 'hanwha-qnf-9010')
+  assert.equal(fisheye.resolution, '8MP', 'sized from the 3008x3008 fisheye stream, not the 3200x800 panorama')
+})
+
+test('Reolink presets carry spec-table values', () => {
+  const rl = C.PRESETS.filter((p) => p.vendor === 'Reolink')
+  assert.ok(rl.length >= 20)
+  assert.ok(rl.every((p) => p.family && typeof p.poeW === 'number' && p.poeW > 0))
+  const bullet = C.applyPreset(C.newGroup(1), 'reolink-rlc-810a')
+  assert.deepEqual([bullet.resolution, bullet.fps, bullet.poeW, bullet.nightIR], ['8MP', 25, 12, true])
+  assert.equal(C.applyPreset(C.newGroup(1), 'reolink-cx410').codec, 'h264', 'CX410 is H.264 only')
+  const duo = C.applyPreset(C.newGroup(1), 'reolink-duo-3-poe')
+  assert.deepEqual([duo.resolution, duo.poeW], ['8MP', 6], '16 MP stitched, sized per sensor')
 })

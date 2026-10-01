@@ -622,6 +622,192 @@ thermal and bispectral cameras, explosion-protected models, modular sensor
 units that need a main unit, onboard/vehicle cameras, radar-video fusion
 models (Q1656-DLE, Q1686-DLE) and the Q6020-E Solo Kit.
 
+## Hanwha presets
+
+Values are from the spec tables on hanwhavision.com product pages, October
+2026 (the datasheet PDFs could not be fetched; the tables carry the same
+fields): Wisenet Q, X, P and A series, multi-directional, fisheye and PTZ
+cameras. Power is the PoE maximum. Presets assume H.265; WiseStream is the
+smart codec. Box cameras ship without a lens.
+
+Multi-directional cameras are one row per sensor. The PNM-9322VQP and
+PNM-C34404RQPZ combine four fixed sensors with a PTZ: enter 4 cameras per unit
+and add a 2 MP PTZ row. The PNM-9031RV stitches three sensors into 15 MP and is
+sized per sensor.
+
+### Domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| ANV-L6082R | IR Outdoor Dome | 2 MP | 30 | 7 W |
+| ANV-L7082R | IR Outdoor Vandal Dome | 4 MP | 30 | 8 W |
+| PND-A6081RV | AI IR Dome | 2 MP | 30 | 19.5 W (PoE+) |
+| PND-A9081RV | AI IR Dome | 4K | 30 | 20 W (PoE+) |
+| PNV-A6081R | AI IR Vandal Dome | 2 MP | 30 | 19.5 W (PoE+) |
+| PNV-A9081R | AI IR Vandal Dome | 4K | 30 | 20 W (PoE+) |
+| QND-6012R | IR Dome | 2 MP | 30 | 7.4 W |
+| QND-6082R | IR Dome | 2 MP | 30 | 7.7 W |
+| QND-7012R | IR Dome | 4 MP | 30 | 7.9 W |
+| QND-7082R | IR Dome | 4 MP | 30 | 8.6 W |
+| QND-8010R | IR Dome | 5 MP | 30 | 7.5 W |
+| QND-8020R | IR Dome | 5 MP | 30 | 6.8 W |
+| QNV-6012R | IR Dome | 2 MP | 30 | 7.4 W |
+| QNV-6082R | IR Dome | 2 MP | 30 | 7.7 W |
+| QNV-7012R | IR Vandal Dome | 4 MP | 30 | 10.7 W |
+| QNV-7082R | IR Vandal Dome | 4 MP | 30 | 11.4 W |
+| QNV-8010R | IR Dome | 5 MP | 30 | 7.5 W |
+| QNV-8020R | IR Dome | 5 MP | 30 | 7.2 W |
+| QNV-8080R | IR Dome | 5 MP | 30 | 8.9 W |
+| XND-6081RV | IR Dome | 2 MP | 30 | 12.95 W |
+| XND-6083RV | AI IR Dome | 2 MP | 30 | 22.5 W (PoE+) |
+| XND-8082RF | IR Dome | 3328×1872 | 30 | 12.95 W |
+| XND-8083RV | AI IR Dome | 3328×1872 | 30 | 22.5 W (PoE+) |
+| XND-9083RV | AI IR Dome | 4K | 30 | 22.5 W (PoE+) |
+| XND-A6084RV | AI IR Dome | 2 MP | 30 | 10.2 W |
+| XND-A8084RV | AI IR Dome | 2560×1920 | 30 | 9.4 W |
+| XNV-6081R | IR Dome | 2 MP | 30 | 12.95 W |
+| XNV-6083R | AI IR Vandal Dome | 2 MP | 30 | 22.5 W (PoE+) |
+| XNV-8082R | IR Vandal Dome | 3328×1872 | 30 | 12.95 W |
+| XNV-8083R | AI IR Vandal Dome | 3328×1872 | 30 | 22.5 W (PoE+) |
+| XNV-9083R | AI IR Vandal Dome | 4K | 30 | 22.5 W (PoE+) |
+| XNV-A6084R | AI IR Vandal Dome | 2 MP | 30 | 10.2 W |
+| XNV-A8084R | AI IR Vandal Dome | 2560×1920 | 30 | 9.4 W |
+| XNV-A9084R | AI IR Vandal Dome | 4K | 30 | 11.2 W |
+
+### Bullets
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| ANO-L6082R | IR Bullet | 2 MP | 30 | 7 W |
+| ANO-L7022R | IR Bullet | 4 MP | 30 | 7.5 W |
+| PNO-A6081R | AI IR Bullet | 2 MP | 30 | 19.5 W (PoE+) |
+| PNO-A9081R | AI IR Bullet | 4K | 30 | 20 W (PoE+) |
+| PNO-A9311R | AI IR Bullet | 4K | 30 | 25.5 W (PoE+) |
+| QNO-6012R | IR Bullet | 2 MP | 30 | 7 W |
+| QNO-6082R | IR Bullet | 2 MP | 30 | 7.4 W |
+| QNO-7012R | IR Bullet | 4 MP | 30 | 10.7 W |
+| QNO-7082R | IR Bullet | 4 MP | 30 | 11.4 W |
+| QNO-8010R | IR Bullet | 5 MP | 30 | 7.5 W |
+| QNO-8020R | IR Bullet | 5 MP | 30 | 7.5 W |
+| QNO-8080R | IR Bullet | 5 MP | 30 | 9.5 W |
+| XNO-6083R | AI IR Bullet | 2 MP | 30 | 22.5 W (PoE+) |
+| XNO-6085R | IR Bullet (extraLUX) | 2 MP | 30 | 12.95 W |
+| XNO-8082R | IR Bullet | 3328×1872 | 30 | 12.95 W |
+| XNO-8083R | AI IR Bullet | 3328×1872 | 30 | 22.5 W (PoE+) |
+| XNO-9083R | AI IR Bullet | 4K | 30 | 22.5 W (PoE+) |
+| XNO-A6084R | AI IR Bullet | 2 MP | 30 | 10.2 W |
+| XNO-A8084R | AI IR Bullet | 2560×1920 | 30 | 9.4 W |
+| XNO-A9084R | AI IR Bullet | 4K | 30 | 11.2 W |
+
+### Box & block
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| PNB-A9001 | AI Box | 4K | 30 | 16.5 W (PoE+) |
+| QNB-6002 | Box | 2 MP | 30 | 6.4 W |
+| QNB-8002 | Box | 5 MP | 30 | 6.4 W |
+| XNB-6003 | AI Box | 2 MP | 30 | 12.95 W |
+| XNB-8003 | AI Box | 3328×1872 | 30 | 12.95 W |
+| XNB-9003 | AI Box | 4K | 30 | 12.95 W |
+
+### Panoramic & multi-sensor
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| PNM-9031RV | Panoramic | 6720×2240 | 20 | 23.5 W (PoE+) per unit |
+| PNM-9084QZ1 | 4-channel PTRZ Multi-directional | 2 MP | 30 | 33 W (PoE++) per unit |
+| PNM-9085RQZ1 | 4-channel IR PTRZ Multi-directional | 2560×1920 | 30 | 45 W (PoE++) per unit |
+| PNM-9322VQP | 4-channel + PTZ Multi-directional | 5 MP | 30 | 65 W (PoE++) per unit |
+| PNM-C12083RVD | 2-channel AI Multi-directional | 3328×1872 | 15 | 21 W (PoE+) per unit |
+| PNM-C16083RVQ | 4-channel AI Multi-directional | 2592×1520 | 30 | 30 W (PoE++) per unit |
+| PNM-C34404RQPZ | 4-channel 4K PTRZ + 40x PTZ AI | 4K | 15 | 64 W (PoE++) per unit |
+| QNF-8010 | Fisheye | 2048×2048 | 30 | 6.4 W |
+| QNF-9010 | Fisheye | 3008×3008 | 30 | 7.7 W |
+| XNF-8010RV | Fisheye | 2048×2048 | 30 | 12.95 W |
+| XNF-9010RV | IR Fisheye | 3584×2688 | 30 | 12.95 W |
+| XNF-A9014RV | AI IR Fisheye | 3584×2688 | 30 | 19.8 W (PoE+) |
+
+### PTZ & speed domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| QNP-6230 | 23x PTZ | 2 MP | 30 | 20 W (PoE+) |
+| QNP-6250R | 25x IR PTZ | 2 MP | 30 | 25.5 W (PoE+) |
+| QNP-6320R | 32x IR PTZ | 2 MP | 30 | 25.5 W (PoE+) |
+| XNP-6400RW | 40x IR PTZ with built-in wiper | 2 MP | 30 | 42 W (PoE++) |
+| XNP-8250R | 25x IR PTZ | 3328×1872 | 30 | 40 W (PoE++) |
+| XNP-9250R | 25x IR PTZ | 4K | 30 | 40 W (PoE++) |
+| XNP-A6374RH | 37x AI IR PTZ | 2 MP | 30 | 51 W (PoE++) |
+| XNP-A9314R | 31x AI IR PTZ | 4K | 30 | 51 W (PoE++) |
+
+Not included: thermal, explosion-proof, mobile, Wi-Fi and modular sensor-head
+models, the TNO/TNU specialist ranges, and the PNM-9002VQ (its spec table lists
+only 1080p for a 2/5 MP × 4 camera).
+
+## Reolink presets
+
+Values are from the spec tables on reolink.com product pages, October 2026,
+covering Reolink's PoE cameras. Reolink gives one power limit for DC and PoE
+(for example "<12W"); the presets use it as the maximum. Most models run 25 fps
+at full resolution, the 12 MP and dual-lens models 20 fps. The CX410 and
+RLC-520A record H.264 only.
+
+Dual-lens Duo models stitch two sensors; the 16 MP Duo 3 is sized per sensor
+(two rows). TrackMix and RLC-81MA presets cover the wide lens: add a row for
+the telephoto lens.
+
+### Domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| CX820 | ColorX Dome | 4K | 25 | 12 W |
+| RLC-1240A | Dome | 4512×2512 | 20 | 12 W |
+| RLC-520A | Dome | 2560×1920 | 25 | 12 W |
+| RLC-820A | Dome | 4K | 25 | 12 W |
+| RLC-840A | Dome | 4K | 25 | 12 W |
+| RLC-843A | Dome | 4K | 25 | 12 W |
+
+### Bullets
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| CX410 | ColorX Bullet | 4 MP | 25 | 12 W |
+| CX810 | ColorX Bullet | 4K | 25 | 12 W |
+| RLC-1212A | Bullet | 4512×2512 | 20 | 12 W |
+| RLC-1224A | Bullet | 4512×2512 | 20 | 12 W |
+| RLC-510A | Bullet | 2560×1920 | 25 | 12 W |
+| RLC-810A | Bullet | 4K | 25 | 12 W |
+| RLC-811A | Bullet | 4K | 25 | 12 W |
+| RLC-833A | Bullet | 4K | 25 | 12 W |
+
+### Panoramic & multi-sensor
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| FE-P | Fisheye | 2560×2560 | 25 | 12 W |
+| OMVI 3i PoE | Multi-lens | 5120×1920 | 20 | 24 W (PoE+) per unit |
+| Duo 2V PoE | Dual-lens panoramic | 5120×1552 | 20 | 12 W |
+| Duo 3 PoE | Dual-lens panoramic | 7680×2160 | 20 | 12 W per unit |
+| Duo 3V PoE | Dual-lens panoramic | 7680×2160 | 20 | 12 W per unit |
+| Duo 2 PoE | Dual-lens panoramic | 4608×1728 | 20 | 15 W |
+| OMVI 2i PoE | Multi-lens | 2880×1616 | 20 | 12 W per unit |
+| RLC-81MA | Multi-lens | 4K | 20 | 12 W |
+
+### PTZ & speed domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| E1 Outdoor SE PoE | PTZ | 4K | 25 | 12 W |
+| TrackMix PoE | PTZ | 4K | 25 | 12 W |
+| RLC-81PA | PTZ | 4K | 25 | 12 W |
+| RLC-823A | PTZ | 4K | 25 | 24 W (PoE+) |
+| RLC-823A 16X | PTZ | 4K | 25 | 24 W (PoE+) |
+| RLC-823S1 | PTZ | 4K | 25 | 24 W (PoE+) |
+| RLC-823S2 | PTZ | 4K | 25 | 24 W (PoE+) |
+
+Not included: Wi-Fi, battery, solar and 4G models, NVR kits, and the Elite Pro
+Floodlight PoE and PoE Video Doorbell (no power figure on their pages).
+
 ## License
 
 MIT

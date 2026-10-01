@@ -3,6 +3,15 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.11.0 — 2026-10-01
+
+### Added
+- **Hanwha presets.** 80 Wisenet cameras (Q, X, P and A series,
+  multi-directional, fisheye, PTZ) from the spec tables on hanwhavision.com,
+  grouped by family.
+- **Reolink presets.** 29 PoE cameras (RLC, ColorX, Duo, TrackMix, OMVI,
+  fisheye, PTZ) from the spec tables on reolink.com, grouped by family.
+
 ## 0.10.0 — 2026-10-01
 
 ### Added
