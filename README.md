@@ -372,6 +372,256 @@ TandemVu PTZs (DS-2SE4C425 gives no wattage; DS-2SE7C425 pairs a 60 W PTZ with
 a panoramic channel that doesn't fit one camera row). The DS-2CD6D54G2 and
 DS-2CD6D82G2 multi-directional cameras are one row per sensor.
 
+## Dahua presets
+
+Values are from the datasheets linked on dahuasecurity.com product pages
+(materialfile.dahuasecurity.com), October 2026: WizSense 2 and 3 Series,
+WizMind 5 and 7 Series, fisheye, dual-lens 180° and multi-sensor panoramics,
+and PTZs. Power is the datasheet's PoE maximum with illumination on; for most
+PTZs Dahua gives one maximum without naming the supply. Presets assume H.265;
+Dahua's H.265+ is the smart codec. Many WizSense 2 models run 20 fps at full
+resolution, and their presets use 20.
+
+Dahua is on the US NDAA §889 and FCC covered lists: barred from US federal
+procurement and from new FCC equipment authorisations. Check whether that
+applies to your project before specifying it.
+
+WizColor models without IR have night IR off; Smart Dual Light and TiOC
+models default to IR. Multi-sensor panoramics are one row per sensor, and the
+SDT4E425 dual-channel PTZ is two rows (overview and detail).
+
+### Domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| IPC-HDBW2441E-S | IR Fixed-focal Dome | 4 MP | 20 | 6 W |
+| IPC-HDBW2441R-ZS | IR Vari-focal Dome | 4 MP | 20 | 7.6 W |
+| IPC-HDBW2449E-S-IL | Smart Dual Light Fixed-focal Dome | 4 MP | 30 | 5.7 W |
+| IPC-HDBW2449F-AS-IL | Smart Dual Light Fixed-focal Dome | 4 MP | 20 | 8.5 W |
+| IPC-HDBW2541E-S | IR Fixed-focal Dome | 2960×1668 | 20 | 6.1 W |
+| IPC-HDBW2649E-S-IL | Smart Dual Light Fixed-focal Dome | 3288×1850 | 20 | 6.6 W |
+| IPC-HDBW2841E-S | IR Fixed-focal Dome | 4K | 20 | 6.4 W |
+| IPC-HDBW2841R-ZS | IR Vari-focal Dome | 4K | 20 | 7.2 W |
+| IPC-HDBW2849E-S-IL | Smart Dual Light Fixed-focal Dome | 4K | 20 | 6.6 W |
+| IPC-HDW2441T-S | IR Fixed-focal Eyeball | 4 MP | 20 | 5.1 W |
+| IPC-HDW2449T-S-PRO | WizColor Fixed-focal Eyeball | 4 MP | 20 | 5.5 W |
+| IPC-HDW2449TM-S-IL | Smart Dual Light Fixed-focal Eyeball | 4 MP | 30 | 5.4 W |
+| IPC-HDW2541T-S | IR Fixed-focal Eyeball | 2960×1668 | 20 | 5 W |
+| IPC-HDW2649TM-S-IL | Smart Dual Light Fixed-focal Eyeball | 3288×1850 | 20 | 5.4 W |
+| IPC-HDW2841T-S | IR Fixed-focal Eyeball | 4K | 20 | 5.4 W |
+| IPC-HDW2849TM-S-IL | Smart Dual Light Fixed-focal Eyeball | 4K | 20 | 5.6 W |
+| IPC-HDW2849T-S-PRO | WizColor Fixed-focal Eyeball | 4K | 20 | 6.4 W |
+| IPC-HDBW3449E-AS-IL | Smart Dual Light Fixed-focal Dome | 4 MP | 30 | 7.1 W |
+| IPC-HDBW3449R1-ZAS-PV-PRO | WizColor TiOC PRO Vari-focal Dome | 4 MP | 30 | 16.1 W (PoE+) |
+| IPC-HDBW3849E-AS-IL | Smart Dual Light Fixed-focal Dome | 4K | 30 | 8.2 W |
+| IPC-HDBW3849R1-ZAS-PV-PRO | WizColor TiOC PRO Vari-focal Dome | 4K | 30 | 16.9 W (PoE+) |
+| IPC-HDBW3649E-AS-IL | Smart Dual Light Fixed-focal Dome | 3288×1850 | 30 | 7.5 W |
+| IPC-HDW3449H-AS-PV-PRO | WizColor TiOC PRO Fixed-focal Eyeball | 4 MP | 30 | 8.7 W |
+| IPC-HDW3849H-AS-PV-PRO | WizColor TiOC PRO Fixed-focal Eyeball | 4K | 30 | 10 W |
+| IPC-HDW3649H-AS-PV-PRO | WizColor TiOC PRO Fixed-focal Eyeball | 3288×1850 | 30 | 10 W |
+| IPC-HDBW5459E1-ZE-IL | Smart Dual Light Vari-focal Vandal-proof Dome | 4 MP | 30 | 22.1 W (PoE+) |
+| IPC-HDBW5859E1-ZE-IL | Smart Dual Light Vari-focal Vandal-proof Dome | 4K | 30 | 22.1 W (PoE+) |
+| IPC-HDBW5459R1-ASE-PV-PRO | WizColor Fixed-focal Dome | 4 MP | 30 | 17.5 W (PoE+) |
+| IPC-HDBW5859Z-ZHE-PV-PRO | WizColor Vari-focal PTRZ Dome | 4K | 30 | 24.2 W (PoE+) |
+| IPC-HDW5459H-ASE-PV-PRO | WizColor Fixed-focal Eyeball | 4 MP | 30 | 24.2 W (PoE+) |
+| IPC-HDW5859H-ZE-PV-PRO | WizColor Vari-focal Eyeball | 4K | 30 | 24.2 W (PoE+) |
+| IPC-HDBW7842E1-Z-X | IR Dome | 4K | 30 | 25.2 W (PoE+) |
+| IPC-HDBW7459Z-Z-PV-X | Smart Dual Light PTRZ Dome | 4 MP | 30 | 23.8 W (PoE+) |
+
+### Bullets
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| IPC-HFW2441S-S | IR Fixed-focal Bullet | 4 MP | 20 | 5.1 W |
+| IPC-HFW2441T-AS | IR Fixed-focal Bullet | 4 MP | 20 | 8.3 W |
+| IPC-HFW2449S-S-IL | Smart Dual Light Fixed-focal Bullet | 4 MP | 30 | 5.4 W |
+| IPC-HFW2449TL-S-PV | Smart Dual Light Active Deterrence Fixed-focal Bullet | 4 MP | 20 | 13.6 W |
+| IPC-HFW2541T-AS | IR Fixed-focal Bullet | 2960×1668 | 20 | 8.8 W |
+| IPC-HFW2649S-S-IL | Smart Dual Light Fixed-focal Bullet | 3288×1850 | 20 | 5.4 W |
+| IPC-HFW2841T-ZS | IR Vari-focal Bullet | 4K | 20 | 9.6 W |
+| IPC-HFW2849T-AS-IL | Smart Dual Light Fixed-focal Bullet | 4K | 20 | 7.3 W |
+| IPC-HFW2849TL-S-PRO | WizColor Fixed-focal Bullet | 4K | 20 | 7.4 W |
+| IPC-HFW2449M-S-B-PRO | WizColor Fixed-focal Bullet | 4 MP | 20 | 6.3 W |
+| IPC-HFW3449E-AS-IL | Smart Dual Light Fixed-focal Bullet | 4 MP | 30 | 9.7 W |
+| IPC-HFW3449T1-AS-PV-PRO | WizColor TiOC PRO Fixed-focal Bullet | 4 MP | 30 | 14.3 W |
+| IPC-HFW3849E-AS-IL | Smart Dual Light Fixed-focal Bullet | 4K | 30 | 10 W |
+| IPC-HFW3849T1-AS-PV-PRO | WizColor TiOC PRO Fixed-focal Bullet | 4K | 30 | 15.1 W |
+| IPC-HFW3649T1-ZAS-PV-PRO | WizColor TiOC PRO Vari-focal Bullet | 3288×1850 | 30 | 18.2 W (PoE+) |
+| IPC-HFW5459E1-ZE-IL | Smart Dual Light Vari-focal Bullet | 4 MP | 30 | 22.1 W (PoE+) |
+| IPC-HFW5859E1-ZE-IL | Smart Dual Light Vari-focal Bullet | 4K | 30 | 22.1 W (PoE+) |
+| IPC-HFW5459T1-ASE-PV-PRO | WizColor Fixed-focal Bullet | 4 MP | 30 | 24.2 W (PoE+) |
+| IPC-HFW5859Z-ZHE-PV-PRO | WizColor Vari-focal Bullet | 4K | 30 | 24.2 W (PoE+) |
+| IPC-HFW7442H-Z-X | IR Bullet | 4 MP | 30 | 24.3 W (PoE+) |
+| IPC-HFW7842H-Z-X | IR Bullet | 4K | 30 | 24.3 W (PoE+) |
+| IPC-HFW7859Z1-Z-PV-X | Smart Dual Light Bullet | 4K | 30 | 21.8 W (PoE+) |
+
+### Panoramic & multi-sensor
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| IPC-EBW5641-AS | IR Fisheye | 2560×2560 | 30 | 9.7 W |
+| IPC-EBW8842-AS | IR Fisheye | 3280×2480 | 30 | 13.9 W |
+| IPC-PFW3859S-A180-AS-PV | 2x4MP TiOC Duo Splicing Fixed-focal Bullet | 4320×1944 | 20 | 16.1 W (PoE+) |
+| IPC-PDW3859-A180-AS-PV | 2x4MP TiOC Duo Splicing Fixed-focal Eyeball | 4320×1944 | 20 | 14.8 W |
+| IPC-PFW5849-A180-E2-ASTE | Full-color Duo Splicing | 4096×1800 | 25 | 13.8 W |
+| IPC-PFW81642-A180 | Multi-Sensor Panoramic Bullet | 5520×2700 | 30 | 24.2 W (PoE+) per unit |
+| IPC-PFW83242-A180-S2 | WizMind Multi-Sensor Panoramic Bullet | 8192×3840 | 30 | 25 W (PoE+) per unit |
+| IPC-PDBW82041-B360-S2 | 4-Directional Panoramic Dome | 5 MP | 30 | 24.7 W (PoE+) per unit |
+
+### PTZ & speed domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| SD3D416NB-GNY | 16x IR PTZ | 4 MP | 30 | 18 W (PoE+) |
+| SD4D425MB-HNR | 25x Smart Dual Light PTZ | 4 MP | 30 | 23 W (PoE+) |
+| SD4D825MB-HNR | 25x Smart Dual Light PTZ | 4K | 30 | 23 W (PoE+) |
+| SD4A425DB-HNY | 25x Starlight IR PTZ | 4 MP | 30 | 21.5 W (PoE+) |
+| SD4E425MB-HNR-A-PV1 | 25x Starlight TiOC PTZ | 4 MP | 30 | 16 W (PoE+) |
+| SD4E825MB-HNR-A-PV1 | 25x Starlight Smart Dual Illumination PTZ | 4K | 30 | 20.5 W (PoE+) |
+| SD5A425MB-HNR | 25× Starlight IR PTZ | 4 MP | 30 | 21 W (PoE+) |
+| SD5A825MA-HNR | 25x IR PTZ | 4K | 30 | 25 W (PoE+) |
+| SD5A445MB-HNR | 45x IR PTZ | 4 MP | 30 | 22 W (PoE+) |
+| SD6E425MB-HNR-A-PV1 | 25x Smart Dual Illumination Active Deterrence PTZ | 4 MP | 30 | 19 W (PoE+) |
+| SD6E825MA-HNR-A-PV1 | 25x Smart Dual Illumination Active Deterrence PTZ | 4K | 30 | 21 W (PoE+) |
+| SD50432GB-HNR | 32x Starlight PTZ | 4 MP | 30 | 16 W (PoE+) |
+| SD49425DB-HNY | 25x Starlight IR PTZ | 4 MP | 30 | 21 W (PoE+) |
+| SD8A440FA-HNT | 40× Starlight IR PTZ for Traffic | 4 MP | 30 | 33 W (Hi-PoE) |
+| SD7A440FA-HNF | 40X IR High-Speed PTZ | 4 MP | 30 | 33 W (PoE++) |
+| SD6AL445GB-HNV | 45x Starlight Laser PTZ | 4 MP | 30 | 45 W (Hi-PoE) |
+| SDT4E425-4F-GB-A-PV1-S2 | 4+4MP 25x Smart Dual Illumination Active Deterrence X-Spans PTZ | 4 MP | 30 | 25 W (PoE+) per unit |
+| SD8C448PA-HNF | 48x Starlight IR PTZ | 4 MP | 30 | 33 W (Hi-PoE) |
+
+Not included: models below 4 MP, the 12 MP WizSense/WizMind models, Lite and
+consumer ranges, Wi-Fi, 4G, solar, thermal and explosion-proof cameras, PTZ
+positioning systems, and lens or anti-corrosion variants of models already
+listed.
+
+## Axis presets
+
+Values are from the datasheets linked on axis.com product pages, October 2026,
+covering the M, P and Q lines. Axis gives each camera's maximum power as its
+PoE class limit (12.95, 25.5 or 51 W), which is what to budget on the switch;
+typical draw is usually a third of that or less, and both figures are in the
+datasheet. Presets assume H.265; Axis Zipstream is the smart codec.
+
+Multisensor cameras (P37xx, P47xx) are one row per sensor: enter the sensor
+count as the camera quantity. The Q3839-PVE and Q4809-PVE stitch four sensors
+into 26–29 MP, beyond the calculator's 12 MP bucket, so they are sized per
+sensor the same way.
+
+### Domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| AXIS M3085-V | Dome Camera | 2 MP | 30 | 4.2 W |
+| AXIS M3086-V | Dome Camera | 4 MP | 30 | 4.2 W |
+| AXIS M3088-V | Dome Camera | 4K | 15 | 4.2 W |
+| AXIS M3125-LVE | Dome Camera | 2 MP | 30 | 10.5 W |
+| AXIS M3126-LVE | Dome Camera | 4 MP | 30 | 10.5 W |
+| AXIS M3128-LVE | Dome Camera | 4K | 15 | 10.5 W |
+| AXIS M3215-LVE | Dome Camera | 2 MP | 30 | 10.4 W |
+| AXIS M3216-LVE | Dome Camera | 4 MP | 30 | 10.8 W |
+| AXIS M4215-LV | Dome Camera | 2 MP | 30 | 9.5 W |
+| AXIS M4216-LV | Dome Camera | 2304×1728 | 30 | 9.7 W |
+| AXIS M4218-LV | Dome Camera | 4K | 15 | 9.7 W |
+| AXIS M4225-LVE | Dome Camera | 2 MP | 30 | 10.5 W |
+| AXIS M4227-LVE | Dome Camera | 4 MP | 30 | 12.3 W |
+| AXIS M4228-LVE | Dome Camera | 4K | 30 | 12.9 W |
+| AXIS P3268-SLVE | Dome Camera | 4K | 30 | 11.2 W |
+| AXIS P3275-LVE | Dome Camera | 2 MP | 30 | 10 W |
+| AXIS P3277-LVE | Dome Camera | 5 MP | 30 | 12.6 W |
+| AXIS P3278-LVE | Dome Camera | 4K | 30 | 12.9 W |
+| AXIS P3285-LVE | Dome Camera | 2 MP | 30 | 10 W |
+| AXIS P3287-LVE | Dome Camera | 5 MP | 30 | 12.6 W |
+| AXIS P3288-LVE | Dome Camera | 4K | 30 | 12.9 W |
+| AXIS Q3538-SLVE | Dome Camera | 4K | 30 | 23 W (PoE+) |
+| AXIS Q3546-LVE | Dome Camera | 4 MP | 30 | 25.5 W (PoE+) |
+| AXIS Q3548-LVE | Dome Camera | 4K | 30 | 25.5 W (PoE+) |
+| AXIS Q3556-LVE | Dome Camera | 4 MP | 30 | 25.5 W (PoE+) |
+| AXIS Q3558-LVE | Dome Camera | 4K | 30 | 25.5 W (PoE+) |
+| AXIS Q3626-VE | Dome Camera | 4 MP | 30 | 25 W (PoE+) |
+| AXIS Q3628-VE | Dome Camera | 4K | 30 | 25 W (PoE+) |
+
+### Bullets
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| AXIS M2035-LE | Bullet Camera | 2 MP | 30 | 12.95 W |
+| AXIS M2036-LE | Bullet Camera | 4 MP | 30 | 12.95 W |
+| AXIS M2048-LE | Bullet Camera | 4K | 15 | 12.95 W |
+| AXIS P1475-LE | Bullet Camera | 2 MP | 30 | 12.95 W |
+| AXIS P1485-LE | Bullet Camera | 2 MP | 30 | 12.95 W |
+| AXIS P1487-LE | Bullet Camera | 5 MP | 30 | 12.95 W |
+| AXIS P1488-LE | Bullet Camera | 4K | 30 | 12.95 W |
+| AXIS Q1800-LE | License Plate Camera | 2 MP | 30 | 25.5 W (PoE+) |
+| AXIS Q1805-LE | Bullet Camera | 2 MP | 30 | 51 W (PoE++) |
+| AXIS Q1806-LE | Bullet Camera | 2880×1620 | 30 | 51 W (PoE++) |
+| AXIS Q1808-LE | Bullet Camera | 4K | 30 | 51 W (PoE++) |
+
+### Box & block
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| AXIS M1055-L | Box Camera | 2 MP | 30 | 4.3 W |
+| AXIS M1075-L Mk II | Box Camera | 2 MP | 30 | 12.95 W |
+| AXIS M1135-E Mk II | Box Camera | 2 MP | 30 | 7.2 W |
+| AXIS M1137-E Mk II | Box Camera | 5 MP | 30 | 7.2 W |
+| AXIS P1385-E | Box Camera | 2 MP | 30 | 25.5 W (PoE+) |
+| AXIS P1387-LE | Box Camera | 5 MP | 30 | 25.5 W (PoE+) |
+| AXIS P1388-LE | Box Camera | 4K | 30 | 25.5 W (PoE+) |
+| AXIS P1518-LE | Box Camera | 4K | 30 | 25.5 W (PoE+) |
+| AXIS Q1656-LE | Box Camera | 4 MP | 30 | 25.5 W (PoE+) |
+| AXIS Q1715 | Block Camera | 2 MP | 30 | 14.2 W |
+| AXIS Q1728-LE | Block Camera | 4K | 30 | 25.5 W (PoE+) |
+
+### Panoramic & multi-sensor
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| AXIS M3077-PLVE | Fisheye Camera | 2016×2016 | 30 | 11.9 W |
+| AXIS M4308-PLE | Panoramic Camera | 2880×2880 | 30 | 15.5 W (PoE+) |
+| AXIS M4317-PLVE | Panoramic Camera | 2160×2160 | 30 | 12.95 W |
+| AXIS M4318-PLVE | Panoramic Camera | 2992×2992 | 30 | 12.95 W |
+| AXIS M4327-P | Panoramic Camera | 2160×2160 | 30 | 5.1 W |
+| AXIS M4328-P | Panoramic Camera | 2992×2992 | 30 | 5.1 W |
+| AXIS M4337-PLVE | Panoramic Camera | 2464×2464 | 30 | 16.7 W (PoE+) |
+| AXIS M4338-PLVE | Panoramic Camera | 3536×3536 | 30 | 16.7 W (PoE+) |
+| AXIS M4347-PLVE | Panoramic Camera | 2464×2464 | 30 | 16.7 W (PoE+) |
+| AXIS M4348-PLVE | Panoramic Camera | 3536×3536 | 30 | 16.7 W (PoE+) |
+| AXIS P3735-PLE | Panoramic Camera | 2 MP | 30 | 23.15 W (PoE+) per unit |
+| AXIS P3737-PLE | Panoramic Camera | 5 MP | 20 | 23.3 W (PoE+) per unit |
+| AXIS P3738-PLE | Panoramic Camera | 4K | 15 | 25.5 W (PoE+) per unit |
+| AXIS P3747-PLVE | Panoramic Camera | 5 MP | 20 | 23.7 W (PoE+) per unit |
+| AXIS P3748-PLVE | Panoramic Camera | 4K | 15 | 23.6 W (PoE+) per unit |
+| AXIS P3818-PVE | Panoramic Camera | 5120×2560 | 30 | 18 W (PoE+) |
+| AXIS P3827-PVE | Panoramic Camera | 3712×1856 | 30 | 18 W (PoE+) |
+| AXIS P4705-PLVE | Panoramic Camera | 2 MP | 30 | 17.5 W (PoE+) per unit |
+| AXIS P4707-PLVE | Panoramic Camera | 5 MP | 30 | 17.5 W (PoE+) per unit |
+| AXIS P4708-PLVE | Panoramic Camera | 4K | 30 | 18.8 W (PoE+) per unit |
+| AXIS Q3839-PVE | Panoramic Camera | 7552×3776 | 30 | 19.1 W (PoE+) per unit |
+| AXIS Q4809-PVE | Panoramic Camera | 10240×2560 | 30 | 19.1 W (PoE+) per unit |
+
+### PTZ & speed domes
+
+| Model | Type | Resolution | fps | Max PoE |
+| --- | --- | --- | --- | --- |
+| AXIS M5075 | PTZ Camera | 2 MP | 30 | 9.3 W |
+| AXIS M5526-E | PTZ Camera | 4 MP | 30 | 12.95 W |
+| AXIS P5654-E Mk II | PTZ Camera | 2 MP | 30 | 16 W (PoE+) |
+| AXIS P5655-E | PTZ Network Camera | 2 MP | 30 | 19 W (PoE+) |
+| AXIS P5676-LE | PTZ Camera | 4 MP | 30 | 29 W (PoE++) |
+| AXIS Q6086-E | PTZ Camera | 4 MP | 30 | 51 W (PoE++) |
+| AXIS Q6088-E | PTZ Camera | 4K | 30 | 51 W (PoE++) |
+| AXIS Q6225-LE | PTZ Camera | 2 MP | 30 | 71 W (PoE++ 90 W) |
+| AXIS Q6325-LE | PTZ Camera | 2 MP | 30 | 51 W (PoE++) |
+| AXIS Q6355-LE | PTZ Camera | 2 MP | 30 | 51 W (PoE++) |
+| AXIS Q6358-LE | PTZ Camera | 4K | 30 | 51 W (PoE++) |
+
+Not included: AXIS Q1809-LE (41 MP / 8K, beyond the largest size bucket),
+thermal and bispectral cameras, explosion-protected models, modular sensor
+units that need a main unit, onboard/vehicle cameras, radar-video fusion
+models (Q1656-DLE, Q1686-DLE) and the Q6020-E Solo Kit.
+
 ## License
 
 MIT

@@ -3,6 +3,18 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.10.0 — 2026-10-01
+
+### Added
+- **Dahua presets.** 81 cameras from the WizSense 2/3, WizMind 5/7,
+  panoramic and PTZ lines, from the datasheets linked on dahuasecurity.com,
+  grouped by family. The README notes Dahua's NDAA §889 / FCC covered-list
+  status.
+- **Axis presets.** 83 cameras from the M, P and Q lines (domes, bullets,
+  box and block, fisheye, panoramic and multisensor, PTZ), from the datasheets
+  linked on axis.com, grouped by family. Maximum power is Axis's stated PoE
+  class limit.
+
 ## 0.9.0 — 2026-10-01
 
 ### Added

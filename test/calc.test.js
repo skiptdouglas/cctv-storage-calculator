@@ -449,7 +449,7 @@ test('presets fill in camera settings and keep the rest', () => {
 })
 
 test('UniFi presets carry spec-sheet values and are grouped by vendor', () => {
-  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight', 'Hikvision'])
+  assert.deepEqual(C.PRESET_VENDORS, ['Generic', 'UniFi', 'Milesight', 'Hikvision', 'Dahua', 'Axis'])
   const g5 = C.applyPreset(C.newGroup(1), 'uvc-g5-bullet')
   assert.deepEqual([g5.resolution, g5.codec, g5.fps, g5.nightIR, g5.poeW], ['4MP', 'h265', 30, true, 4])
   const pro = C.applyPreset(C.newGroup(1), 'uvc-g5-pro')
@@ -483,7 +483,9 @@ test('Milesight presets carry datasheet values', () => {
   assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['5MP', 19.3, 'high'])
   assert.deepEqual(C.PRESET_GROUPS, ['Generic', 'UniFi', 'Milesight · Domes', 'Milesight · Bullets',
     'Milesight · Panoramic & multi-sensor', 'Milesight · PTZ & speed domes', 'Milesight · Traffic & LPR',
-    'Hikvision · Domes', 'Hikvision · Bullets', 'Hikvision · Panoramic & multi-sensor', 'Hikvision · PTZ & speed domes'])
+    'Hikvision · Domes', 'Hikvision · Bullets', 'Hikvision · Panoramic & multi-sensor', 'Hikvision · PTZ & speed domes',
+    'Dahua · Domes', 'Dahua · Bullets', 'Dahua · Panoramic & multi-sensor', 'Dahua · PTZ & speed domes',
+    'Axis · Domes', 'Axis · Bullets', 'Axis · Box & block', 'Axis · Panoramic & multi-sensor', 'Axis · PTZ & speed domes'])
   assert.ok(ms.every((p) => p.family), 'every Milesight preset has a family')
   const ids = C.PRESETS.map((p) => p.id)
   assert.equal(new Set(ids).size, ids.length, 'preset ids are unique')
@@ -499,4 +501,25 @@ test('Hikvision presets carry datasheet values', () => {
   assert.deepEqual([ptz.resolution, ptz.poeW, ptz.scene], ['8MP', 48, 'high'])
   const multi = C.applyPreset(C.newGroup(1), 'hik-ds-2cd6d54g2-izhs')
   assert.equal(multi.poeW, 6.25, 'one row per sensor')
+})
+
+test('Axis presets carry datasheet values', () => {
+  const axis = C.PRESETS.filter((p) => p.vendor === 'Axis')
+  assert.ok(axis.length >= 50)
+  assert.ok(axis.every((p) => p.family && p.model.startsWith('AXIS ') && typeof p.poeW === 'number' && p.poeW > 0))
+  const dome = C.applyPreset(C.newGroup(1), 'axis-p3288-lve')
+  assert.deepEqual([dome.resolution, dome.nightIR, dome.poeW], ['8MP', true, 12.9])
+  const multi = C.applyPreset(C.newGroup(1), 'axis-p3737-ple')
+  assert.deepEqual([multi.resolution, multi.fps, multi.poeW], ['5MP', 20, 5.83], 'one row per sensor')
+  assert.ok(!C.PRESETS.some((p) => p.id === 'axis-q1809-le'), '41 MP camera is beyond the 12 MP bucket')
+})
+
+test('Dahua presets carry datasheet values', () => {
+  const dahua = C.PRESETS.filter((p) => p.vendor === 'Dahua')
+  assert.ok(dahua.length >= 50)
+  assert.ok(dahua.every((p) => p.family && /^(IPC-|SDT?\d)/.test(p.model) && typeof p.poeW === 'number' && p.poeW > 0))
+  const wizcolor = C.applyPreset(C.newGroup(1), 'dahua-ipc-hdw2849t-s-pro')
+  assert.deepEqual([wizcolor.resolution, wizcolor.fps, wizcolor.nightIR], ['8MP', 20, false], 'WizColor uses white light')
+  const ptz = C.applyPreset(C.newGroup(1), 'dahua-sd8c448pa-hnf')
+  assert.deepEqual([ptz.nightIR, ptz.poeW, ptz.scene], [true, 33, 'high'])
 })
