@@ -10,7 +10,7 @@ project. It is for whoever continues the work on a desktop machine.
 | Code | https://github.com/skiptdouglas/cctv-storage-calculator (public, MIT, `main`) |
 | Hosted page | https://skiptdouglas.github.io/cctv-storage-calculator/ (redeploys on every push to `main`) |
 | Private copy in Claude | https://claude.ai/artifact/VjbDwATm8AhqxGgZhN5C8A (updated by republishing `dist/artifact.html`) |
-| SOP | `docs/SOP.md` (v1.6). A copy also lives on the `claude/surveillance-storage-calculator-sop-4cfuxe` branch of `skiptdouglas/lina` at `docs/sop/surveillance-storage-calculator.md` |
+| SOP | `docs/SOP.md` (v1.6). The old copy on the `lina` repo's `claude/surveillance-storage-calculator-sop-4cfuxe` branch was deleted on 2 October 2026 (last commit 85756e9). |
 | Change log | `CHANGELOG.md`; current version 0.11.0 |
 
 ## State of the project
@@ -51,8 +51,7 @@ for the smoke test.
 
 Conventions used so far: Conventional-Commit messages (`feat:`, `fix:`,
 `docs:`, `ci:`), bump `package.json` version and add a `CHANGELOG.md` entry
-per release, bump the SOP revision table when the method changes, and keep
-the `lina` copy of the SOP in sync if you keep that branch.
+per release, bump the SOP revision table when the method changes.
 
 ## Why the session moved to desktop
 
@@ -91,7 +90,6 @@ on techspecs), and thermal Milesight models (none found).
 
 - Check the generic planning numbers (bitrate table, PoE estimates,
   compression ratios) against the cameras actually installed.
-- Decide what to do with the `lina` branch (merge or delete).
 - Try "Save file" inside the Claude artifact viewer and "Print / Save as
   PDF" on the Pages site; both were implemented but could not be exercised
   from the cloud session.
