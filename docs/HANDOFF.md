@@ -11,7 +11,7 @@ project. It is for whoever continues the work on a desktop machine.
 | Hosted page | https://skiptdouglas.github.io/cctv-storage-calculator/ (redeploys on every push to `main`) |
 | Private copy in Claude | https://claude.ai/artifact/VjbDwATm8AhqxGgZhN5C8A (updated by republishing `dist/artifact.html`) |
 | SOP | `docs/SOP.md` (v1.6). The old copy on the `lina` repo's `claude/surveillance-storage-calculator-sop-4cfuxe` branch was deleted on 2 October 2026 (last commit 85756e9). |
-| Change log | `CHANGELOG.md`; current version 0.11.0 |
+| Change log | `CHANGELOG.md`; current version 0.12.0 |
 
 ## State of the project
 
@@ -45,8 +45,11 @@ for the smoke test.
 - `src/page.html` — the UI. `<!-- @fonts -->` and `<!-- @calc -->` are
   replaced at build time.
 - `src/fonts.css` — embedded fonts (regenerate with `npm run fonts`).
-- `scripts/build.js` — writes `dist/index.html` (standalone, with CSP) and
-  `dist/artifact.html` (body fragment for the Claude artifact).
+- `scripts/build.js` — writes `dist/index.html` (standalone, with CSP, search
+  metadata and structured data), `dist/artifact.html` (body fragment for the
+  Claude artifact), `dist/presets/<vendor>.html` spec pages generated from
+  `PRESETS`, and `dist/sitemap.xml`. Submit the sitemap in Google Search
+  Console once the site is verified there.
 - `test/calc.test.js`, `test/smoke.test.js` — engine and browser tests.
 
 Conventions used so far: Conventional-Commit messages (`feat:`, `fix:`,

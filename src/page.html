@@ -449,6 +449,15 @@
   }
   .toast { font-size: 12px; color: var(--ok); min-height: 18px; }
 
+  section.about {
+    margin-top: 32px;
+    max-width: 75ch;
+    font-size: 14px;
+  }
+  section.about h2 { font-size: 16px; margin: 0 0 8px; }
+  section.about h3 { font-size: 14px; margin: 16px 0 4px; }
+  section.about p, section.about ol { margin: 0 0 8px; }
+  section.about ol { padding-left: 1.3em; }
   footer.notes {
     margin-top: 28px;
     color: var(--muted);
@@ -495,10 +504,10 @@
   .report .sign { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; font-size: 13px; }
   .report .sign div { border-top: 1px solid var(--ink); padding-top: 6px; color: var(--muted); }
   .report .foot { margin-top: 24px; font-size: 11px; color: var(--muted); }
-  body.report-mode .layout, body.report-mode header.top, body.report-mode footer.notes { display: none; }
+  body.report-mode .layout, body.report-mode header.top, body.report-mode footer.notes, body.report-mode section.about { display: none; }
   @media print {
     body { background: #fff; color: #000; }
-    #reportView .report-bar, .layout, header.top, footer.notes { display: none !important; }
+    #reportView .report-bar, .layout, header.top, footer.notes, section.about { display: none !important; }
     .report { border: 0; padding: 0; color: #000; }
     .report h2 { break-after: avoid; }
     .report table, .report .kv { break-inside: auto; }
@@ -805,8 +814,22 @@
     <div class="report" id="reportBody"></div>
   </section>
 
+  <section class="about" aria-labelledby="about-h">
+    <h2 id="about-h">How the CCTV storage calculator works</h2>
+    <p>This free calculator sizes recording storage for IP camera and DVR systems: how many hard drives an NVR or VMS server needs, which RAID level, whether the recorder and switches can carry the traffic, and how much PoE each switch must supply. It follows a written method (SOP-VSS-001) and runs entirely in your browser.</p>
+    <ol>
+      <li><strong>Bitrate per camera.</strong> Start from a typical bitrate for the resolution and codec (H.264, H.265, smart codecs, AV1, MJPEG), then scale it for frame rate, scene activity, quality and night IR. Or enter the bitrate the camera actually reports.</li>
+      <li><strong>Storage per day.</strong> GB per day = Mbps × recording duty × 10.8, where duty is 1 for continuous recording and less for motion or scheduled recording.</li>
+      <li><strong>Retention and headroom.</strong> Multiply by the retention days, add file-system overhead and growth headroom, and split across recorders, cloud plans, SD cards or an archive tier.</li>
+      <li><strong>Disks and RAID.</strong> Turn usable terabytes into a disk count for RAID 5, 6, 10 or no RAID, with hot spares, and check the recorder's write throughput.</li>
+      <li><strong>Network and PoE.</strong> Check each switch uplink and PoE budget, and the bandwidth for live viewing and playback.</li>
+    </ol>
+    <h3>Camera presets from manufacturer datasheets</h3>
+    <p>Pick a camera model to fill in its resolution, frame rate, night IR and maximum PoE draw. Presets cover <!-- @vendors --> cameras, each taken from the maker's own published specs. <a href="https://skiptdouglas.github.io/cctv-storage-calculator/presets/">Browse all camera specs</a>.</p>
+  </section>
+
   <footer class="notes">
-    <div>Generic presets are vendor-neutral planning values. UniFi presets use Ubiquiti's published resolution, maximum frame rate, IR and maximum PoE draw, and assume Enhanced (H.265) encoding; UniFi Protect sets each camera's bitrate from its quality level, so for a final design read the bitrate from the camera's settings and enter it as Measured. A datasheet or a measured stream always beats a preset.</div>
+    <div>Generic presets are vendor-neutral planning values. Vendor presets use the manufacturer's published resolution, maximum frame rate, IR and maximum PoE draw, and assume plain H.265; the bitrate is still estimated. UniFi Protect sets each camera's bitrate from its quality level, so for a final design read the bitrate from the camera's settings and enter it as Measured. A datasheet or a measured stream always beats a preset.</div>
     <div>Cloud (VSaaS) groups are sized in GB for the plan and checked against the internet upload; SD-card groups are checked per camera against the card size. Neither uses the recorders. The archive tier sizes the recorders for the days kept on site and the archive for the rest.</div>
     <div>Raw-pixel method: width × height × color depth (16-bit below 4K, 30-bit at 4K and above) × fps ÷ the codec's compression ratio. It usually gives higher figures than typical bitrates, most of all at 4K. Use it to compare with tools that work this way; the SOP sizes with typical or measured bitrates.</div>
     <div>Estimates start from SOP Table 1 H.264 bitrates at 15 fps, medium motion and medium quality, then scale by codec (Smart H.264+ ×0.6, H.265 ×0.5, AV1 ×0.35, Smart H.265+ ×0.25, MJPEG ×5), frame rate, scene (×0.7 low, ×1.5 high), quality (×0.7 low, ×1.4 high) and night IR (+20%). Enter a measured bitrate to override the estimate for a group.</div>

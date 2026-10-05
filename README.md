@@ -73,7 +73,7 @@ Requires Node 18 or newer. There are no dependencies.
 
 ```bash
 npm test             # unit tests for the calculation engine (node:test)
-npm run build        # build dist/index.html and dist/artifact.html
+npm run build        # build dist/: index.html, artifact.html, presets/*.html, sitemap.xml
 npm run test:smoke   # browser smoke test; needs `npm i --no-save playwright`
 npm run serve        # build and serve dist/ on http://localhost:8080
 ```
@@ -82,7 +82,7 @@ npm run serve        # build and serve dist/ on http://localhost:8080
 | ----------------------- | --------------------------------------------------------------- |
 | `src/calc.js`           | Calculation engine. Pure functions, works in browser and Node.  |
 | `src/page.html`         | UI: markup, styles and app script. `<!-- @calc -->` marks where the engine is inlined. |
-| `scripts/build.js`      | Inlines the engine and fonts and writes the single-file builds. |
+| `scripts/build.js`      | Inlines the engine and fonts, writes the single-file builds, one static spec page per vendor (`dist/presets/`) and `dist/sitemap.xml`. Page title, description, Open Graph and structured data are set here. |
 | `scripts/fetch-fonts.js`| Re-downloads the fonts into `src/fonts.css` (needs network).    |
 | `src/fonts.css`         | Embedded fonts (SIL Open Font License).                         |
 | `test/calc.test.js`     | Engine tests, including the SOP worked example.                 |

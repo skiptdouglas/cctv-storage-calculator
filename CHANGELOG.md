@@ -3,6 +3,20 @@
 All notable changes to the calculator. The SOP it implements has its own
 revision history in [`docs/SOP.md`](docs/SOP.md).
 
+## 0.12.0 — 2026-10-05
+
+### Added
+- **Search visibility.** The page has a descriptive title, meta description,
+  canonical URL, Open Graph/Twitter tags and schema.org WebApplication data,
+  and a "How the CCTV storage calculator works" section with links to the
+  vendor pages.
+- **Vendor spec pages.** The build writes `presets/<vendor>.html` for each
+  camera vendor (resolution, frame rate, night IR, maximum PoE, notes) plus an
+  index page, all generated from `PRESETS`, and a `sitemap.xml`.
+
+### Changed
+- The preset note under the form covers all vendors, not just UniFi.
+
 ## 0.11.0 — 2026-10-01
 
 ### Added
